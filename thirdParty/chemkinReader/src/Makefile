@@ -1,0 +1,43 @@
+# LAMMPS multiple-machine Makefile
+
+SHELL = /bin/bash
+
+# Definitions
+ROOT =	chemkinreader
+EXE =	$(ROOT)_$@
+SRC =	$(wildcard *.cpp)
+INC =	$(wildcard *.h)
+OBJ = 	$(SRC:.cpp=.o)
+# Package variables
+# List of all targets
+
+help:
+	@echo ''
+	@echo '***CHEMKINREADER MAKE SYSTEM***'
+	@echo 'make clean-all           delete all object files'
+	@echo 'make makelib             create Makefile.lib for static library build'
+	@echo 'make makeshlib           create Makefile.shlib for shared library build'
+	@echo 'make -f Makefile.lib machine      build LAMMPS as static library for machine'
+	@echo 'make -f Makefile.shlib machine    build LAMMPS as shared library for machine'
+	@echo 'make machine             build CHEMKINREADER where machine is one of:'
+	@echo ''
+	@files="`ls MAKE/Makefile.*`"; \
+	  for file in $$files; do head -1 $$file; done
+	@echo ''
+
+# Build the code
+
+.DEFAULT:
+	@test -f MAKE/Makefile.$@
+	@if [ ! -d Obj_$@ ]; then mkdir Obj_$@; fi
+	@$(SHELL) Make.sh style
+#	@$(SHELL) Make.sh models
+	@cp MAKE/Makefile.$@ Obj_$@/Makefile
+	@cd Obj_$@; \
+	$(MAKE) $(MFLAGS) "OBJ = $(OBJ)" "INC = $(INC)" "SHFLAGS =" \
+	  "EXE = ../$(EXE)" ../$(EXE)
+
+# Remove all object files, static libraries, and libs of thirdparty
+clean-all:
+	rm -rf Obj_*  lib$(ROOT)*.a lib$(ROOT)*.so
+	make clean

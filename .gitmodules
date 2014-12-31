@@ -1,0 +1,6 @@
+[submodule "LIGGGHTS-PUBLIC"]
+	path = LIGGGHTS-PUBLIC
+	url = https://github.com/CFDEMproject/LIGGGHTS-PUBLIC
+[submodule "LIGGGHTS-PUBLIC-ParScale"]
+	path = LIGGGHTS-PUBLIC-ParScale
+	url = https://github.com/sradl1981/LIGGGHTS-PUBLIC-ParScale

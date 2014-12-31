@@ -1,0 +1,19 @@
+#!/bin/sh
+#ParScale test case 1: heat conduction in a sphere
+#copyright: IPPT, Graz University of Technology
+cd ${0%/*} || exit 1    # run from this directory
+rm SDS.h5
+rm erroMsg
+rm log.pascal
+rm octave-core
+rm *.eps
+rm *.dat
+rm numerical_solution_bc_convective
+rm -r 0.*
+rm -r 1*
+rm -r 2*
+rm -r 3*
+rm -r 4*
+rm -r 5*
+rm -r 6* 7* 8* 9*
+

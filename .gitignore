@@ -1,0 +1,14 @@
+.directory
+*.o
+*.so
+*.a
+*.d
+src/Obj_*/*
+src/log.pascal
+src/pasc_*
+*.lo
+*.la*
+*.so*
+libtool
+src/version.h
+thirdParty/sundials-2.5.0/config.log

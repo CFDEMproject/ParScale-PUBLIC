@@ -1,0 +1,19 @@
+#!/bin/sh
+
+#***************************************
+# Compiles PaScal standalone application
+#***************************************
+
+#clean and remove all copulings to 
+currDir=$PWD
+cd COUPLING_LIGGGHTS
+./Install.sh 0
+#./Install.sh 1
+cd $currDir
+
+make clean-all
+
+
+#Compile
+make thirdParty -j 4
+make fedora_fpic_noHDF5 -j 4

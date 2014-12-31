@@ -1,0 +1,27 @@
+{
+  "properties":
+  {
+    "verbose" : false,
+    "pullEvery":  2
+  },
+
+  "setBCs":
+  {
+      "setting1" :
+      {
+        "dataField":  "heat",
+        "type"     :  "applyToAllParticles",
+        "applyAt"  :  "fluid",
+        "times"    :  [0.0,  0.01, 0.03],
+	    "values"   :  [0.0,  5.0, 10]
+      },
+      "setting2" :
+      {
+        "dataField":  "species",
+        "type"     :  "applyToAllParticles",
+        "applyAt"  :  "fluid",
+        "times"    :  [0.0,  0.05],
+	    "values"   :  [0.0,  1.00]
+      }
+  }
+}

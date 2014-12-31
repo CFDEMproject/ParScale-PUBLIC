@@ -1,0 +1,27 @@
+particle_mesh nGridPoints 25
+
+
+particle_data number_particles 1 verbose 0
+coupling json myCoupling
+
+#Heat properties
+model propertiesThermo heatThermalConductivity_solid 
+model propertiesThermo heatCapacity_solid 
+model propertiesThermo heatDensity_solid 
+model propertiesThermo heatTransferCoeff
+
+
+#Species properties
+#model propertiesThermo speciesDiffusivity 
+#model propertiesThermo speciesDensity_solid 
+#model propertiesThermo speciesTransferCoeff 
+#model propertiesThermo speciesflux
+
+
+#Equations
+modelEqn 1DSpherical  heat     BC0 1  BC1 2
+#modelEqn 1DSpherical  species  BC0 1  BC1 2
+
+control outputTimeStep 0.01
+control timeStep 0.001
+control run 0.301

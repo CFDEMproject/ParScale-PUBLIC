@@ -1,0 +1,39 @@
+particle_mesh nGridPoints 9
+
+particle_data number_particles 2 verbose 1
+coupling none myCoupling
+
+#Heat properties
+model propertiesThermo heatThermalConductivity_solid 
+model propertiesThermo heatCapacity_solid 
+model propertiesThermo heatDensity_solid 
+model propertiesThermo heatTransferCoeff
+
+
+#Species properties
+#speciesA - Gas
+model propertiesThermo speciesADiffusivity 
+model propertiesThermo speciesADensity_solid 
+model propertiesThermo speciesATransferCoeff 
+model propertiesThermo speciesAflux
+
+#speciesB - Solid
+model propertiesThermo speciesSolidDiffusivity 
+model propertiesThermo speciesSolidDensity_solid 
+model propertiesThermo speciesSolidTransferCoeff 
+model propertiesThermo speciesSolidflux
+
+## Equations
+modelEqn 1DSpherical   heat         BC0 0  BC1 2
+modelEqn 1DSpherical   speciesA     BC0 0  BC1 2
+modelEqn 1DSpherical   speciesSolid BC0 0  BC1 2
+
+
+#model chemistry mychem heatrate 0.1 speciesRate 1e6 rateJac 0.0 maxSpecies 1 activationenergy 1e5
+#modelchemistry MultiReaction reaction
+modelchemistry SingleReaction myChem
+
+control outputTimeStep 1.
+control timeStep 0.0005
+control run 50.0101
+#control run 0.001

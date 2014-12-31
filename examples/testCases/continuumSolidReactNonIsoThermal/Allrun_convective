@@ -1,0 +1,13 @@
+#!/bin/sh
+##################################################################################################################
+#ParScale test case: Reaction inside a porous particle
+#copyright: IPPT, Graz University of Technology
+#BC: convective flux to the enviroment
+cd ${0%/*} || exit 1    # run from this directory
+
+##########################################################
+#Run ParScale and plot results
+ParScale < in.file_convective
+octave plotMe.m
+evince plot*.eps
+
