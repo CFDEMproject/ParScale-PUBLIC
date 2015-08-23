@@ -46,6 +46,7 @@ License
 #include "model_eqn.h"
 #include <map>
 #include <string>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace PASCAL_NS
 {
@@ -71,36 +72,38 @@ class ModelEqnContainer : public ParScaleBase, public ParScaleBaseInterface
       int nrOtherEqns()   const      {return modelOtherEqns_.size();};
       int nrEqns()        const      {return modelHeatEqns_.size() + modelSpeciesEqns_.size() + modelOtherEqns_.size();};
 
-      //Access model eqns
-      ModelEqn* modelHeatEqn(int i)    const {return modelHeatEqns_[i];};
-      ModelEqn* modelSpeciesEqn(int i) const {return modelSpeciesEqns_[i];};
-      ModelEqn* modelOtherEqn(int i)   const {return modelOtherEqns_[i];};
+      int lookupEqn(const char *name) const ;
 
-      ModelEqn* modelEqn(int i)   const //return global model Eqn
+      //Access model eqns
+      const ModelEqn* modelHeatEqn(int i)    const {return &modelHeatEqns_[i];};
+      const ModelEqn* modelSpeciesEqn(int i) const {return &modelSpeciesEqns_[i];};
+      const ModelEqn* modelOtherEqn(int i)   const {return &modelOtherEqns_[i];};
+
+      const ModelEqn* modelEqn(int i)   const //return global model Eqn
       { 
         if(i<nrHeatEqns())
-            return modelHeatEqns_[i];
+            return &modelHeatEqns_[i];
 
         else if(i < (nrHeatEqns()+nrSpeciesEqns()) )
-            return modelSpeciesEqns_[i-nrHeatEqns()];
+            return &modelSpeciesEqns_[i-nrHeatEqns()];
 
         else if(i < nrEqns() )
-            return modelOtherEqns_[i-nrHeatEqns()-nrSpeciesEqns()];
+            return &modelOtherEqns_[i-nrHeatEqns()-nrSpeciesEqns()];
 
         else
             return NULL;
       };
-      
+ 
     private:
 
       typedef ModelEqn *(*ModelEqnCreator)(ParScale*, char *name);
       std::map<std::string,ModelEqnCreator> *model_map_;
 
       template <typename T> static ModelEqn *model_creator(ParScale *ptr, char *name);
-
-      vector<ModelEqn*> modelHeatEqns_;
-      vector<ModelEqn*> modelSpeciesEqns_;
-      vector<ModelEqn*> modelOtherEqns_;
+    
+      boost::ptr_vector<ModelEqn> modelHeatEqns_;
+      boost::ptr_vector<ModelEqn> modelSpeciesEqns_;
+      boost::ptr_vector<ModelEqn> modelOtherEqns_;
 
 };
 

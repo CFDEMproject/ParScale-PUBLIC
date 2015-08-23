@@ -1,0 +1,9 @@
+{
+    "properties":
+    {
+      "model" :  "const",
+      "const_value" :  1.5e-6,
+      "comment":    "typical for water"
+    }
+	
+}

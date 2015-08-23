@@ -4,18 +4,23 @@
 # Compiles ParScale LIBRARY
 #***************************************
 
-#clean and remove all copulings to 
-currDir=$PWD
-cd COUPLING_LIGGGHTS
+#copy coupling files from package to LIGGGHTS/src
+cd $PASCAL_LIGGGHTS_SRC_DIR/PASCAL
+chmod 777 Install.sh
 ./Install.sh 0
 ./Install.sh 1
-cd $currDir
+
+#clean and remove all copulings to 
+cd $PASCAL_SRC_DIR/COUPLING_LIGGGHTS
+chmod 777 Install.sh
+./Install.sh 0
+./Install.sh 1
+cd $PASCAL_SRC_DIR
 
 make clean-all
 
 
 #Compile
 make thirdParty -j 4
-make -f Makefile.lib fedora_fpic -j 4
-cp *.h Obj_fedora_fpic
+make -f makelib
 make -f Makefile.lib fedora_fpic -j 4

@@ -9,13 +9,13 @@ Every ParScale case has well defined required input from the user and a basic st
 * `0/` folder for initial conditions
 * `settings/` folder for model properties for all models specified by the user
 
-If the user has set up the case and provide all the required input PartScale is executed with
+If the user has set up the case and provide all the required input ParScale is executed with
 
 ````
-    PartScale < in.file
+    ParScale < in.file
 ````  
 
-where `PartScale` is the application name.
+where `ParScale` is the application name.
 
 Read next
 -----------

@@ -66,7 +66,8 @@ class Output : public ParScaleBase, public ParScaleBaseInterface
 
       FILE *screen_;                  // screen output
       FILE *logfile_;                 // logfile
-      char *version_;                      // basic identifier of code version
+      FILE *codeInfo_;                // JSON-style file for tracking code info
+      char *version_;                 // basic identifier of code version
 
 };
 

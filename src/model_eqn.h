@@ -45,6 +45,10 @@ Description
 
 #ifndef PASC_MODEL_EQN_H
 #define PASC_MODEL_EQN_H
+#define VLARGENUMBER 1e64
+#define LARGENUMBER 1e32
+#define SMALLNUMBER 1e-32
+#define VSMALLNUMBER 1e-64
 
 #include "error.h"
 #include "memory_ns.h"
@@ -55,12 +59,16 @@ Description
 #include <sundials/sundials_direct.h>
 #include "coupling.h"
 #include "model_chemistry_container.h"
+#include "model_eqn_container.h"
+//#include "model_base.h"
 
 
 using namespace PASCAL_MEMORY_NS;
 
 namespace PASCAL_NS
 {
+
+#define INVERSE_UNIVERSAL_GAS_CONSTANT 0.0001202723625
 
 //numbering of boundary condition types
 enum{ NEUMANN,		//0
@@ -70,6 +78,8 @@ enum{ NEUMANN,		//0
 
 //numbering of modeling approaches, i.e., variable modelingApproach
 enum{CONTINUUM, SHRINKINGCORE};
+
+enum{SOLID, GAS, LIQUID, NONE};
 
 class ModelEqn : public ModelBase
 {
@@ -90,6 +100,12 @@ class ModelEqn : public ModelBase
       virtual void computeSurfaceFluxes() = 0;
 
       virtual void begin_of_step() {};
+      
+      virtual void pre_middle_of_step() {};
+      
+      virtual void post_middle_of_step() {};
+      
+      virtual void end_of_step();
 
       /*
          * Evaluate the right-hand-side function. Called by the integrator.
@@ -104,6 +120,8 @@ class ModelEqn : public ModelBase
                    DlsMat J, double* p,
                    double* tmp1data, double* tmp2data, double* tmp3data){};
 
+      virtual void  evaluatePhaseFlux()       const {};
+
       //Access functions
       Integrator&   integrator()    { return *integrator_; }
 
@@ -113,49 +131,91 @@ class ModelEqn : public ModelBase
       int           nGridPointsUsed()         const {   return nGridPointsUsed_; };
       int           modelingApproach;
 
+      int           return_myPhase()          const {    return inPhase_;         };
+      int           return_eqn_type()         const {    return eqnType_;         };
+
+      double        phaseFractionMinimum;   //smallest phase fraction to solve equation
+
+      double        phaseFractionMinimumConvection;   //smallest phase fraction to add convection term
+
+      double        convectionBoundMinStefanFactor;   //smallest factor to account for Stefan effect
+
+      bool          solveMe;                //main switch to solve equation
+
+      bool          updatePhaseFraction;    //switch to update the phase fraction of the phase the species is in, not the concentration
+                                            //this is useful for solvents
+
+      bool          averagePhaseFraction;   //average will be that of phase fraction (not that of species)
+
+      bool          solveConvectiveFlux;    //switch to activate convective flux calculation
+      
+      bool          writeDebugContainers;   //switch to activate dumping of secondary containers
+      
+      bool          normalizeDuringGrowth;  //switch to activate normalization of concentration during growth
+
      private:
-      Integrator     * integrator_;       //ptr - the (time) integrator that will be used to solve this equation
-      //ModelContainer * modelContainer_;   //ptr - container for physical/chemical 
+      Integrator     * integrator_;         //ptr - the (time) integrator that will be used to solve this equation
 
       //Initial & Boundary conditions
       double    ICvalue;            //IC value
       int       BC[2];              //BC type
       double    BCvalue[2];         //BC value
-      double    BCvalueExtra[2];    //BC extra value, e.g., for convective transfer coefficient
-      double    rMAX;								//radius of the current particle
-      double    alpha;								//heat transfer coefficient to environment TODO: should be a reference to the corresponding BC
-      double    environmentU;         				//enviroment temperature/concentration TODO: should be a reference to the corresponding BC
-      double    environmentFlux;                   //flux to environment TODO: should be a reference to the corresponding BC
-                                                //(i.e., heat/species flux across particle interface)
+      double    rMAX;                              //radius of the current particle
+      double    environmentU;         			   //enviroment temperature/concentration 
+      double    environmentFlux;                   //flux to environment, EXPLICIT or EXPLICIT+IMPLICIT 
+                                                   //flux is SURFACE-AREA SPECIFIC !!
+      double    environmentTransCoeff;             //transfer coefficient to environment, only for fixed calculation
+                                                      //(i.e., heat/species flux across particle interface)   
+      int       heatEqnID_;                         //ID refering to the heat equation
+      bool      IsoThermal_;                        //Determine whether species is isothermal or not
+      double    isoTemp_;                           //Temperature if species system is isothermal
 
       //Temporary array for intra-particle data 
       double *  tempIntraData_;
+      double *  tempPhaseDataGas_;
+      double *  tempPhaseDataLiquid_;
+
       double    tempAvData_;
       double    tempPartFlux_;
+      double    diffu_eff_;
 
-      int particleID;
+      double    surface_area;            //surface area of particle [m²]
+      double    segment_vol;             //volume of segment, depending on number of grid points and radius of particle [m³]
+
+      int       particleID;
+
+      bool      verbose_;
+
       //Pointers to key physical models
       ModelBase*    diffusivity;
-      ModelBase*    porosity;
+      ModelBase*    phaseFraction;
       ModelBase*    capacity_solid;
       ModelBase*    capacity_gas;
+      ModelBase*    capacity_liquid;
       ModelBase*	thermal_solid_conductivity; 
       ModelBase*	thermal_gas_conductivity;
+      ModelBase*	thermal_liquid_conductivity;
       ModelBase* 	transfer_coeff;
       ModelBase*	density_solid;
       ModelBase* 	density_gas;
-      ModelBase*	flux;
+      ModelBase* 	density_liquid;
 	  ModelBase*	global_properties;
       ModelBase*	tortuosity;
+      ModelBase*    pore_radius;
+      ModelBase*    molar_mass;
+      ModelBase*    permeability;
+      ModelBase*    viscosity;
+      ModelBase*    surface_tension;
+      ModelBase*    film_flow;
 
-      //TODO: Put variables relevant for all equations here
-      bool  eqnSolveThis_;     //switch to activate or deactive solution of this equation
-      int   eqnID_;            //id of the eqn
-      int   eqnType_;          //integer to identify if heat or species transport eqn is solved
+      mutable int   inPhase_;          //Species type - enum - 0-Solid, 1-Gas, 2-Fluid, 3-None
+      bool          eqnSolveThis_;     //switch to activate or deactive solution of this equation
+      int           eqnID_;            //id of the eqn
+      int           eqnType_;          //integer to identify if heat, species or other transport eqn is solved
       mutable int   particleDataID_;   //id of the object in the particleData class that saves the information
       mutable bool  haveParticleDataID;
       mutable int   nGridPointsUsed_;   //number of grid points used to define state of the model
-
+      
 };
 
 } //end PASCAL_NS

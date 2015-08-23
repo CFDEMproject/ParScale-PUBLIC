@@ -48,6 +48,8 @@ License
 #include <vector>
 #include <map>
 
+//#define VERBOSE //developer to activate this if needed
+
 using namespace std;
 
 namespace PASCAL_NS
@@ -75,6 +77,10 @@ class ParScaleBaseInterfaceVector
 
         // order of execution defined in pascal.cpp Constructor
 
+        
+#ifdef VERBOSE 
+        printf("**allocating ... \n");
+#endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->allocate();
 
@@ -82,30 +88,49 @@ class ParScaleBaseInterfaceVector
         // or from JSON files; performed on proc 0
         // coupling_.read() is executed before particleData_.read()
         // see constructor of ParScale class in pascal.cpp
+#ifdef VERBOSE
+        printf("**reading ... \n");
+#endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->read();
 
         // restart data from previous run if applicable
         // performed on proc 0
+#ifdef VERBOSE 
+        printf("**getting restart data ... \n");
+#endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->restart();
 
         // bcast all properties/settings so all MPI procs have it
+#ifdef VERBOSE 
+        printf("**bcasting ... \n");
+#endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->bcast();
 
         // parallellize - each proc just keeps data he needs
+#ifdef VERBOSE 
+        printf("**parallelizing ... \n");
+#endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->parallelize();
 
         // do model/class specific init after everything is bcasted
+#ifdef VERBOSE 
+        printf("**initializing ... \n");
+#endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->init();
+            
+#ifdef VERBOSE 
+        printf("** done! \n");
+#endif
     }
 
     void parse_command(string map_string,int narg,char const* const* arg) const
     {
-        printf("narg %d, arg[0] %s\n",narg,arg[0]);
+//        printf("narg %d, arg[0] %s\n",narg,arg[0]);
         if(narg < 1)
             error_->throw_error_all(FLERR,"Not enough arguments for :",map_string.c_str());
 

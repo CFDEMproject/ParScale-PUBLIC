@@ -1,7 +1,7 @@
 Equation Properties
 ======================
 
-Depending on the `<ModelEqnType>` model properties have to be defined and named with respect to the `<ModelEqnName>`. IN addition to that 
+Depending on the `<ModelEqnType>` model properties have to be defined and named with respect to the `<ModelEqnName>`. Just see the verification/test cases or let `ParScale` guide you through the required input.  
 
 
 Syntax

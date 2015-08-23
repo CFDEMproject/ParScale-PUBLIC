@@ -1,0 +1,13 @@
+{
+      "A" :
+      {
+        "molarMass": 1,
+	    "H_i"      : 1
+
+      },
+      "Solid" :
+      {
+        "molarMass": 1,
+        "H_i"      : 1.0
+      }
+}

@@ -127,7 +127,7 @@ namespace PASCAL_NS
         void rotate(double *dQ);
         void scale(double factor);
 
-        void sortPropsByExtMap(int *_id,int _len_id,int *_map,int _len_map);
+        void sortPropsByExtMap(int *_id, int _nlocal, int &_len_id,int *_map,int _len_map, bool verbose, int me);
 
         // buffer operations
 

@@ -45,5 +45,6 @@ Related
  - [15_Chemistry.md](15_Chemistry.md)
  - [14_ModelEquation.md](14_ModelEquation.md)
  - [16_EquationProperties.md](16_EquationProperties.md)
-
+ - [20_settingsFolder_1_integrator.md](20_settingsFolder_1_integrator.md)
+ - [20_settingsFolder_2_parscale.md](20_settingsFolder_2_parscale.md)
 

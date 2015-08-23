@@ -126,6 +126,8 @@ using namespace PASCAL_NS;
               else if (strcmp(_coupling,"coupling_push") == 0) couplingType_ = COUPLING_TYPE_PUSH;
               else if (strcmp(_coupling,"coupling_pull_push") == 0) couplingType_ = COUPLING_TYPE_PULL_PUSH;
               else if (strcmp(_coupling,"coupling_push_min_max") == 0) couplingType_ = COUPLING_TYPE_PUSH_MIN_MAX;
+              else if (strcmp(_coupling,"coupling_push_min_max_pull_reset") == 0) couplingType_ = COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET;
+              else if (strcmp(_coupling,"coupling_none") == 0) couplingType_ = COUPLING_TYPE_NONE;
               else {printf("WARNING: you are using an undefined coupling type \n"); couplingType_ = COUPLING_TYPE_UNDEFINED;}
 
               if      (strcmp(_do_read,"read_yes") == 0) do_read_ = true;
@@ -140,6 +142,7 @@ using namespace PASCAL_NS;
               else if (strcmp(_element_property,"global_property") == 0)  element_property_ = false;
               else err_ = true;
 
+              if(scope_) delete []scope_;
               if(_scope)
               {
                 // filename might be name of the model
@@ -165,6 +168,7 @@ using namespace PASCAL_NS;
     ParticleDataContainerProperties::~ParticleDataContainerProperties()
     {
         delete [] scope_;
+        delete [] id_;
     }
 
 

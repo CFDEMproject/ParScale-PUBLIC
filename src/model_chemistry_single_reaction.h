@@ -68,7 +68,8 @@ class ModelChemistrySingleReaction : public ModelChemistry
 {
     public:
 
-      ModelChemistrySingleReaction(ParScale *ptr, char *name);
+     ModelChemistrySingleReaction(ParScale *ptr, char *name);
+     ~ModelChemistrySingleReaction();
 
      void begin_of_step();
      void init(int narg, char const* const* arg, int eqnType, int modelChemistryID);
@@ -89,12 +90,19 @@ class ModelChemistrySingleReaction : public ModelChemistry
     vector<std::string>   species_names_;             //name of all species in the reaction
     vector<double>        species_stoich_;            //stoichometry of all species in the reaction
     vector<double>        species_order_;             //reaction order of each species
+    vector<double>        species_concentrations_;    //species concentrations for current grid point
 
+    double cMinimum_;                           //minimum concentration for 0-order reaction below which reaction rate will be linear
     double arrhenius_A_;                        //pre-exponential factor
     double arrhenius_beta_;                     //exponential feactor 
     double arrhenius_E_A_;                      //activation energy 
+    
+    double growthMolesFormed_;                  //to indicate amount of moles that are formed/consumed by the reaction
+    double growthProductMolarWeight_;           //molar weight [kg/kMol] of product formed/consumed for growth
+    double growthProductDensity_;               //density [kg/m³] of product formed/consumed for growth
 
 
+    
     //needed for calculating of chemical source term
     double         deltaH_r;                    //heat of reaction
     vector<int>    original_IDs_reactant_;      //orginal ids of the reactants in the particle mem
@@ -103,7 +111,7 @@ class ModelChemistrySingleReaction : public ModelChemistry
     vector<double> molar_mass_;                 //molar mass of species
 
     QJsonObject     global_properties_;
-};
+    };
 
 } //end PASCAL_NS
 

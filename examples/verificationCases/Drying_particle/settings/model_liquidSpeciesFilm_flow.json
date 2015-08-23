@@ -1,0 +1,10 @@
+{
+    "properties":
+	{
+      "model" :  "const",
+	  "const_value" :  -1,
+      "parameters": [ 0.1, 0.5 ],
+      "comment":    "parameters are for saturation, NOT for phi_liq as in Liu et al., IECR 49:2649"
+    }
+	
+}

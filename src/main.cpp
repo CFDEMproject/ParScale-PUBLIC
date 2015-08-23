@@ -46,6 +46,7 @@ using namespace PASCAL_NS;
    main program to drive ParScale
 ------------------------------------------------------------------------- */
 
+
 int main(int argc, char **argv)
 {
   MPI_Init(&argc,&argv);
@@ -53,7 +54,7 @@ int main(int argc, char **argv)
   ParScale *pascal = new ParScale(argc,argv,MPI_COMM_WORLD, NULL);
   pascal->input();
     
-  delete pascal;
+  //delete pascal;
 
   MPI_Finalize();
 }

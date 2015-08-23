@@ -1,0 +1,50 @@
+#!/bin/sh
+##################################################################################################################
+#ParScale test case heterogenous reaction: heat conduction in a sphere
+#copyright: Thomas Forgber / Stefan Radl,
+#IPPT, Graz University of Technology
+
+cd ${0%/*} || exit 1    # run from this directory
+
+###########################################
+# USER INPUT
+###########################################
+initialGasConc=2.12e-3 #USER_INPUT!
+initialSolidConc=14.1  #USER_INPUT!
+
+###########################################
+# PHASE 1 - Steady State no Solid Consumption (OPTIONAL)
+###########################################
+#Run ParScale for steady state solution of fluid profile
+#Will not consume solid species here!
+#./Allclean
+#cp 0/speciesA_zero.json 0/speciesA.json
+#cp settings/chemistry_single_reaction_noSolidConsumption.json settings/chemistry_single_reaction.json
+#ParScale < in.parscale
+#cp  1.000200/speciesA.json steady_state_profile_fluid/speciesA.json
+###########################################
+
+
+###########################################
+# PHASE 2 - Reaction with Solid Consumption 
+###########################################
+./Allclean
+cp 0/speciesA_zero.json 0/speciesA.json
+sed -i "s/99/$initialGasConc/g" 0/speciesA.json
+cp 0/speciesSolid_zero.json 0/speciesSolid.json
+sed -i "s/99/$initialSolidConc/g" 0/speciesSolid.json
+#cp steady_state_profile_fluid/speciesA.json 0/
+cp settings/chemistry_single_reaction_withSolidConsumption.json settings/chemistry_single_reaction.json
+ParScale < in.parscale
+
+#run post processing script for plot
+###########################################
+currDir=$PWD
+cd octave 
+octave < plotMe_Stage1.m
+octave < plotMe_Stage2.m
+octave < plotMe_conversionVsTime.m
+
+#okular *.png &
+cd $currDir
+

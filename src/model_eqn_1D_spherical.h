@@ -63,11 +63,12 @@ class ModelEqn1DSpherical : public ModelEqn
     public:
 
       ModelEqn1DSpherical(ParScale *ptr, char *name);
+      ~ModelEqn1DSpherical();
 
       void init(int narg, char const* const* arg, int eqnType, int modelEqnID);
 
       virtual void begin_of_step();
-
+      
       virtual void eval(double t, double* udata, double* dudata, double* p);
 
       virtual void returnJac(long int N, long int mu, long int ml,
@@ -79,16 +80,23 @@ class ModelEqn1DSpherical : public ModelEqn
       void computeParticleAverages();
       void computeSurfaceFluxes();
 
-		//TODO: set coeff correct related to spherical
+      void  evaluatePhaseFlux() const
+        {
+            if(inPhase_==GAS)
+                (this->*phaseFluxGas)();
+            else if(inPhase_==LIQUID)
+                (this->*phaseFluxLiquid)();
+        }
+
+	    //TODO: set coeff correct related to spherical
         double dx;									//dx: distance between grid points
 		double coeff_2nd_dev, coeff_1st_dev;		//coefficients of first end second derivatives
-        double x_coeff_1st_dev;						//actual radial position depending on h,MX
+        double currentRadius;						//actual radial position depending on h,MX
         int h; 						                //index of spatial position 1 ... MX
         int j; 						                //Jacobian matrix index 0...MX-1
         realtype *col_j;							//jth collum of jacobian matrix
 
         double biot_num;    						//Biot Number
-        double diffu_eff_;                          //effective diffusivity
 
         double lambda_solid;                        //thermoconductivity solid,gas,effective
         double lambda_gas;
@@ -104,9 +112,29 @@ class ModelEqn1DSpherical : public ModelEqn
 
         double tortuosity_;                         //Tortousity 
         double diffusivity_;                        //Binary Diffusivity
+        double pore_radius_;                        //constant pore radius seen by species
+        double molar_mass_;                         //constant molar_mass of spieces
+        double porosity_;
+
+        double * tempDiff_eff_;
+        double * tempConvectionSpeed_eff_;          //for species: convective flux / total concentration / eps_phase
+                                                    //for heat: Sum(heatCapacity*flux) / (effective density * effective heat capacity)
+        double * tempTempData_;
+        double * tempPhaseFractGas_;
+        double * tempPhaseFractLiq_;
+        double * tempPhaseFractSolid_;
+
     private:
         bool debug_;
         bool boundZero_; //TODO: read from json in order to swith on/off bounding
+
+        //Ptrs to top-level phase flux model for gas and liquid phase
+        void (ModelEqn1DSpherical::*phaseFluxGas)() const;
+        void (ModelEqn1DSpherical::*phaseFluxLiquid)() const;
+
+        //Individual phase flux models
+        void  phaseFluxIntegrate() const;
+        void  phaseFluxCapillarity() const;
 
 };
 

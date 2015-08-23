@@ -5,10 +5,14 @@ SHELL = /bin/sh
 # ---------------------------------------------------------------------
 # compiler/linker settings
 # specify flags and libraries needed for your compiler
+GIT_REMOTE := $(shell git remote -v | sed -n '/fetch/p' | cut -d ' ' -f1 | cut -f2)
+GIT_BRANCH := $(shell git symbolic-ref --short HEAD)
+GIT_VERSION := $(shell git describe --abbrev=8 --dirty --always --tags)
 
 CC =		mpic++
 CCFLAGS =	-O2 \
-		-funroll-loops -fstrict-aliasing -Wall -W -Wno-uninitialized -g
+		-funroll-loops -fstrict-aliasing -Wall -W -Wno-uninitialized -g \
+        -DGITREMOTE=\"$(GIT_REMOTE)\" -DGITBRANCH=\"$(GIT_BRANCH)\" -DGITCOMMIT=\"$(GIT_VERSION)\" 
 SHFLAGS =	-fPIC
 DEPFLAGS =	-M
 

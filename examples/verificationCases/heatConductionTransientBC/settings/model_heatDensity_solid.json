@@ -2,6 +2,6 @@
     "properties": 
 	{
         "model": "const",
-        "const_value": 1000
+        "const_value": 1000.0
     }
 }

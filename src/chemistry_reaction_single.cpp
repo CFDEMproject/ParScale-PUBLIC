@@ -48,13 +48,14 @@ using namespace PASCAL_NS;
 ChemistryReactionSingle::ChemistryReactionSingle(ParScale *ptr) 
  : 
    ParScaleBaseAccessible(ptr),
+   cMinimum_(MINIMUM_CONCENTRATION),
    arrhenius_A_i_(-1.),
    arrhenius_beta_i_(-1.),
    arrhenius_E_i_(-1.),
    reversible_(0),
    pressure_dependend_(0),
    temperature_dependend_(1),
-   P_atm_(1.013),
+   P_atm_(1.013e5),
    K_c_i_(particleMesh().nGridPoints()),
    k_r_i_(particleMesh().nGridPoints()),
    k_f_i_(particleMesh().nGridPoints()),
@@ -250,23 +251,21 @@ void ChemistryReactionSingle::calculate_K_P_i(int grid_point_)
         printf("K_p_i_element = %g \n",K_p_i_element);
 }
 
-
 // ----------------------------------------------------------------------
-void ChemistryReactionSingle::calculate_k_f_i(int grid_point_)
+void ChemistryReactionSingle::calculate_k_f_i(int _grid_point)
 {
-    double k_f_i_element;
-
     //Arrhenius
     if(verbose_)
         printf("Grid point = %i, Acctual temp = %g, arrhenius_A_i = %g, arrhenius_beta_i_ = %g, -arrhenius_E_i_ = %g \n",
-               grid_point_,actual_temp_[grid_point_],arrhenius_A_i_,arrhenius_beta_i_,arrhenius_E_i_ );
+               _grid_point,actual_temp_[_grid_point],arrhenius_A_i_,arrhenius_beta_i_,arrhenius_E_i_ );
 
-    k_f_i_[grid_point_] =  arrheniusRate(actual_temp_[grid_point_]);
+    k_f_i_[_grid_point] =  arrheniusRate(actual_temp_[_grid_point]);
 
     if (verbose_)
-        printf("k_f_i_element = %g \n", k_f_i_[grid_point_]);
+        printf("k_f_i_element = %g \n", k_f_i_[_grid_point]);
 
 }
+
 
 // ----------------------------------------------------------------------
 void ChemistryReactionSingle::calculate_k_r_i(int grid_point_)
@@ -290,7 +289,6 @@ void ChemistryReactionSingle::calculate_q_i(int grid_point_,int particleID_)
     double species_value_     = 0.0;
     double pi_value_reactant_ = 1.0;
     double pi_value_product_  = 1.0;
-    double pow_value_         = 1.0;
     double exponent           = 0.0;
     vector<double>* exponentsReactant;
     vector<double>* exponentsProduct;
@@ -315,15 +313,16 @@ void ChemistryReactionSingle::calculate_q_i(int grid_point_,int particleID_)
             particleData().returnDataPoint(species_value_,grid_point_);
 
             exponent            = (*exponentsReactant)[i_reactant];
-            pi_value_reactant_ *= MathExtraPascal::fastPow(species_value_,exponent);
-            if(exponent==0 && species_value_<=0) //if reactant species is fully depleted, reaction stops
-            {
+            //compute product, however,
+            //if reactant species is fully depleted and exponent is 0,
+            // reaction must be forced to stop
+            if( exponent==0 && species_value_< MINIMUM_CONCENTRATION ) 
                 pi_value_reactant_ = 0.0;
-                particleData().setDataPoint(0.0,grid_point_);
-            }
+            else
+                pi_value_reactant_ *= MathExtraPascal::fastPow(species_value_,exponent);
 
             if (verbose_)
-              printf("species_value_ = %g, pi_value_reactant_ =  %g, species_stoich_reactant_[%lu] = %g \n",
+              printf("species_value_ = %g, pi_value_reactant_ =  %g, species_stoich_reactant_[%u] = %g \n",
                     species_value_, pi_value_reactant_,
                     i_reactant,(*exponentsReactant)[i_reactant]
                     );
@@ -352,6 +351,31 @@ void ChemistryReactionSingle::calculate_q_i(int grid_point_,int particleID_)
     if (verbose_)
         printf("q_i_element [%i] = %g \n",grid_point_,q_i_element);
     
+}
+
+// ----------------------------------------------------------------------
+double ChemistryReactionSingle::integrateVolume_q_i(int particleID, double &particleVolume)
+{
+    //Integrate the volumetric reaction rate using spherical shells
+    //centered around each grid point
+    particleVolume = 0.0;
+    double integral = 0.0;
+    double ra(0.0), ri(0.0);
+    double volume(0.0), deltaVolume(0.0);
+    double dx = particleData().pRadius(particleID)/((particleMesh().nGridPoints())-1.0);
+    for(int i=0; i<particleMesh().nGridPoints(); i++)
+    {
+        ra  = (double)i + 0.5; ra = min(ra,(double)(particleMesh().nGridPoints()-1));
+        ra *= dx;
+        ri  = (double)i - 0.5; ri = max(ri,0.0);
+        ri *= dx;
+        
+        deltaVolume  = (ra*ra*ra-ri*ri*ri)*4.188790205; //4.188790205=4/3*pi
+        particleVolume += deltaVolume;
+        integral       += deltaVolume*q_dot_i_[i];
+    } 
+    
+    return integral;
 }
 
 // ----------------------------------------------------------------------

@@ -50,7 +50,8 @@ using namespace PASCAL_NS;
 
 Output::Output(ParScale *ptr) : ParScaleBase(ptr),
     screen_(0),
-    logfile_(0)
+    logfile_(0),
+    codeInfo_(0)
 {
 
     version_ = new char[strlen(PASCAL_VERSION)+100];
@@ -66,7 +67,23 @@ Output::Output(ParScale *ptr) : ParScaleBase(ptr),
     if (0 == logfile_)
         write_screen_one("Cannot open logfile");
     else
+    {
         fprintf(logfile_,"ParScale (%s)\n",version_);
+    }
+    
+    codeInfo_ = fopen("codeInfo.pascal","w");
+    if (0 == codeInfo_)
+        write_screen_one("Cannot open codeInfo file");
+    else
+    {
+        fprintf(codeInfo_,"{\n");
+        fprintf(codeInfo_,"   \"version\"   : \"%s\", \n", version_);
+        fprintf(codeInfo_,"   \"git_remote\": \"%s\", \n", GITREMOTE); 
+        fprintf(codeInfo_,"   \"git_branch\": \"%s\", \n", GITBRANCH);
+        fprintf(codeInfo_,"   \"git_commit\": \"%s\"  \n", GITCOMMIT);
+        fprintf(codeInfo_,"}\n");
+        fclose(codeInfo_); codeInfo_ = 0;
+    }
 }
 
 Output::~Output()
@@ -76,6 +93,9 @@ Output::~Output()
     screen_ = 0;
     if (logfile_) fclose(logfile_);
     logfile_ = 0;
+
+    delete [] version_;
+   
 }
 
 /* ----------------------------------------------------------------------

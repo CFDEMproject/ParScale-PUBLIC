@@ -39,7 +39,7 @@ License
 /*-----------------------------------------------------------------------------------
 Description
 	This class is the base class for all properties models (e.g., for heat conductivity,
-	diffusion coefficients, particle properties like porosity, or exchange properties
+	diffusion coefficients, particle properties like phaseFraction, or exchange properties
 	like heat transfer coefficients).
 -----------------------------------------------------------------------------------*/
 
@@ -63,14 +63,16 @@ class ModelProperties : public ModelBase
       ModelProperties(ParScale *ptr, const char *name);
 	  
       //Access functions
-      double value(){return value_;};
+      double          value(){return value_;};
+      vector<double>  parameters() { return parameters_; };
 
       virtual void init(int narg, char const* const* arg);
 	  
     private:
       
       //value in case the property is a constant
-      double value_;
+      double          value_;
+      vector<double>  parameters_;
 	  vector<ModelBase*> models_;
 	
 };	

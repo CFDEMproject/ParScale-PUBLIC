@@ -1,0 +1,10 @@
+{
+    "properties":
+    {
+      "model" :  "const",
+      "const_value" : 0,
+      "parameters": [ -1.36e5, -0.63, 1e-5 ],
+      "comment":    "0.072: typical for water; parameter from Liu et al., IECR 49:2649. Parameter[2] is the minimum liquid volume fraction for capillary pressure calculation"
+    }
+	
+}

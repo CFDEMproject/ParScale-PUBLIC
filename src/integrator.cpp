@@ -39,20 +39,30 @@ License
 
 
 #include "integrator.h"
+#include "model_eqn.h"
 
 using namespace PASCAL_NS;
 
 /* ----------------------------------------------------------------------
    ModelBase Constructor
 ------------------------------------------------------------------------- */
-
 Integrator::Integrator(ParScale *ptr) : ParScaleBaseAccessible(ptr),
 particleID(-1)
 {
                
 }
 
+//*************************************************************
 Integrator::~Integrator()
 {
 
 }
+
+//*************************************************************
+void Integrator::init(double t0, ModelEqn& m_eqn)
+{
+   parameters_ = m_eqn.readQJsonObject("integrator", "parameters");
+   integrator_ = m_eqn.readQJsonObject("integrator", "integrator");
+
+}
+

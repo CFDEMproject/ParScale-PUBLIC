@@ -1,0 +1,24 @@
+particle_mesh nGridPoints   18
+
+particle_data number_particles 1
+coupling none myCoupling
+
+#Fluid species
+model propertiesThermo speciesADiffusivity 
+model propertiesThermo speciesATransferCoeff 
+model propertiesThermo speciesAPhaseFraction
+model propertiesThermo speciesATortuosity
+
+#Solid species 
+model propertiesThermo speciesSolidDiffusivity 
+model propertiesThermo speciesSolidTransferCoeff 
+
+#Transport Equations to solve - WARNING: order must match with chemical species!
+modelEqn 1DSpherical   speciesA     gas   BC0 1  BC1 2  writeDebugContainers #verbose #solveConvectiveFlux
+modelEqn 1DSpherical   speciesSolid solid BC0 1  BC1 2  #verbose
+
+modelchemistry SingleReaction myChem
+
+control outputTimeStep  0.5
+control timeStep        1.0e-4   
+control run             6.0000

@@ -25,8 +25,8 @@ Example lines from `0/radius.json`
         "name": "radius",
         "data" :
         {
-            "0": [ 3.0e-1],
-            "1": [ 6.0e-1]
+            "1": [ 3.0e-1],
+            "2": [ 6.0e-1]
         }
     }
 ```` 
@@ -47,8 +47,8 @@ Syntax
     "name": "`<ModelEqnName>`",
     "data" :
     {
-        "0": [ [number], [number], [number], [number], [number], [number],[BCvalue]],
-        "1": [ [number], [number], [number], [number], [number], [number],[BCvalue]]
+        "1": [ [number], [number], [number], [number], [number], [number],[BCvalue]],
+        "2": [ [number], [number], [number], [number], [number], [number],[BCvalue]]
     }
 }
 ````
@@ -61,8 +61,8 @@ Example lines from e.g. `0/heat.json`
     "name": "heat",
     "data" :
     {
-        "0": [ 313.15, 313.15, 313.15, 313.15, 313.15, 313.15, 500],
-        "1": [ 513.15, 513.15, 513.15, 513.15, 513.15, 513.15, 600]
+        "1": [ 313.15, 313.15, 313.15, 313.15, 313.15, 313.15, 500],
+        "2": [ 513.15, 513.15, 513.15, 513.15, 513.15, 513.15, 600]
     }
 }
 ````
@@ -78,11 +78,12 @@ Example lines from e.g. `0/heat.json`
     
 Read next
 -----------
- - 
+ - [40_testHarnessConfigFiles.md](40_testHarnessConfigFiles.md)
 
 Related
 ----------
  - [11_Mesh.md](11_Mesh.md)
  - [13_CouplingModel_JSON.md](13_CouplingModel_JSON.md)
  - [16_EquationProperties.md](16_EquationProperties.md)
+ - [30_0folder_1_PhaseFraction.md](30_0folder_1_PhaseFraction.md)
 

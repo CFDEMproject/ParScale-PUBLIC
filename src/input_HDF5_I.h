@@ -39,14 +39,13 @@ License
 int Input::write_containersHDF5(ContainerBase &container) const
 {
 
-    if(!container.prop().needsOutput())
-        return 0;
-
     if(!writeHDF5_)
         return 0;
 
-    output().write_screen_one("Input::write_containersHDF5 is writing...");
-    output().write_screen_one("Warning: id of HDF5 data is the LOCAL id (not global!)");
+    if(!container.prop().needsOutput())
+        return 0;
+
+//    output().write_screen_one("Input::write_containersHDF5 is writing...");
 
     const char *id = container.prop().id();
     const char *scope = container.prop().scope();
@@ -65,17 +64,35 @@ int Input::write_containersHDF5(ContainerBase &container) const
                 runDirectory_,
                 control().simulationState().time()
                );
-        mkdir(filepath, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH);        
+      
         sprintf(filepath,"./%s/%.6f/HDF5",
                 runDirectory_,
                 control().simulationState().time()
                );
-        sprintf(hd5file,"./%s/%.6f/HDF5/%s.h5",
-                runDirectory_,
-                control().simulationState().time(), 
-                scope
-               );
-        mkdir(filepath, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH);
+
+        if( comm().is_proc_0() )
+        {
+            mkdir(filepath, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH);  
+            mkdir(filepath, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH);
+            sprintf(hd5file,"./%s/%.6f/HDF5/%s.h5",
+                    runDirectory_,
+                    control().simulationState().time(), 
+                    scope
+                   );
+        }
+        
+        comm().wait();
+
+        //Skip this process in case it is empty
+        if(container.size()==0)
+            return 0;
+
+        if( !comm().is_proc_0() )
+            sprintf(hd5file,"./%s/%.6f/HDF5/%s.%d.h5",
+                    runDirectory_,
+                    control().simulationState().time(), 
+                    scope, comm().me()
+                   );
 
         H5std_string	FILE_NAME( hd5file );
         H5std_string	DATASET_NAME( scope );
@@ -129,21 +146,28 @@ int Input::write_containersHDF5(ContainerBase &container) const
           //dimsf[1] = NY;                        // length of container e.g. number of grid points
           DataSpace dataspace( RANK, dimsf);   // make space
 
-          IntType datatype( PredType::NATIVE_DOUBLE );         //Define datatype for the data
-          datatype.setOrder( H5T_ORDER_LE );
-
-          DataSet* dataset = new DataSet(file->createDataSet( DATASET_NAME, datatype, dataspace )); //Create a new dataset within the file using defined dataspace
-
 
           if(container.isDoubleData())
+          {
+              IntType datatype( PredType::NATIVE_DOUBLE );         //Define datatype for the data
+              datatype.setOrder( H5T_ORDER_LE );
+              DataSet* dataset = new DataSet(file->createDataSet( DATASET_NAME, datatype, dataspace )); //Create a new dataset within the file using 
               dataset->write( H5data, PredType::NATIVE_DOUBLE ); //Write the data to the dataset using default memory space, file
+              delete dataset;
+          }
           else if(container.isIntData())
+          {
+              IntType datatype( PredType::NATIVE_INT );         //Define datatype for the data
+              datatype.setOrder( H5T_ORDER_LE );
+              DataSet* dataset = new DataSet(file->createDataSet( DATASET_NAME, datatype, dataspace )); //Create a new dataset within the file using 
               dataset->write( H5dataInt, PredType::NATIVE_INT ); //Write the data to the dataset using
-           else
+              delete dataset;
+          }
+          else
               error().throw_error_one(FLERR,"Data format of container unknown.\n");
                         
           //printf("Wrote HDF5 Data for scope %s! \n",scope);
-          delete dataset;
+
 	      delete file;               
        }  // end of try block
 

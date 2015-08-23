@@ -5,9 +5,26 @@ A Compilation of Particle Scale Models.
 ParScale is part of the [NanoSim Project](http://sintef.no/NanoSim)
 
 
+Graz University of Technology and DCS Computing GmbH releases ParScale 1.1.1 beta
+------------------
+24th of August 2014
+
+###Features
+Version 1.1.1-beta is a major upgrade of the ParScale library with extended features to study intra-particle transport phenomena including phase change phenomena (e.g., evaporation of water inside the pores of the particles). Specifically, the following features are new, or have been significantly improved in the latest version of ParScale:
+
+- restructuring of code and documentation that was required for extended ParScale to handle multiple phases
+- handling of up to three phases (i.e., solid, liquid, gas), including phase change phenomena. Two phase change models have been added (i.e., "evaporation", as well as "equilibrium sharp"). The volumetric phase change rate can be accounted for in the species transport equations.
+- model equations can be used to not only compute concentration profiles, but also update the local phase fraction (e.g., to study the evolution of the local liquid saturation in a porous particle)
+- output per model eqn. is now more flexible (it is possible to request more detailed output if required)
+- the CVODE integrator can be fully parameterized at runtime (see the settings/integrator.json file)
+- the convective flux (caused by phase change phenomena and consumption due to chemical reactions) can now be taken into account in the species transport equation.
+- Knudsen diffusion effects have been added 
+- new verification cases have been added
+- a number of bugs has been fixed
+
 Graz University of Technology and DCS Computing GmbH release ParScale
 ------------------
-31st of Decemmber 2014
+31st of December 2014
 
 The Graz University of Technology (TU Graz) together with DCS Computing GmbH (DCS) are please to announced the release of the `1.0.1-beta` version of the tool `ParScale`. This version is distributed is licensed under the [Lesser General Public License](http://www.gnu.org/licenses/lgpl.html) by TU Graz and DCS.
 
@@ -20,7 +37,7 @@ Version 1.0.1-beta is the first public release of the ParScale library and is me
 - consider various "grain-scale models" to picture the formation of a product layer on solids present in the porous of a particle.
 - couple with a JSON file (i.e., read data from a JSON file to simulate transient boundary conditions or model parameters), as well as a LIGGGHTS simulation.
 
-Test and verification cases, as well as documentation is supplied with ParScale. More test cases will be added step-by-step during the next years.
+A number of test and verification cases, as well as documentation is supplied with ParScale
 
 Note that ParScale is still under active development, and the success of ParScale relies to a large extend on contributions from users. Specifically, we plan to release
 
@@ -35,5 +52,3 @@ The developers of ParScale are thankful for any comments, ideas, or contribution
 
 ###Acknowledgement
 Parts of the code were developed in the frame of the [NanoSim project](http://www.sintef.no/Projectweb/NanoSim/) funded by the European Commission through FP7 Grant agreement no. 604656.
-
-

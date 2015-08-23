@@ -130,7 +130,7 @@ bool CouplingModelJSON::fill_container_from_coupling(class ContainerBase &contai
     const ParticleDataContainerProperties& containerProps = container.prop();
 
     //Check correct container
-    const char *id               = container.prop().id();
+    //const char *id               = container.prop().id();
     const char *scope            = container.prop().scope();
     const bool  element_property = container.prop().element_property();
 

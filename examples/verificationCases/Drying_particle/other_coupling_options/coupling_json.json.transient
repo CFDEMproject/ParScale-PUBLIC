@@ -1,0 +1,19 @@
+{
+  "properties":
+  {
+    "verbose" : false,
+    "pullEvery": 1
+  },
+
+  "setBCs":
+  {
+      "settingsHeat" :
+      {
+        "dataField":  "heat",
+        "type"     :  "applyToAllParticles",
+        "applyAt"  :  "fluid",
+        "times"    :  [0,   0.1, 0.15, 0.2, 0.2  ],
+        "values"   :  [300, 430, 450, 450, 470   ]
+      }
+  }
+}

@@ -47,8 +47,13 @@ using namespace PASCAL_NS;
 
 ChemistryGrainModel::ChemistryGrainModel(ParScale *ptr) 
 : 
-   ParScaleBaseAccessible(ptr)
+   ParScaleBaseAccessible(ptr),
+   cSolidInit_(1.0)
 {
+    active_     = false;
+    solidID_    = 0;
+    psi0_       = -1;
+    alpha_      = -1; 
 }
 
 

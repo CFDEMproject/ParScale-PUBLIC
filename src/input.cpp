@@ -70,7 +70,7 @@ Input::Input(ParScale *ptr) : ParScaleBase(ptr),
     writePrecision_(5)
 {
 
-    runDirectory_ = new char[128];
+    runDirectory_ = new char[512];
     sprintf(runDirectory_, "%s", "./");
 
     printf("default run directory: %s \n", runDirectory_);
@@ -86,6 +86,8 @@ Input::~Input()
 {
     //if (infile_) infile_->close();
     infile_ = 0;
+
+    delete [] runDirectory_;
 }
 
 /* ----------------------------------------------------------------------
@@ -112,9 +114,8 @@ void Input::set_runDirectory(const char *dir)
 ------------------------------------------------------------------------- */
 void Input::process_input(const char * command)
 {
-    if (comm().is_proc_0())
     {
-        //output().write_screen_one("ParScale is processing a single input line ...");
+//        output().write_screen_all(" ParScale is processing a single input line ...");
 
         // process the tokens
         char* commandChar = strdup(command);
@@ -133,7 +134,7 @@ void Input::process_input(const char * command)
 
         free(commandChar);
 
-//        output().write_screen_one("**Processed single input line.");
+//        output().write_screen_all("**Processed single input line.");
     }
     
 }
@@ -147,7 +148,6 @@ void Input::process_input_script()
 
     //open files for input
 
-    if (comm().is_proc_0())
     {
         output().write_screen_one("\nParScale is processing your input...\n");
 
@@ -168,8 +168,6 @@ void Input::process_input_script()
 
             char buf[MAX_CHARS_PER_LINE];
             infile_->getline(buf, MAX_CHARS_PER_LINE);
-
-
 
             // strip any # comment by replacing it with 0
             // do not strip # inside single/double quotes
@@ -252,16 +250,12 @@ void Input::process_JSONInput()
 void Input::write_containersJSON(ContainerBase &container) const
 {
 
-    // proc 0 reads, all other procs get data later
-    if (!comm().is_proc_0())
+    if(!writeJSON_)
         return;
 
     const char *id = container.prop().id();
     const char *scope = container.prop().scope();
     const bool element_property = container.prop().element_property();
-
-    if(!writeJSON_)
-        return;
 
     // if scope equals ID, try to open JSON file here directly
     if(strcmp(id,scope) == 0)
@@ -276,12 +270,25 @@ void Input::write_containersJSON(ContainerBase &container) const
                 runDirectory_,
                 control().simulationState().time()
                );
-        sprintf(jsonfile,"./%s/%.6f/%s.json",
+
+        if( comm().is_proc_0() )
+        {
+            mkdir(filepath, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH);
+            sprintf(jsonfile,"./%s/%.6f/%s.json",
                 runDirectory_,
                 control().simulationState().time(),
                 scope
                );
-        mkdir(filepath, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH);
+        }
+
+        comm().wait();
+
+        if(!comm().is_proc_0())
+             sprintf(jsonfile,"./%s/%.6f/%s.%d.json",
+                    runDirectory_,
+                    control().simulationState().time(),
+                    scope,comm().me()
+                    );
 
         QJsonObject dataObject;
         writeQJsonObject(dataObject, container);
@@ -338,8 +345,11 @@ void Input::writeQJsonArray(char *jsonfile,
 {
     if(!container.prop().needsOutput())
         return;
+
+    if(container.size()==0)
+        return;
         
-    output().write_screen_one("Input::writeQJsonArray is writing...");
+    //output().write_screen_one("Input::writeQJsonArray is writing...");
     
     //Iterate through the data for each particle
     int particleId    = 0;
@@ -351,35 +361,45 @@ void Input::writeQJsonArray(char *jsonfile,
 
     //Get access to container content
     void *ptr = container.begin_slow_dirty();   //ptr to scalar per-particle data
-         
     QJsonObject particleDataQ;
-    QString     str; 
+    double doub_value;
+    int    int_value;
+
     for(uint iPart = 0; iPart < container.size(); iPart++)
     {
         QJsonArray  dataArray;
-        for(int jVec = 0; jVec < container.lenVecUsed(); jVec++)
+        for(uint jVec = 0; jVec < container.lenVecUsed(); jVec++)
         {
             if(container.lenVec()>1) //these is ContainerCVODE data
             {
                 if(container.isDoubleData())
-                    str.setNum(static_cast<double***>(ptr)[iPart][0][jVec],
-                                         'g', writePrecision_);
+                {
+                    doub_value = static_cast<double***>(ptr)[iPart][0][jVec];
+                    dataArray << doub_value;
+                }
                 else if(container.isIntData())
-                        str.setNum(static_cast<int***>(ptr)[iPart][0][jVec]);
+                {
+                    int_value = static_cast<int***>(ptr)[iPart][0][jVec];
+                    dataArray << int_value;
+                }
                 else
                         error().throw_error_one(FLERR,"Data format of container unknown.\n");
-                dataArray << str;
             }
             else
             {
                 if(container.isDoubleData())
-                    str.setNum(static_cast<double*>(ptr)[iPart],
-                                         'g', writePrecision_);
+                {
+                    doub_value = static_cast<double*>(ptr)[iPart];
+                    dataArray << doub_value;                             
+                }
                 else if(container.isIntData())
-                        str.setNum(static_cast<int*>(ptr)[iPart]);
+                {
+                    int_value = static_cast<int*>(ptr)[iPart];
+                    dataArray << int_value;     
+                }
                 else
-                        error().throw_error_one(FLERR,"Data format of container unknown.\n");
-                dataArray << str;
+                    error().throw_error_one(FLERR,"Data format of container unknown.\n");
+
             }
         }
 
@@ -400,8 +420,10 @@ void Input::writeQJsonArray(char *jsonfile,
 void Input::readQJsonArray(const QJsonObject &myParticles, ContainerBase &container) const
 {
     //Iterate through the data for each particle
+    bool foundThisParticle = false;
     int particleId    = 0;
     QJsonObject::const_iterator i;
+    int currentKey;
 
     double *  ptr     = (double*)      container.begin_slow_dirty();   //ptr to scalar per-particle data
     double ***ptr3    = (double***)    container.begin_slow_dirty();   //ptr to vectorial per-particle data
@@ -411,24 +433,37 @@ void Input::readQJsonArray(const QJsonObject &myParticles, ContainerBase &contai
         if(particleId>=container.size())
              error().throw_error_one(FLERR,"particleId>=container.size(). You have specified too many particles in the JSON file.\n");
 
+        currentKey    = i.key().toInt() - 1; //data indexing starts with zero
+        if( currentKey>=container.size() )
+        {
+            printf("problem with data having the key %d: it is larger than the container.size(%d).\n", 
+                   currentKey, container.size());
+            error().throw_error_one(FLERR,"You have specified an incorrect key in the JSON file.\n");
+        }
+
         QJsonArray  data = (*i).toArray();
         QJsonValue  value;
         if(data.size()<container.lenVecUsed())
-            error().throw_error_one(FLERR,"j>=container.lenVecUsed(). You have specified too few data in the JSON file.\n");
+        {
+            printf("problem with data.size(): %d, and container.lenVecUsed(): %d.\n", 
+                    data.size(), container.lenVecUsed());
+            error().throw_error_one(FLERR,"j<container.lenVecUsed(). You have specified too few data in the JSON file.\n");
+        }
+        if(data.size()>container.lenVecUsed())
+            error().throw_error_one(FLERR,"data.size()>container.lenVecUsed(). You have specified too many data in the JSON file.\n");
         for(int j = 0; j < data.size(); j++)
         {
-            if(j>=container.lenVecUsed())
-                error().throw_error_one(FLERR,"j>=container.lenVecUsed(). You have specified too many data in the JSON file.\n");
-
             value = data[j];
 
             if(container.lenVecUsed()>1)
-                 ptr3[particleId][0][j] = value.toDouble();
+                 ptr3[currentKey][0][j] = value.toDouble();
 
             else
-                 ptr[particleId] = value.toDouble();
+                 ptr[currentKey] = value.toDouble();
+
         }
         particleId++;
+        foundThisParticle = false;
     }
     if(particleId < container.size())
         error().throw_error_one(FLERR,"particleId<container.size(). You have specified too few data in the input.");
@@ -440,10 +475,6 @@ void Input::readQJsonArray(const QJsonObject &myParticles, ContainerBase &contai
 
 void Input::fill_container_from_json(ContainerBase &container) const
 {
-
-   // proc 0 reads, all other procs get data later
-    if (!comm().is_proc_0())
-        return;
 
     const char *id = container.prop().id();
     const char *scope = container.prop().scope();
@@ -484,6 +515,7 @@ void Input::fill_container_from_json(ContainerBase &container) const
         else error().throw_error_one(FLERR,"Missing implementation for",id,", ",scope);
     }
     else error().throw_error_one(FLERR,"Missing implementation for",id,", ",scope);
+
 }
 
 // *************************************************************

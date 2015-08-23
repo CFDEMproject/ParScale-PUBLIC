@@ -67,8 +67,6 @@ ModelEqnContainer::ModelEqnContainer(ParScale *ptr) : ParScaleBase(ptr),
 ModelEqnContainer::~ModelEqnContainer()
 {
     delete model_map_;
-
-    // TODO destroy all members of modelEqns_
 }
 
 /* ----------------------------------------------------------------------
@@ -101,7 +99,7 @@ void ModelEqnContainer::parse_command(int narg, char const* const* arg)
             printf("...this heat transport Eqn of type %s is registered with ID %d\n", 
                      arg[0],
                      modelHeatEqns_.size()-1);
-            modelHeatEqns_[modelHeatEqns_.size()-1]->init(narg, arg, HEAT, modelHeatEqns_.size()-1);
+            modelHeatEqns_[modelHeatEqns_.size()-1].init(narg, arg, HEAT, modelHeatEqns_.size()-1);
         }
         else if(strstr(modelName, "species") != NULL)
         {
@@ -109,7 +107,7 @@ void ModelEqnContainer::parse_command(int narg, char const* const* arg)
             printf("...this species transport Eqn of type %s is registered with ID %d\n",
                     arg[0],
                     modelSpeciesEqns_.size()-1);
-            modelSpeciesEqns_[modelSpeciesEqns_.size()-1]->init(narg, arg, SPECIES, modelSpeciesEqns_.size()-1);
+            modelSpeciesEqns_[modelSpeciesEqns_.size()-1].init(narg, arg, SPECIES, modelSpeciesEqns_.size()-1);
         }
         else
         {
@@ -117,12 +115,14 @@ void ModelEqnContainer::parse_command(int narg, char const* const* arg)
             printf("...this other transport Eqn of type %s is registered with ID %d\n", 
                      arg[0],
                      modelOtherEqns_.size()-1);
-            modelOtherEqns_[modelOtherEqns_.size()-1]->init(narg, arg, SPECIES, modelOtherEqns_.size()-1);
+            modelOtherEqns_[modelOtherEqns_.size()-1].init(narg, arg, SPECIES, modelOtherEqns_.size()-1);
         }
         
     }
     else
-        printf("FAIL: ModelEqnContainer PARSING: model name not found\n");
+        printf("ERROR: ModelEqnContainer PARSING: model name not found\n");
+ 
+    delete [] modelName;
 
 }
 
@@ -131,13 +131,13 @@ void ModelEqnContainer::parse_command(int narg, char const* const* arg)
 void ModelEqnContainer::setupParticle()
 {
     for(uint iEqn=0; iEqn<modelHeatEqns_.size(); iEqn++)
-            modelHeatEqns_[iEqn]->setupParticle();
+            modelHeatEqns_[iEqn].setupParticle();
 
     for(uint iEqn=0; iEqn<modelSpeciesEqns_.size(); iEqn++)
-            modelSpeciesEqns_[iEqn]->setupParticle();
+            modelSpeciesEqns_[iEqn].setupParticle();
 
     for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
-            modelOtherEqns_[iEqn]->setupParticle();
+            modelOtherEqns_[iEqn].setupParticle();
 
 }
 
@@ -146,13 +146,13 @@ void ModelEqnContainer::computeParticleProps()
 {
   
 		for(uint iEqn=0; iEqn<modelHeatEqns_.size(); iEqn++)
-		        modelHeatEqns_[iEqn]->computeParticleProps();
+		        modelHeatEqns_[iEqn].computeParticleProps();
 
 		for(uint iEqn=0; iEqn<modelSpeciesEqns_.size(); iEqn++)
-		        modelSpeciesEqns_[iEqn]->computeParticleProps();
+		        modelSpeciesEqns_[iEqn].computeParticleProps();
 
 		for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
-		        modelOtherEqns_[iEqn]->computeParticleProps();
+		        modelOtherEqns_[iEqn].computeParticleProps();
 
 }
 // ----------------------------------------------------------------------
@@ -161,26 +161,62 @@ void ModelEqnContainer::begin_of_step()
 {
 	
     for(uint iEqn=0; iEqn<modelHeatEqns_.size(); iEqn++)
-            modelHeatEqns_[iEqn]->begin_of_step();
+            modelHeatEqns_[iEqn].begin_of_step();
 
     for(uint iEqn=0; iEqn<modelSpeciesEqns_.size(); iEqn++)
-            modelSpeciesEqns_[iEqn]->begin_of_step();
+            modelSpeciesEqns_[iEqn].begin_of_step();
 
     for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
-            modelOtherEqns_[iEqn]->begin_of_step();
+            modelOtherEqns_[iEqn].begin_of_step();
    
 }
 
 // ----------------------------------------------------------------------
 void ModelEqnContainer::pre_middle_of_step()
 {
+    for(uint iEqn=0; iEqn<modelHeatEqns_.size(); iEqn++)
+            modelHeatEqns_[iEqn].pre_middle_of_step();
+
+    for(uint iEqn=0; iEqn<modelSpeciesEqns_.size(); iEqn++)
+            modelSpeciesEqns_[iEqn].pre_middle_of_step();
+
+    for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
+            modelOtherEqns_[iEqn].pre_middle_of_step();
 }
 // ----------------------------------------------------------------------
 void ModelEqnContainer::post_middle_of_step()
 {
+    for(uint iEqn=0; iEqn<modelHeatEqns_.size(); iEqn++)
+            modelHeatEqns_[iEqn].post_middle_of_step();
+
+    for(uint iEqn=0; iEqn<modelSpeciesEqns_.size(); iEqn++)
+            modelSpeciesEqns_[iEqn].post_middle_of_step();
+
+    for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
+            modelOtherEqns_[iEqn].post_middle_of_step();
+            
 }// ----------------------------------------------------------------------
 void ModelEqnContainer::end_of_step()
 {
+    for(uint iEqn=0; iEqn<modelHeatEqns_.size(); iEqn++)
+            modelHeatEqns_[iEqn].end_of_step();
+
+    for(uint iEqn=0; iEqn<modelSpeciesEqns_.size(); iEqn++)
+            modelSpeciesEqns_[iEqn].end_of_step();
+
+    for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
+            modelOtherEqns_[iEqn].end_of_step();
+
 }
+
+// ----------------------------------------------------------------------
+int ModelEqnContainer::lookupEqn(const char *name) const  
+{
+    for(int iEqn=0; iEqn<nrEqns(); iEqn++)
+        if(strcmp(name,modelEqn(iEqn)->name()) == 0 )
+            return iEqn;
+
+    return -1;
+};
 
 

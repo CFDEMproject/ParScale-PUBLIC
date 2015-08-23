@@ -46,6 +46,7 @@ License
 #include "simulation_state.h"
 #include "model_container.h"
 #include "model_eqn_container.h"
+#include "model_phasechange_container.h"
 #include "model_chemistry_container.h"
 #include "comm.h"
 #include <sys/types.h>
@@ -54,6 +55,7 @@ License
 
 using namespace PASCAL_NS;
 
+#define VERBOSE_MAIN false
 /* ----------------------------------------------------------------------
    Driver Constructor
 ------------------------------------------------------------------------- */
@@ -80,22 +82,34 @@ void Driver::run(double _time,bool _do_init)
         // init will read all properties from file
         // init also pulls data from LIGGGHTS via Coupling::read()
         // which is local on each processor, thus no need to bcast
+        char msgstr[500];
+        sprintf(msgstr,": initalizig ParScale... \n");
+        output().write_screen_all(msgstr);
+        
         pascal_ptr()->init();
+        
+        sprintf(msgstr,": ParScale initalized! \n");
+        output().write_screen_all(msgstr);
+        
         if(!particleData().runtimeContainersExist())
-        error().throw_error_one(FLERR,"internal error: particleData is not allocated. Cannot proceed. \n");
+            error().throw_error_one(FLERR,"internal error: particleData is not allocated. Cannot proceed. \n");
+
+        modelPhaseChangeContainer().postParticleDataBuild();
     }
     else
     {
         // pull new domain boundaries and proc info, then exchange atoms
         comm().pull();
-        // pull atom data via coupling
-        coupling().pull();
     }
 
     while(time_left > 0.)
     {
-        printf("time : %g \n", control().simulationState().time());
-        //printf("timestep : %g \n", control().simulationState().deltaT());
+        if(comm().is_proc_0())
+        {
+#if VERBOSE_MAIN
+            printf("ParScale time : %g \n", control().simulationState().time());
+#endif
+        }
 
         dt = control().simulationState().deltaT();
         if(dt > time_left)
@@ -107,7 +121,11 @@ void Driver::run(double _time,bool _do_init)
         if(dt > minTimeStep_)
             run_one_timestep();
         else
+        {
+#if VERBOSE_MAIN
             printf("Driver:: supressing time step because it is smaller than %g.\n", minTimeStep_);
+#endif
+        }
 
         time_left -= dt;
 
@@ -116,9 +134,7 @@ void Driver::run(double _time,bool _do_init)
         if(control().simulationState().writeContainers())
             particleData().write();
 
-        printf("\n");
     }
-   //printf("endtime : %g \n", control().simulationState().time());
 
    //TODO: finalize output to files
 }
@@ -129,8 +145,9 @@ void Driver::run(double _time,bool _do_init)
 
 void Driver::run_one_timestep()
 {
+
     // TODO: pass non-const reference to modifyable data as function arguments
-    coupling().pull_tags();
+    coupling().pull_tags(); //TODO-NOT implemented yet
 
     comm().exchange();
 
@@ -138,15 +155,23 @@ void Driver::run_one_timestep()
 
     modelEqnContainer().setupParticle();
 
-//    printf("Advancing models for all particles ... \n");
+//     printf("[%d/%d]: Advancing models ... \n",
+//            comm().me(),comm().nprocs()
+//           );
       do
       {
-        //Begin Section
+        //Begin Section - 1 Setup Models
         modelContainer().begin_of_step();
+
+        particleData().resetPhaseChangeSourceTerms();
+        modelPhaseChangeContainer().begin_of_step();
 
         particleData().resetChemicalSourceTerms();
         modelChemistryContainer().begin_of_step();
 
+        particleData().computeConvection();
+
+        //Begin Section - 2 Evaluate Equations
         modelEqnContainer().begin_of_step();
 
         //Middle Section     
@@ -159,6 +184,7 @@ void Driver::run_one_timestep()
 
         //Finalize
         modelContainer().end_of_step();
+        modelEqnContainer().end_of_step();
       }
 
       while ( control().doImplicitIteration() );

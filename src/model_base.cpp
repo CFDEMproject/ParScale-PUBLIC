@@ -55,7 +55,8 @@ using std::ifstream;
 
 ModelBase::ModelBase(ParScale *ptr,const char *name) : ParScaleBaseAccessible(ptr),
     name_(0),
-    scope_(0)
+    scope_(0),
+    alwaysTrueVariable_(true)
 {
     int n = strlen(name) + 1;
     name_ = new char[n];
@@ -66,14 +67,16 @@ ModelBase::ModelBase(ParScale *ptr,const char *name) : ParScaleBaseAccessible(pt
     strcpy(scope_,"model_");
     strcat(scope_,name);
 
-    printf("\nModel with name %s initialized. \n", name_);
+    char msgstr[500];
+    sprintf(msgstr,"Model with name %s initialized. \n", name_);
+    output().write_screen_all(msgstr);
 
-    if(comm().is_parallel())
-        error().throw_error_all(FLERR,"TODO: need to communicate settings in parallel in Input:: function");
+//    if(comm().is_parallel())
+//        error().throw_error_all(FLERR,"TODO: need to communicate settings in parallel in Input:: function");
 }
 
 // ----------------------------------------------------------------------
-void ModelBase::read_model_json_file(const char *model_name, double *ptr)
+void ModelBase::read_model_json_file(const char *model_name, double *ptr, vector<double> &parameters)
 {	
     //TODO: this is ugly, do similar to  input().openJsonFile
 
@@ -99,6 +102,7 @@ void ModelBase::read_model_json_file(const char *model_name, double *ptr)
 	readQJsonObject(loadDoc.object());
 	QJsonObject constant_model_properties = loadDoc.object()["properties"].toObject();
 	readQJsonConstant(constant_model_properties, model_name,ptr);
+    readQJsonParameterVector(constant_model_properties, model_name, parameters);
 
 }
 
@@ -146,30 +150,40 @@ void ModelBase::read_verbose_json_file(const char *property_name, bool *ptr)
 }
 
 // ----------------------------------------------------------------------
-void ModelBase::read_chemistry_single_react_json_file(const char *property_name, double *ptr)
+void ModelBase::read_chemistry_single_react_json_file(const char *property_name, double *ptr, bool strict)
 {	
 
 	QJsonObject property_value_ = readQJsonObject("chemistry_single_reaction", "reaction");
-    if(property_value_[property_name].isNull())
+    if(property_value_[property_name].isNull() && strict)
       error().throw_error_one(FLERR,"ERROR: property_name not found in file. \n",
                               property_name,
                               "settings/chemistry_single_reaction.json");
+
+    else if(property_value_[property_name].isNull()) //return if not specified but non-strict
+        return;
 
 	QJvalue_ = property_value_[property_name].toDouble();
 	*ptr=QJvalue_.toDouble();
 }
 
 // ----------------------------------------------------------------------
-void ModelBase::read_chemistry_single_react_json_file(const char *property_name, bool *ptr)
+void ModelBase::read_chemistry_single_react_json_file(const char *property_name, bool *ptr, bool strict)
 {	
 	QJsonObject property_value_ = readQJsonObject("chemistry_single_reaction", "reaction");
-    if(property_value_[property_name].isNull())
+    if(property_value_[property_name].isNull() && strict)
       error().throw_error_one(FLERR,"ERROR: property_name not found in file. \n",
                               property_name,
                               "settings/chemistry_single_reaction.json");
 
-	QJvalue_ = property_value_[property_name].toBool();
-	*ptr=QJvalue_.toBool();
+    else if(property_value_[property_name].isNull())  //return if not specified but non-strict
+        return;
+
+	QJvalue_                   = property_value_[property_name].toBool();
+    QJsonValue  QJvalueDouble_ = property_value_[property_name].toDouble(); //if set to a value, check if positive
+    if(QJvalueDouble_.toDouble()>0)
+        *ptr = &(alwaysTrueVariable_);
+    else
+    	*ptr=QJvalue_.toBool();
 }
 
 
@@ -217,6 +231,19 @@ void ModelBase::readQJsonConstant(const QJsonObject &json, const char *name_mode
 }
 
 // ----------------------------------------------------------------------
+void ModelBase::readQJsonParameterVector(const QJsonObject &json, const char *name_model, vector<double> &parameters)
+{	
+    QJsonArray  myParams = json["parameters"].toArray();
+
+    QJsonArray::const_iterator i;
+    for (i = myParams.begin(); i != myParams.end(); ++i)
+    {
+        parameters.push_back((*i).toDouble());
+    }
+}
+
+
+// ----------------------------------------------------------------------
 void ModelBase::readQJsonObject(const QJsonObject &json)
 {
     myName = json["name"].toString();
@@ -226,7 +253,8 @@ void ModelBase::readQJsonObject(const QJsonObject &json)
 // ----------------------------------------------------------------------
 ModelBase::~ModelBase()
 {
-    delete name_;
+    delete [] name_;
+    delete [] scope_;
 }
 
 

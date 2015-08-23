@@ -1,0 +1,48 @@
+#!/bin/sh
+##################################################################################################################
+#ParScale verification case 1: Heat Conduction in a Sphere
+#BC: convective flux to the enviroment
+#Run 1: constant fluid temperature (for verification)
+#Run 2: time-variable fluid temperature
+
+#copyright: IPPT, Graz University of Technology, 2014
+
+cd ${0%/*} || exit 1    # run from this directory
+
+currdir=$PWD
+##########################################################
+# 0 - Run preProcessor
+cd octave
+octave < preProcessor.m
+cd $currdir
+
+# 1 - Run Parscale to generate verification data
+#cp settings/coupling_json.json.verification settings/coupling_json.json
+mpirun -np 1 ParScale < in.file_convective 
+
+#octave < Analytical_solution.m
+#octave < Post_processing.m 
+
+
+#g++ referenceSolution.cpp -o referenceSolution.bin
+#./referenceSolution.bin
+#nGridPoints2=`cat referenceSolution.cpp | grep 'size_2 = ' | cut -d '=' -f2 | cut -d ' ' -f2`
+#cat referenceSolution.dat | tail -n "$nGridPoints2" > referenceSolution.lastTime.dat
+
+#octave plotMe.verification.m
+
+##########################################################
+# 2 - Run ParScale with time-dependent BC
+#cp settings/coupling_json.json.transient settings/coupling_json.json
+#mpirun -np 1 ParScale < in.file_convective 
+#octave plotMe.m
+
+##########################################################
+# 3 - Show Plots
+#evince plot*.eps &
+
+##########################################################
+#Reset
+#cp settings/coupling_json.json.verification settings/coupling_json.json
+
+

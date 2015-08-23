@@ -43,6 +43,7 @@ License
 #include "model_eqn_container.h"
 #include "control.h"
 #include "simulation_state.h"
+#include "integrator_simple.h"
 #include "integrator_cvode.h"
 #include "model_eqn.h"
 #include "model_container.h"
@@ -50,7 +51,6 @@ License
 using namespace PASCAL_NS;
 using namespace PASCAL_MEMORY_NS;
 
-#define UNI_GAS_CONSTANT      8.3144621
 #define FEQUENZFACTOR         1	
 #define LARGENUMBER           1e32
 /* ----------------------------------------------------------------------
@@ -70,8 +70,8 @@ ModelChemistry::ModelChemistry(ParScale *ptr,  char *name) :
 
 ModelChemistry::~ModelChemistry()
 {
-	delete tempIntraDataHeat_;
-    delete tempIntraDataSpecies_;
+	destroy<double>(tempIntraDataHeat_);
+    destroy<double>(tempIntraDataSpecies_);
 }
 /* ----------------------------------------------------------------------
    MemberFunctions

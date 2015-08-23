@@ -1,0 +1,9 @@
+{
+    "verbose":
+    {
+      "chemistry_single_reaction"   : false,
+      "chemistry_grainmodel"        : false,
+      "ModelChemistrySingleReaction": false
+    }
+}
+

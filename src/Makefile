@@ -27,7 +27,6 @@ help:
 	@echo ''
 
 # Build the code
-
 .DEFAULT:
 	@test -f MAKE/Makefile.$@
 	@if [ ! -d Obj_$@ ]; then mkdir Obj_$@; fi
@@ -37,22 +36,11 @@ help:
 	@cd Obj_$@; \
 	$(MAKE) $(MFLAGS) "OBJ = $(OBJ)" "INC = $(INC)" "SHFLAGS =" \
 	  "EXE = ../$(EXE)" ../$(EXE)
-# make ubuntu
-fedora_fpic_ubuntu:
-	@test -f MAKE/Makefile.$@
-	@if [ ! -d Obj_$@ ]; then mkdir Obj_$@; fi
-	@$(SHELL) Make.sh style
-#       @$(SHELL) Make.sh models
-	@cp MAKE/Makefile.$@ Obj_$@/Makefile
-	@cd Obj_$@; \
-        $(MAKE) $(MFLAGS) "OBJ = $(OBJ)" "INC = $(INC)" "SHFLAGS =" \
-          "EXE = ../$(EXE)" ../$(EXE)
-
 
 # build thirdParty
 thirdParty:
 	@cd $(PASCAL_SUNDIALS_DIR); \
-	$(SHELL) ./configure --prefix=\${PASCAL_INST_DIR} 
+	$(SHELL) ./configure --prefix=\${PASCAL_INST_DIR} --with-cflags=-fPIC
 	@cd $(PASCAL_SUNDIALS_DIR); \
 	make
 	@cd $(PASCAL_SUNDIALS_DIR); \
@@ -77,7 +65,7 @@ clean-all:
 	rm -rf $(PASCAL_INST_DIR)/lib64
 	rm -rf $(PASCAL_INST_DIR)/*/*
 	@cd $(PASCAL_THIRDPARTY_DIR)/chemkinReader/src/; \
-	make clean-all; \
+	make clean-all
 
 # NOTIMPLEMENTED
 makelib:
@@ -92,4 +80,3 @@ makeshlib:
 # NOTIMPLEMENTED - install LAMMPS shared lib and Python wrapper for Python usage
 install-python:
 	@python ../python/install.py
-

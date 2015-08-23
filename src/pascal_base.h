@@ -65,9 +65,11 @@ class ParScaleBase
       fluidData_(ptr->fluidData_),
       modelContainer_(ptr->modelContainer_),
       modelEqnContainer_(ptr->modelEqnContainer_),
+      modelPhaseChangeContainer_(ptr->modelPhaseChangeContainer_),
       modelChemistryContainer_(ptr->modelChemistryContainer_),
       callingProgram_(ptr->callingProgram_),
       chemistryReader_(ptr->chemistryReader_),
+      chemistryReaderCHEMKIN_(ptr->chemistryReaderCHEMKIN_),
       couplingModel_(ptr->couplingModel_)
     {}
 
@@ -89,7 +91,9 @@ class ParScaleBase
     inline const FluidData&      fluidData()      const {return *fluidData_;}
     inline const ModelContainer& modelContainer() const {return *modelContainer_;}
     inline const ModelEqnContainer& modelEqnContainer() const {return *modelEqnContainer_;}
+    inline const ModelPhaseChangeContainer& modelPhaseChangeContainer() const {return *modelPhaseChangeContainer_;}
     inline const ModelChemistryContainer& modelChemistryContainer() const {return *modelChemistryContainer_;}
+    inline const ChemistryReaderCHEMKIN& chemistryReaderCHEMKIN() const {return *chemistryReaderCHEMKIN_;}
     inline const CouplingModel&       couplingModel()       const {return *couplingModel_;}
 
     inline void* callingProgram() { return callingProgram_;};
@@ -110,8 +114,10 @@ class ParScaleBase
     FluidData *&fluidData_;          // storage for fluid data
     ModelContainer *&modelContainer_;// container for physical/chemical models
     ModelEqnContainer *&modelEqnContainer_;// container for (discretized) equations
-    ModelChemistryContainer *&modelChemistryContainer_;// container for (discretized) equations
+    ModelPhaseChangeContainer *&modelPhaseChangeContainer_;// container for phase change (e.g., evaporation)
+    ModelChemistryContainer   *&modelChemistryContainer_;// container for reactions
     ChemistryReader *&chemistryReader_;
+    ChemistryReaderCHEMKIN *&chemistryReaderCHEMKIN_;
     CouplingModel *&couplingModel_;            // coupling to other codes
 
     void* callingProgram_;           //pointer to a calling program

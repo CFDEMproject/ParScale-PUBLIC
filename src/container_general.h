@@ -167,6 +167,9 @@ namespace PASCAL_NS
           inline bool isFull()
           { return isFull_;}
 
+          inline bool isFilled()
+          { return isFilled_;}
+
       protected:
 
           ContainerGeneral(ParticleDataContainerProperties &cp);

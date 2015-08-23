@@ -1,0 +1,38 @@
+particle_mesh nGridPoints 40
+
+particle_data number_particles 1 verbose 0
+coupling none myCoupling
+
+model propertiesThermo liquidSpeciesDiffusivity 
+
+model propertiesThermo liquidSpeciesTortuosity
+model propertiesThermo liquidSpeciesPermeability
+model propertiesThermo liquidSpeciesViscosity
+model propertiesThermo liquidSpeciesSurface_tension
+model propertiesThermo liquidSpeciesFilm_flow
+model propertiesThermo liquidSpeciesTransferCoeff 
+
+model propertiesThermo speciesDiffusivity 
+#model propertiesThermo speciesTransferCoeff 
+model propertiesThermo speciesTortuosity
+
+model propertiesThermo speciesDiffusivity 
+model propertiesThermo speciesTransferCoeff 
+model propertiesThermo speciesTortuosity
+
+#Equations
+modelEqn 1DSpherical  heat                 BC0 1  BC1 1 inactive #solveConvectiveFlux #writeDebugContainers
+modelEqn 1DSpherical  species       gas    BC0 1  BC1 1 writeDebugContainers #solveConvectiveFlux phaseFractionMinimumConvection 0.05 convectionBoundMinStefanFactor 0.03 #verbose #inactive 
+modelEqn 1DSpherical  liquidSpecies liquid BC0 1  BC1 2 updatePhaseFraction averagePhaseFraction writeDebugContainers
+
+#Phase Change
+modelPhaseChange Evaporation liquidToGasEvaporation
+
+control outputTimeStep 2e-2
+control timeStep 1e-5
+control run      400e-2
+
+#control run      2e-2
+#control outputTimeStep 1e-5
+#control timeStep 1e-5
+#control run      10e-5

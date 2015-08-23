@@ -60,7 +60,9 @@ CouplingModel::CouplingModel(ParScale *ptr,const char *name) :
     pullNext_(1),
     hasPulled_(false),
     pushNext_(1),
-    hasPushed_(false)
+    hasPushed_(false),
+    exchangeEventsLocalId_(NULL),
+    exchangeEventsReceivingProcess_(NULL)
 {
 
     int n = strlen(name) + 1;
@@ -72,10 +74,20 @@ CouplingModel::CouplingModel(ParScale *ptr,const char *name) :
     strcpy(scope_,"coupling_");
     strcat(scope_,name);
 
-    printf("\nCouplingModel with name %s initialized. \n", name_);
 
-    if(comm().is_parallel())
-        error().throw_error_all(FLERR,"TODO: need to communicate settings in parallel in Input:: function");
+    char msgstr[500];
+    sprintf(msgstr,"CouplingModel with name %s initialized. \n", name_);
+    output().write_screen_all(msgstr);
+
+//    if(comm().is_parallel())
+//        error().throw_error_all(FLERR,"TODO: need to communicate settings in parallel in Input:: function");
+}
+
+/* --------------------------------------------------------------------- */
+CouplingModel::~CouplingModel()
+{
+    delete [] name_;
+    delete [] scope_;
 }
 
 /* --------------------------------------------------------------------- */
@@ -90,7 +102,7 @@ void CouplingModel::read()
         pullEvery_ = 1;         //TODO in future: sum flux from liggghts locally in PartScale to avoid a coupling at every time step
 
     pushEvery_ = properties_["pushEvery"].toInt();
-    printf("read in for coupling model done \n");
+    output().write_screen_all("read in for coupling model done \n");
 
 }
 

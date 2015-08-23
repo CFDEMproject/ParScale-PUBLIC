@@ -1,27 +1,28 @@
 particle_mesh nGridPoints 25
 
-
 particle_data number_particles 1 verbose 0
-coupling json myCoupling
+coupling none myCoupling
 
 #Heat properties
 model propertiesThermo heatThermalConductivity_solid 
 model propertiesThermo heatCapacity_solid 
 model propertiesThermo heatDensity_solid 
+
+model propertiesThermo heatThermalConductivity_gas 
+model propertiesThermo heatCapacity_gas 
+model propertiesThermo heatDensity_gas 
+
+model propertiesThermo heatThermalConductivity_liquid
+model propertiesThermo heatCapacity_liquid
+model propertiesThermo heatDensity_liquid
+
 model propertiesThermo heatTransferCoeff
 
-
-#Species properties
-#model propertiesThermo speciesDiffusivity 
-#model propertiesThermo speciesDensity_solid 
-#model propertiesThermo speciesTransferCoeff 
-#model propertiesThermo speciesflux
-
-
 #Equations
-modelEqn 1DSpherical  heat     BC0 1  BC1 2
-#modelEqn 1DSpherical  species  BC0 1  BC1 2
+modelEqn 1DSpherical  heat                 BC0 1  BC1 2 #solveConvectiveFlux #writeDebugContainers
+modelEqn 1DSpherical  species       gas    BC0 1  BC1 2 inactive #solveConvectiveFlux #writeDebugContainers  #inactive #no need to specify any properties if inactive
+modelEqn 1DSpherical  liquidSpecies liquid BC0 1  BC1 1 inactive #updatePhaseFraction #writeDebugContainers #solveConvectiveFlux #averagePhaseFraction #verbose  #inactive #no need to specify any properties if inactive
 
-control outputTimeStep 0.01
+control outputTimeStep 0.05
 control timeStep 0.001
-control run 0.301
+control run 1.01

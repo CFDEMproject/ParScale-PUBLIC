@@ -16,7 +16,7 @@ Syntax
       {
           "[nameofsetting]" :
           {
-            "dataField":  "[nameoffield]",
+            "dataField":  "[String]",
             "type"     :  "applyToAllParticles",
             "applyAt"  :  "[location]",
             "times"    :  [[number], [number], [number], [number]  ],
@@ -82,7 +82,7 @@ Explanation
      
 Read next
 -----------
- - [14_Model_Equations.md](14_Model_Equations.md)
+ - [14_ModelEquation.md](14_ModelEquation.md)
  
  Related
 -----------

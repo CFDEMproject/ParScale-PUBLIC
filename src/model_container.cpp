@@ -67,8 +67,6 @@ ModelContainer::ModelContainer(ParScale *ptr) : ParScaleBase(ptr),
 ModelContainer::~ModelContainer()
 {
     delete model_map_;
-
-    // TODO destroy all members of models_
 }
 
 /* ----------------------------------------------------------------------
@@ -102,11 +100,12 @@ void ModelContainer::parse_command(int narg,char const* const* arg)
         //map_[map_string]->parse_command(narg,arg);
         //intialize this model equation
 
-        models_[models_.size()-1]->init(narg, arg);
+        models_[models_.size()-1].init(narg, arg);
     }
     else
         printf("ModelContainer PARSING: model name not found\n");
 
+    delete [] modelName;
 }
 
 
@@ -115,7 +114,7 @@ void ModelContainer::begin_of_step()
 {
 
     for(int iModel=0; iModel<models_.size(); iModel++)
-            models_[iModel]->begin_of_step();
+            models_[iModel].begin_of_step();
    
 }
 
@@ -124,7 +123,7 @@ void ModelContainer::pre_middle_of_step()
 {
 
     for(int iModel=0; iModel<models_.size(); iModel++)
-            models_[iModel]->pre_middle_of_step();
+            models_[iModel].pre_middle_of_step();
 
 }
 // ----------------------------------------------------------------------
@@ -132,14 +131,14 @@ void ModelContainer::post_middle_of_step()
 {
 
     for(int iModel=0; iModel<models_.size(); iModel++)
-            models_[iModel]->post_middle_of_step();
+            models_[iModel].post_middle_of_step();
 
 }// ----------------------------------------------------------------------
 void ModelContainer::end_of_step()
 {
 
     for(int iModel=0; iModel<models_.size(); iModel++)
-            models_[iModel]->end_of_step();
+            models_[iModel].end_of_step();
 
 }
 

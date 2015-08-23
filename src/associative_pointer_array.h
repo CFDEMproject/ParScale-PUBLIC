@@ -105,7 +105,7 @@ class AssociativePointerArray
         void moveElement(int i,double *delta);
         void scale(double factor);
 
-        void sortPropsByExtMap(int *_id,int _len_id,int *_map,int _len_map,class ErrorBase const*err);
+        void sortPropsByExtMap(int *_id, int _nlocal, int &_len_id, int *_map,int _len_map,class ErrorBase const*err, bool verbose, int me);
 
         inline int bufSize(OperationProperties &op);
         inline int pushToBuffer(double *buf, OperationProperties &op);

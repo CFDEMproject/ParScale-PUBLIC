@@ -1,0 +1,12 @@
+{
+      "Dissolved" :
+      {
+        "molarMass": 1,
+        "H_i"      : 5e10
+      },
+      "Catalyst" :
+      {
+        "molarMass": 1,
+      	"H_i"      : 1e6
+      }      
+}

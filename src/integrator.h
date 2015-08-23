@@ -50,9 +50,20 @@ Description
 #include "pascal_base_accessible.h"
 #include "simulation_state.h"
 
+#define __PIC__
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonObject>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QString>
+#include <QtCore/QFile>
 
 namespace PASCAL_NS
 {
+
+//numbering of boundary condition types
+enum{ CVODE		//0
+    };
+
 class ModelEqn;
 
 // derives from ParScaleBaseAccessible so is allowed to
@@ -66,20 +77,26 @@ class Integrator : public ParScaleBaseAccessible
       Integrator(ParScale *ptr);
       virtual ~Integrator();
 
-      virtual void init(double t0, ModelEqn& m_eqn) {};
+      virtual void init(double t0, ModelEqn& m_eqn);
 
-      virtual void integrate_begin(const char* stateType, int nGridPointsUsed_, int particleDataID_) {};
+      virtual void integrate_begin(const char* stateType, int nGridPointsUsed, int dataID, bool updatePhaseFraction) {};
       virtual void integrate_middle() {};
       virtual void integrate_end() {};
       virtual int returnParticleID() {return particleID;}; 
 
       double *  tempIntraData_;
+      double *  tempPhaseDataGas_;
+      double *  tempPhaseDataLiquid_;
+      double *  tempPhaseDataSolid_;
+
 // Acess function
 
     private:
 
     protected:
     int particleID;
+    mutable QJsonObject    parameters_;
+    mutable QJsonObject    integrator_;
     
 };
 

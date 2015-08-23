@@ -51,6 +51,7 @@ class CouplingModel : public ParScaleBase, CouplingBase, ParScaleBaseInterface
     public:
 
       CouplingModel(ParScale *ptr, const char *_name);
+      ~CouplingModel();
 
       virtual void    init() {};
 
@@ -67,17 +68,27 @@ class CouplingModel : public ParScaleBase, CouplingBase, ParScaleBaseInterface
       const char* scope()     const {return scope_;}
 
       void  setPushPull()      const;
-      
+            
+      std::vector<int>* exchangeEventsLocalId() const
+      {
+            return exchangeEventsLocalId_;
+      }
+      std::vector<int>* exchangeEventsReceivingProcess() const
+      {
+            return exchangeEventsReceivingProcess_;
+      }
+
       bool verbose() const {return verbose_;};
 
       virtual bool external_code_in_control() const
       { return true; }
 
-      virtual void pull_n_bodies(int &_nbody, int &_nbody_all)
-      { _nbody = _nbody_all = 0; }
+      virtual void pull_n_bodies(int &_nbody, int &_nghost, int &_nbody_all)
+      { _nbody = _nghost = _nbody_all = 0; }
 
       virtual void pull_box(double *_boxlo,double *_boxhi,double *_sublo,double *_subhi) {}
       virtual void pull_proc_info(int *_procgrid,int *_myloc,int (&_procneigh)[3][2]) {}
+      virtual void pull_timeStepping_info(double &deltaT, int &neighAgo) {} 
       virtual int* get_external_map(int &length) {};
 
     private:
@@ -98,6 +109,9 @@ class CouplingModel : public ParScaleBase, CouplingBase, ParScaleBaseInterface
       mutable int  pushEvery_;
       mutable int  pushNext_;
       mutable bool hasPushed_;
+
+      std::vector<int> * exchangeEventsLocalId_;
+      std::vector<int> * exchangeEventsReceivingProcess_;
 };
 
 } //end PASCAL_NS

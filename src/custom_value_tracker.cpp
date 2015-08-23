@@ -42,6 +42,7 @@ License
 
 #include "custom_value_tracker.h"
 #include "input.h"
+#include "output.h"
 #include "particle_data.h"
 #include "coupling.h"
 #include "comm.h"
@@ -96,8 +97,6 @@ using namespace PASCAL_NS;
 
   void CustomValueTracker::set_n_body(int _nbody,int _nbody_all)
   {
-    if(_nbody <= 0)
-        error().throw_error_one(FLERR,"'number_particles' > 0 required\n");
 
     nbody_     = _nbody;
     nbody_all_ = _nbody_all;
@@ -114,9 +113,16 @@ using namespace PASCAL_NS;
 
   void CustomValueTracker::allocate()
   {
-    printf("CustomValueTracker::allocate will add %d particles to the simulation...\n", nbody_);
+   
     for(int iP = 0; iP < nbody_; iP++)
         addZeroElement();
+
+    char msgstr[500];
+    sprintf(msgstr,
+            "CustomValueTracker::allocate added %d particles (of %d global) to the simulation...\n",
+            nbody_,nbody_all_);
+    output().write_screen_all(msgstr);
+
   }
 
   /* ----------------------------------------------------------------------
@@ -209,10 +215,16 @@ using namespace PASCAL_NS;
   re-sort data stored in element properties
   ------------------------------------------------------------------------- */
 
-  void CustomValueTracker::sortPropsByExtMap(int *_id,  int _len_id,
-                                             int *_map, int _len_map)
+  void CustomValueTracker::sortPropsByExtMap(int *_id, int _nlocal,
+                                             int &_len_id,
+                                             int *_map, int _len_map,
+                                             bool verbose, int me)
   {
-    elementProperties_.sortPropsByExtMap(_id,_len_id,_map,_len_map,&error());
+    elementProperties_.sortPropsByExtMap( _id, _nlocal, 
+                                          _len_id, 
+                                          _map, _len_map,&error(),
+                                          verbose, me
+                                        );
   }
  
   /* ----------------------------------------------------------------------

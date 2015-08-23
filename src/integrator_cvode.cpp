@@ -122,21 +122,32 @@ using namespace PASCAL_NS;
 
 IntegratorCvode::IntegratorCvode(ParScale *ptr, int nGrid) : 
     Integrator(ptr),
-    cvode_mem(NULL),			
+    cvode_mem(NULL),
+    fp(NULL),
     u(NULL),		
     MX(nGrid),
     NEQ(nGrid),
     T0(control().simulationState().time()),
     t(0.0),
     T1(0.0),
+    mxsteps_(500),
+    maxord_(5),
+    deltaTInit_(1e-16),
+    deltaTMin_(1e-16),
+    deltaTMax_(1e3),
+    maxNonLinearIterations_(3),
+    reltol(0.0e-5),
     abstol(1.0e-5),  
-    reltol(0.0),
     m_data_(0),
-	flag(0)
+	flag(0),
+    umax(0.0)
 {
   //check the particle mesh
    if(MX<1)
-      output().write_screen_one("WARNING: Your integrator has no grid points! \n"); 
+      output().write_screen_one("WARNING: Your integrator has no grid points! \n");
+
+  linearSolver_ = CVDIAG;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -145,11 +156,16 @@ IntegratorCvode::IntegratorCvode(ParScale *ptr, int nGrid) :
 
 IntegratorCvode::~IntegratorCvode()
 {
-    fclose(fp);
-    delete m_data_;
+    if(fp)
+        fclose(fp);
     N_VDestroy_Serial(u);   				// Free the u vector 
     CVodeFree(&cvode_mem);  				// Free the integrator memory 
-    delete  tempIntraData_;
+
+    delete  m_data_;
+    destroy<double>(tempIntraData_);
+    destroy<double>(tempPhaseDataGas_);
+    destroy<double>(tempPhaseDataLiquid_);
+    destroy<double>(tempPhaseDataSolid_);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -157,27 +173,99 @@ IntegratorCvode::~IntegratorCvode()
 /////////////////////////////////////////////////////////////////////////////
 void IntegratorCvode::init(double T0, ModelEqn& m_eqn)
 {
+   //Initialize Integrator
+   Integrator::init(T0, m_eqn);
+
+   //Set main integrator
+   if(parameters_["absTol"].isNull())
+    
+   //Set all relevant integration parameters
+   if(integrator_["type"].isNull())
+     error().throw_error_one(FLERR,"'type' was not specified in settings/integrator.json/integrator.\n");
+   if(strcmp(qPrintable(integrator_["type"].toString()),"CVODE") != 0 )
+     error().throw_error_one(FLERR,"'type' incorrectly specified (i.e., not 'CVODE') in settings/integrator.json/integrator.\n");
+
+   if(integrator_["linearSolver"].isNull())
+     error().throw_error_one(FLERR,"'linearSolver' was not specified in settings/integrator.json/integrator.\n");
+
+   if(strcmp(qPrintable(integrator_["linearSolver"].toString()),"CVDiag") == 0 )
+        linearSolver_ = CVDIAG;
+   else if(strcmp(qPrintable(integrator_["linearSolver"].toString()),"CVDense") == 0 )
+        linearSolver_ = CVDENSE;
+   else if(strcmp(qPrintable(integrator_["linearSolver"].toString()),"CVBand") == 0 )
+        linearSolver_ = CVBAND;
+   else if(strcmp(qPrintable(integrator_["linearSolver"].toString()),"CVSpgmr") == 0 )
+        linearSolver_ = CVSPGMR;
+   else if(strcmp(qPrintable(integrator_["linearSolver"].toString()),"CVSpbcg") == 0 )
+        linearSolver_ = CVSPBCG;
+   else if(strcmp(qPrintable(integrator_["linearSolver"].toString()),"CVSptfqmr") == 0 )
+        linearSolver_ = CVSPTFQMR;
+   else 
+        error().throw_error_one(FLERR,"'linearSolver' specified in settings/integrator.json/integrator/linearSolver was not recognized.\n");
+
+   //settings for this integrator
+   if(parameters_["relTol"].isNull())
+     printf("WARNING: IntegratorCvode will use default relTol, since not found in settings/integrator.json/parameters. \n");
+   else
+       reltol=(parameters_["relTol"].toDouble());  
+
+   if(parameters_["mxsteps"].isNull())
+     printf("WARNING: IntegratorCvode will use default mxsteps, since not found in settings/integrator.json/parameters. \n");
+   else
+       mxsteps_=(int)(parameters_["mxsteps"].toDouble());    
+
+   if(parameters_["maxord"].isNull())
+     printf("WARNING: IntegratorCvode will use default maxord, since not found in settings/integrator.json/parameters. \n");
+   else
+    maxord_=(int)(parameters_["maxord"].toDouble());   
+
+   if(parameters_["deltaTInit"].isNull())
+     printf("WARNING: IntegratorCvode will use default deltaTInit, since not found in settings/integrator.json/parameters. \n");
+   else
+    deltaTInit_=(parameters_["deltaTInit"].toDouble());  
+
+   if(parameters_["deltaTMin"].isNull())
+     printf("WARNING: IntegratorCvode will use default deltaTMin, since not found in settings/integrator.json/parameters. \n");
+   else
+   deltaTMin_=(parameters_["deltaTMin"].toDouble());  
+
+   if(parameters_["deltaTMax"].isNull())
+     printf("WARNING: IntegratorCvode will use default deltaTMax, since not found in settings/integrator.json/parameters. \n");
+   else
+    deltaTMax_=(parameters_["deltaTMax"].toDouble());  
+
+   if(parameters_["maxNonLinearIterations"].isNull())
+     printf("WARNING: IntegratorCvode will use default maxNonLinearIterations, since not found in settings/integrator.json/parameters. \n");
+   else
+    maxNonLinearIterations_=(int)(parameters_["maxNonLinearIterations"].toDouble()); 
+
+
+   //Allocate mem
+   tempIntraData_      = create<double>(tempIntraData_,       NEQ+1); 
+   tempPhaseDataGas_   = create<double>(tempPhaseDataGas_,    NEQ+1); 
+   tempPhaseDataLiquid_= create<double>(tempPhaseDataLiquid_, NEQ+1); 
+   tempPhaseDataSolid_ = create<double>(tempPhaseDataSolid_,  NEQ+1); 
 
    if (u)
-   {
-   N_VDestroy_Serial(u); 			// Free the u vector 
-   }  
+       N_VDestroy_Serial(u); 			// Free the u vector 
 
    if (cvode_mem)
-   {
-   CVodeFree(&cvode_mem);  			// Free the integrator memory 
-   } 	
-			
-   delete m_data_;				    // pass a pointer to func in m_data_
+       CVodeFree(&cvode_mem);  			// Free the integrator memory 
+
+
+   delete m_data_;				            // pass a pointer to func in m_data_
    m_data_ = new modelData(&m_eqn); 		// m_eqn.nparams()); //TODO: could hand over data if necessary
 
    						//TODO: hand over data from the ModelEqn to set solution vectors
- 
+  
    u = N_VNew_Serial(NEQ+1);  			// Create and allocate a serial vector, (NEQ+1) needed because of behavior of CVODE on boundary points!!
      
    if(check_flag((void*)u, "N_VNew_Serial", 0)) return; //TODO: throw error
-   //if(check_flag((void *)m_eqn, "malloc", 2)) return; //TODO: throw error
       
+   //Init u
+   for(uint iVecId=0; iVecId<(NEQ+1); iVecId++)
+       NV_Ith_S(u,iVecId) = 0.0;
+
    //Call CVodeCreate to create the solver memory and specify the 
    //Backward Differentiation Formula and the use of a Newton iteration 
    cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
@@ -190,21 +278,77 @@ void IntegratorCvode::init(double T0, ModelEqn& m_eqn)
    if(check_flag(&flag, "CVodeInit", 1)) return;
 
    // Call CVodeSStolerances to specify the scalar relative tolerance
-   // and scalar absolute tolerance 
+   // and scalar absolute tolerance, and max steps 
    flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-   if (check_flag(&flag, "CVodeSStolerances", 1)) return; 
-   
+   if (check_flag(&flag, "CVodeSStolerances", 1)) return;
+
+   flag = CVodeSetMaxNumSteps(cvode_mem, mxsteps_);
+   if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return;
+
+   flag = CVodeSetMaxOrd(cvode_mem, maxord_);
+   if (check_flag(&flag, "CVodeSetMaxOrd", 1)) return;
+ 
+   flag = CVodeSetInitStep(cvode_mem, deltaTInit_);
+   if (check_flag(&flag, "CVodeSetInitStep", 1)) return;
+
+   flag = CVodeSetMinStep(cvode_mem, deltaTMin_);
+   if (check_flag(&flag, "CVodeSetMinStep", 1)) return;
+
+   flag = CVodeSetMaxStep(cvode_mem, deltaTMax_);
+   if (check_flag(&flag, "CVodeSetMaxStep", 1)) return;
+
+   flag = CVodeSetMaxNonlinIters(cvode_mem, maxNonLinearIterations_);
+   if (check_flag(&flag, " CVodeSetMaxNonlinIters(", 1)) return;
+
    // Set the pointer to user-defined data 
    flag = CVodeSetUserData(cvode_mem, m_data_);
    if(check_flag(&flag, "CVodeSetUserData", 1)) return; 
-  
-   // Call CVBand to specify the CVBAND band linear solver 
-   flag = CVBand(cvode_mem, NEQ, 1, 1);
-   if(check_flag(&flag, "CVBand", 1)) return; 	
 
-   // Set the user-supplied Jacobian routine Jac 
-   flag = CVDlsSetBandJacFn(cvode_mem, cvodes_jac);
-   if(check_flag(&flag, "CVDlsSetBandJacFn", 1)) return; 
+   //Select the linear solver
+   if(linearSolver_==CVDIAG)
+   {
+       flag = CVDiag(cvode_mem);
+       if(check_flag(&flag, "CVDiag", 1)) return; 	
+       printf("IntegratorCvode will use 'CVDiag' as linear solver.  \n");
+   }
+   else if(linearSolver_==CVDENSE)
+   {
+       flag = CVDense(cvode_mem, NEQ);
+       if(check_flag(&flag, "CVDense", 1)) return; 	
+
+       // Set the user-supplied Jacobian routine Jac, TODO: currently not done! 
+       printf("IntegratorCvode will use 'CVDense' as linear solver.  \n");
+   }
+   else if(linearSolver_==CVBAND)
+   {
+       flag = CVBand(cvode_mem, NEQ, 1, 1);
+       if(check_flag(&flag, "CVBand", 1)) return; 	
+
+       // Set the user-supplied Jacobian routine Jac 
+       flag = CVDlsSetBandJacFn(cvode_mem, cvodes_jac);
+       if(check_flag(&flag, "CVDlsSetBandJacFn", 1)) return; 
+       printf("IntegratorCvode will use 'CVBand' as linear solver.  \n");
+   }
+   else if(linearSolver_==CVSPGMR)
+   {
+       flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
+       if(check_flag(&flag, "CVSpgmr", 1)) return; 	
+       printf("IntegratorCvode will use 'CVSpgmr' as linear solver.  \n");
+   }
+   else if(linearSolver_==CVSPBCG)
+   {
+       flag = CVSpbcg(cvode_mem, PREC_NONE, 0);
+       if(check_flag(&flag, "CVSpbcg", 1)) return; 	
+       printf("IntegratorCvode will use 'CVSpbcg' as linear solver.  \n");
+   }
+   else if(linearSolver_==CVSPTFQMR)
+   {
+       flag = CVSptfqmr(cvode_mem, PREC_NONE, 0);
+       if(check_flag(&flag, "CVSptfqmr", 1)) return; 	
+       printf("IntegratorCvode will use 'CVSptfqmr' as linear solver.  \n");
+   }
+   else
+       error().throw_error_one(FLERR,"linearSolver_ incorrectly specified in the CVODE integrator. Check: settings/integrator.json/integrator/linearSolver.\n");  
 
    printf("IntegratorCvode successfully initialized with %d grid points \n", MX );
    
@@ -213,66 +357,108 @@ void IntegratorCvode::init(double T0, ModelEqn& m_eqn)
 
 ///////////////////////////////////////////////////////////////////////////
 
-void IntegratorCvode::integrate_begin(const char* stateType, int nGridPointsUsed_, int particleDataID_)
+void IntegratorCvode::integrate_begin(const char* stateType, int nGridPointsUsed, int dataID, bool updatePhaseFraction)
 {
-   tempIntraData_   = create<double>(tempIntraData_, nGridPointsUsed_); 
-
-   double r;
-   int h;
-   
+   double* intraDataPtr;
+   //printf("number of particles in integrator = %i, actual particle ID \n",particleData().nbody());
    for(particleID=0; particleID<particleData().nbody(); particleID++)
    {
-       //printf("number of particles in integrator = %i, actual particle ID \n",particleData().nbody(),);
-       particleData().setParticleIDPointer(particleDataID_,particleID);	
-       particleData().returnIntraData(tempIntraData_);
+       if(updatePhaseFraction)
+       {
+           particleData().setParticleIDPointerPhaseFraction(particleID);
+           particleData().returnPhaseFractionData(tempPhaseDataGas_, tempPhaseDataLiquid_);
+           particleData().phaseFractionChangeRateStart(particleID,tempPhaseDataGas_, tempPhaseDataLiquid_);
+           for(int iGrid = 0; iGrid<(nGridPointsUsed-1); iGrid++) //no need to save outer grid point
+           {
+             tempPhaseDataSolid_[iGrid] = 1.
+                                        - tempPhaseDataGas_[iGrid]
+                                        - tempPhaseDataLiquid_[iGrid];
+             //printf("tempPhaseDataSolid_ [%i] = %g, tempPhaseDataGas_ = %g, tempPhaseDataLiquid_[iGrid] = %g \n",iGrid,tempPhaseDataSolid_[iGrid],tempPhaseDataGas_[iGrid],tempPhaseDataLiquid_[iGrid]);
+           }
+           if(dataID==GAS)  
+             intraDataPtr = tempPhaseDataGas_;    //just set pointer
+           else if(dataID==LIQUID) 
+             intraDataPtr = tempPhaseDataLiquid_; //just set pointer
+           else if(dataID==SOLID)
+           {
+               error().throw_error_one(FLERR,"IntegratorCvode detected that you like to update the solid phase fraction. This is not allowed. \n");
+           }
+           else
+               error().throw_error_one(FLERR,"IntegratorCvode was handed over an invalid phase id.\n");
 
-      // printf(" requesting data with id %d for particle %d on this CPU with %d particles \n", particleDataID_, particleID, particleData().nbody());
+       }
+       else
+       {
+           particleData().setParticleIDPointer(dataID,particleID);	
+           particleData().returnIntraData(tempIntraData_);
+           intraDataPtr = tempIntraData_;
+       }
 
+	   realtype *udata;
        if(strcmp(stateType,"udata") == 0)
        {
           //set the current udata
-          realtype *udata;
           udata = NV_DATA_S(u);
 
           for (int h=1; h <= MX; h++) 
           {
-            udata[h] = tempIntraData_[h-1];
-            //printf("Udata[%i] in integrator for particle Data ID %i before integration = %g at t = %g sec\n", h,particleDataID_,udata[h],control().simulationState().time());
+            //printf("udata [%i] = %g \n",h,udata[h]);
+            udata[h] = intraDataPtr[h-1];
           }
-
-       //Reinitialize with CVodeReInit
-       Reinitialize(control().simulationState().time(), m_data_);
+          //Reinitialize with CVodeReInit
+          Reinitialize(control().simulationState().time(), m_data_);
        }
 
        else if(strcmp(stateType,"radius") == 0)
        {
            error().throw_error_one(FLERR,"IntegratorCvode does not manage the radius in this one.\n");
-       }
-		  
+       }		 
+     
 	   umax = N_VMaxNorm(u);
+
 	   T0 = control().simulationState().time();
 	   T1 = T0+control().simulationState().deltaT();
 
-	   realtype *udata;
 	   udata = NV_DATA_S(u);
 		
 	   flag = CVode(cvode_mem, T1, u, &t, CV_NORMAL); 				
-	   if(check_flag(&flag, "CVode", 1)) return;
+	   if(check_flag(&flag, "CVode", 1)) 
+       {
+            printf("Problem when integrating for dataID %d.\n", dataID);
+            error().throw_error_one(FLERR,"IntegratorCvode could not finish command 'CVode' without a flag. Must abort.\n");
+       }
 
 
-		double radialDist(0.0), deltaR(0.0);
-		deltaR = 1.0/(MX-1);
+	   double radialDist(0.0), deltaR(0.0);
+	   deltaR = 1.0/(MX-1);
 		  
 	   flag = CVodeGetNumSteps(cvode_mem, &nst);
 	   check_flag(&flag, "CVodeGetNumSteps", 1);
       
-        for (int h=1; h <= MX; h++) 
-        {
-            //printf(" udata[%i] in integrator after integration = %g \n", h,udata[h]);
-            tempIntraData_[h-1]= udata[h];
-        }
+       for (int h=1; h <= MX; h++) 
+            intraDataPtr[h-1] = udata[h];
 
-        particleData().saveIntraParticleData(particleDataID_, particleID, tempIntraData_);
+       if(updatePhaseFraction)
+       {
+           if(dataID==GAS)   //have written into tempPhaseDataGas_
+            for(int iGrid = 0; iGrid<(nGridPointsUsed-1); iGrid++)
+                tempPhaseDataLiquid_[iGrid] = 1.0 
+                                            - tempPhaseDataSolid_[iGrid]
+                                            - tempPhaseDataGas_[iGrid];
+           else if(dataID==LIQUID) //have written into tempPhaseDataLiquid_
+            for(int iGrid = 0; iGrid<(nGridPointsUsed-1); iGrid++)
+                tempPhaseDataGas_[iGrid] = 1.0 
+                                         - tempPhaseDataSolid_[iGrid]
+                                         - tempPhaseDataLiquid_[iGrid];
+
+           particleData().savePhaseFractionData(particleID, tempPhaseDataGas_, tempPhaseDataLiquid_);
+           particleData().phaseFractionChangeRateEnd(particleID, tempPhaseDataGas_, tempPhaseDataLiquid_, control().simulationState().deltaT());
+       }
+       else
+          particleData().saveIntraParticleData(dataID, particleID, intraDataPtr);
+
+
+
    }
 }
 
@@ -344,7 +530,7 @@ void IntegratorCvode::PrintFinalStats(void *cvode_mem)
    flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
    check_flag(&flag, "CVDlsGetNumJacEvals", 1);
    flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-   check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
+   check_flag(&flag, "CVDlfpsGetNumRhsEvals", 1);
 
    printf("\nFinal Statistics:\n");
    printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",

@@ -24,4 +24,4 @@ Explanation
 
 Read next
 -----------
- - [13_Coupling.md](13_Coupling.md)
+ - [13_CouplingModel.md](13_CouplingModel.md)

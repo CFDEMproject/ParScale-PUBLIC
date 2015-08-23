@@ -1,0 +1,26 @@
+{
+	"involvedPhases": {
+		"phaseNames": [
+			"liquid",
+			"gas"
+		],
+		"speciesNames": [
+			"liquidSpecies",
+			"species"
+		]
+	},
+	"vaporPressureModel": {
+		"evaporationRateConstant": 3000,
+		"jacobiForDensePhase": 0,
+		"pressureAmbient": 100000,
+		"name": "antoine",
+		"parameters": [8.20417,1642.89,-42.85],
+		"source": "",
+		"comment": "gives 1.7826e4 [Pa] at 313.15 - works! model must return vapor pressure in Pa, temperature is in Kelvin"
+	},
+	"enthalpyModel": {
+		"name": "constant",
+		"value": 40500000,
+		"comment": "Ethanol (65)"
+	}
+}

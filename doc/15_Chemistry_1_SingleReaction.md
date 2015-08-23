@@ -10,7 +10,7 @@ Syntax
     {
         "reactants":
         {
-             "names": ["[name1]",["[name2]"]
+             "names": ["[String]",["[String]"]
         },
     
     
@@ -23,12 +23,12 @@ Syntax
           "Arrhenius_E_A"  :  [number]
         },
     
-        "[name1]":
+        "[String]":
         {
              "reactionOrder": [number],
              "stoichiometry": [number]
         },
-        "[name2]":
+        "[String]":
         {
              "reactionOrder": [number],
              "stoichiometry": [number]
@@ -80,4 +80,4 @@ Example from `chemistry_single_reaction.json`
 
 Read next
 -----------
- - [15_Chemistry_2_MultiReaction.md](15_Chemistry_2_MultiReaction.md)
+ - [16_EquationProperties.md](16_EquationProperties.md)

@@ -1,0 +1,35 @@
+particle_mesh nGridPoints 10
+
+particle_data number_particles 1 verbose 0
+
+coupling none
+
+#Heat properties
+model propertiesThermo heatThermalConductivity_solid 
+model propertiesThermo heatCapacity_solid 
+model propertiesThermo heatDensity_solid 
+model propertiesThermo heatTransferCoeff 
+
+
+#Species models - for disolved gas and solid (i.e., a catalyst)
+model propertiesThermo speciesDissolvedDiffusivity 
+model propertiesThermo speciesDissolvedTortuosity
+model propertiesThermo speciesDissolvedTransferCoeff 
+
+model propertiesThermo speciesCatalystDiffusivity 
+model propertiesThermo speciesCatalystTortuosity
+model propertiesThermo speciesCatalystTransferCoeff 
+
+#Equations
+modelEqn 1DSpherical  heat                      BC0 1  BC1 2 #inactive #writeDebugContainers
+modelEqn 1DSpherical  speciesDissolved  solid   BC0 1  BC1 2 normalizeDuringGrowth #writeDebugContainers  #inactive #no need to specify any properties if inactive
+modelEqn 1DSpherical  speciesCatalyst   solid   BC0 1  BC1 2 normalizeDuringGrowth #writeDebugContainers  #verbose  #inactive #no need to specify any properties if inactive
+
+
+
+#Chemistry
+modelchemistry SingleReaction myChem
+
+control outputTimeStep 1e-3
+control timeStep 5e-8
+control run      0.003

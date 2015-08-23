@@ -21,10 +21,13 @@ Explanation
      
      
    
+IMPORTANT
+------------
+ - There must NOT be a 'control run' statement in the ParScale input script in case the user wants to run a simulation that is coupled to LIGGGHTS (the liggghts fix will not be found by ParScale when attempting to execute the control run).
      
 Read next
 -----------
- - [14_Model_Equations.md](14_Model_Equations.md)
+ - [14_ModelEquation.md](14_ModelEquation.md)
  
  Related
 -----------

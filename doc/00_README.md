@@ -23,3 +23,7 @@ Documentation
 Read next
 -----------
  - [01_ParScale.md](01_ParScale.md)
+
+Related
+---------
+ - [99_LICENSE.md](99_LICENSE.md)

@@ -5,11 +5,11 @@
 #***************************************
 
 #clean and remove all copulings to 
-currDir=$PWD
-cd COUPLING_LIGGGHTS
+cd $PASCAL_SRC_DIR/COUPLING_LIGGGHTS
+chmod 777 Install.sh
 ./Install.sh 0
 #./Install.sh 1
-cd $currDir
+cd $PASCAL_SRC_DIR
 
 make clean-all
 

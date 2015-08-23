@@ -35,6 +35,11 @@ License
 	Parts of the code were developed in the frame of the NanoSim project funded
 	by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
+/* 
+    Contributing author:    Stefan Radl, TU Graz
+    Container for chemistry models
+
+\*-----------------------------------------------------------------------------------*/
 
 
 #ifndef PASC_MODEL_CHEMISTRY_CONTAINER_H
@@ -46,6 +51,7 @@ License
 #include "model_chemistry.h"
 #include <map>
 #include <string>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace PASCAL_NS
 {
@@ -68,7 +74,7 @@ class ModelChemistryContainer : public ParScaleBase, public ParScaleBaseInterfac
       int nrChemistryEqns()    const      {return modelChemistryEqns_.size();};
       
       //Access model eqns
-      ModelChemistry* modelChemistryEqn(int i)    const {return modelChemistryEqns_[i];};
+      const ModelChemistry* modelChemistryEqn(int i)    const {return &modelChemistryEqns_[i];};
       
     private:
 
@@ -77,7 +83,7 @@ class ModelChemistryContainer : public ParScaleBase, public ParScaleBaseInterfac
 
       template <typename T> static ModelChemistry *model_creator(ParScale *ptr, char *name);
 
-      vector<ModelChemistry*> modelChemistryEqns_;
+      boost::ptr_vector<ModelChemistry> modelChemistryEqns_;
 
 
 };

@@ -66,7 +66,9 @@ void ModelProperties::init(int narg, char const* const* arg)
 
 	model_name = modelContainer().model((counter-1))->name(); //model_name is the name of the model currently initialized
 
-	read_model_json_file(model_name,ptr);				//build and read json file for every model -see mode_base.cpp		
+	read_model_json_file(model_name,ptr,parameters_);		  //build and read json file for every model -see mode_base.cpp	
+
+    	
 }
 
 

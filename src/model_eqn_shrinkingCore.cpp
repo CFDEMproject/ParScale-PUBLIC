@@ -67,7 +67,7 @@ void ModelEqnShrinkingCore::init(int narg, char const* const* arg, int eqnType, 
 void ModelEqnShrinkingCore::begin_of_step()
 {
     //updateProperties();             //this will update model-internal properties.
-    integrator().integrate_begin("udata", nGridPointsUsed_,particleDataID_); //this will start the integrator
+    integrator().integrate_begin("udata", nGridPointsUsed_,particleDataID_,updatePhaseFraction); //this will start the integrator
 }
 
 //------------------------------------
@@ -81,7 +81,7 @@ void ModelEqnShrinkingCore::eval(double t, double* udata, double* dudata, double
     updateProperties(particleID);             //this will update model-internal properties.
 
     //update chemistry
-    particleData().returnchemistryDataPoint(particleDataID_, particleID, 0, kSurface_);
+    particleData().returnchemistryDataPoint(particleDataID_, particleID, 0, kSurface_); //assumes here that NO Jacobian is known for kSurface!
 
     //Returns the time derivative of the DIMENSIONLESS core radius u!
    	h          = 1;
@@ -103,7 +103,7 @@ void ModelEqnShrinkingCore::eval(double t, double* udata, double* dudata, double
 
      if(BC[1]==NEUMANN)
         dudata[h] = -( 
-                        flux->value() 
+                        environmentFlux 
                        *Apart
                      ) 
                      * invCapacity;
@@ -250,7 +250,7 @@ void ModelEqnShrinkingCore::computeSurfaceFluxes()
             }
             else if(BC[1]==CONVECTIVE)
             {
-                tempPartFlux_ =  alpha * (tempIntraData_[0] - environmentU);
+                tempPartFlux_ =  environmentTransCoeff * (tempIntraData_[0] - environmentU);
                // printf("heat flux in ModelEqnShrinkingCore::computeSurfaceFluxes() = %g \n", tempPartFlux_);
             }
         }
@@ -274,26 +274,26 @@ void ModelEqnShrinkingCore::updateProperties(int particleID)
         //TODO: all this will not work in case we have locally-defined (i.e., intra-particle)
         //      variable properties!
         //set properties
-        if (porosity!=NULL)
+        if (phaseFraction!=NULL)
         {
             if(eqnType_==HEAT)
             {
                 //get thermal conductivity from in.fil,calculate effective thermal conductivity
                 lambda_solid=thermal_solid_conductivity->value();
                 lambda_gas=thermal_gas_conductivity->value();
-                lambda_eff=(1.0-(porosity->value()*porosity->value()))*lambda_solid
-                      +(porosity->value()*porosity->value())*lambda_gas; //TODO: check this eqn.
+                lambda_eff=(1.0-(phaseFraction->value()*phaseFraction->value()))*lambda_solid
+                      +(phaseFraction->value()*phaseFraction->value())*lambda_gas; //TODO: check this eqn.
 
                 //get heat capacity from in.fil,calculate effective heat capacity
                 c_p_solid=capacity_solid->value();
                 c_p_gas=capacity_gas->value();
-                c_p_eff=(1.0-porosity->value())*c_p_solid
-                        +porosity->value()*c_p_gas;
+                c_p_eff=(1.0-phaseFraction->value())*c_p_solid
+                        +phaseFraction->value()*c_p_gas;
 
                 //get density from in.fil,calculate effective density
                 rho_gas=density_gas->value();
-                rho_eff=(1.0-porosity->value())*rho_solid
-                        +porosity->value()*rho_gas;
+                rho_eff=(1.0-phaseFraction->value())*rho_solid
+                        +phaseFraction->value()*rho_gas;
 
                 diffu_eff_=lambda_eff/(c_p_eff*rho_eff);
             }
@@ -331,36 +331,31 @@ void ModelEqnShrinkingCore::updateProperties(int particleID)
         {
             if(transfer_coeff!=NULL)
 		    {
-                alpha=transfer_coeff->value();
+                environmentTransCoeff=transfer_coeff->value();
 		    }
 		    else
             {
                 printf("WARNING: you have not specified a transfer coefficient. Assuming 0.\n");
-                alpha=0.;
+                environmentTransCoeff=0.;
             }
         }
         else
         {
-            alpha=0.0;
+            environmentTransCoeff=0.0;
         }
 
         if(BC[1]==NEUMANN)
         {
-            if(flux!=NULL)
-                environmentFlux=flux->value();
-            else
+            environmentFlux=environmentU;
+
+            if(environmentFlux=0)
             {
                 printf("WARNING: you have not specified a flux. Assuming 0.\n");
-                environmentFlux=0.;
             }
         }
-        else
-        {
-            environmentFlux=0.0;
-        }
 
-        //printf("using diffu_eff_: %g, alpha: %g, biot_num: %g.\n",
-        //       diffu_eff_, alpha, biot_num);
+        //printf("using diffu_eff_: %g, environmentTransCoeff: %g, biot_num: %g.\n",
+        //       diffu_eff_, environmentTransCoeff, biot_num);
     }
     return;
 }

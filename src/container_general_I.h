@@ -56,7 +56,7 @@ License
     isFilled_(false),
     isDumped_(false),
     isFull_(false),
-    verbose_(true)
+    verbose_(false)
   {
           create<T>(arr_,GROW,NUM_VEC,LEN_VEC);
   }
@@ -267,7 +267,6 @@ License
             printf( "Container with id '%s': skipping read because container content will be pulled and does not require read.\n",
                     containerProperties_.id()
                   );
-          isFilled_ = true;
           return;
       }
 

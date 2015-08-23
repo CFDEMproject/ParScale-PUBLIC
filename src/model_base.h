@@ -63,7 +63,8 @@ namespace PASCAL_NS
 enum{ HEAT,		//0
       SPECIES,	//1
       OTHER,    //2
-      REACTION  //3
+      REACTION, //3
+      PHASECHANGE  //4
     };
 
 
@@ -83,23 +84,26 @@ class ModelBase : public ParScaleBaseAccessible
 
 
       //Access functions
-      const char* name() {return name_;}
+      const char* name() const {return name_;}
+      const char* nameSpecies() const {return name_+7;} //chops-off word "species" at the front
       const char* scope() {  return scope_; }
-      virtual double value(){return 0.0;};
+      virtual double          value()      { return 0.0; };
+      virtual vector<double>  parameters() { return vector<double>(); };
 		
 	  void readQJsonObject(const QJsonObject &json);
   	  void lookup_constant_in_QJsonObject(const QJsonObject &json, double *constant_value, const char *constant_name);
-	  void read_model_json_file(const char *model_name,double * ptr);
+	  void read_model_json_file(const char *model_name,double * ptr, vector<double> &parameters);
 
 	  void readQJsonConstant(const QJsonObject &json,const char *name_model,double * ptr) ;
+      void readQJsonParameterVector(const QJsonObject &json, const char *name_model, vector<double> &parameters);
 
       QJsonObject readQJsonObject(const char* filename, const char *object_name);
       void read_verbose_json_file(const char *property_name, bool *ptr);
       void read_species_properties(const char *species_name, const char *property_name, double *ptr);
-      void read_chemistry_single_react_json_file(const char *model_name,double * ptr);
-      void read_chemistry_single_react_json_file(const char *model_name,bool * ptr);
+      void read_chemistry_single_react_json_file(const char *model_name,double * ptr, bool );
+      void read_chemistry_single_react_json_file(const char *model_name,bool * ptr, bool );
 
-	  mutable QJsonObject global_properties;
+	  mutable QJsonObject    global_properties;
 	  mutable QJsonDocument  loadDoc;
 	  mutable QString        myName;
 	  mutable QString 		 specific_model_name;
@@ -110,6 +114,7 @@ class ModelBase : public ParScaleBaseAccessible
 
       char *name_;
       char *scope_; // scope/name for JSON file
+      bool  alwaysTrueVariable_;
 
 	//model constants
 	

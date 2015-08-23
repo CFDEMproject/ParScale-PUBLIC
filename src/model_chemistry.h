@@ -78,9 +78,8 @@ class ModelChemistry : public ModelBase
 
     private:
 	
-
       mutable QJsonObject   properties_;
-      QJsonObject   rates_;
+      QJsonObject           rates_;
 
       vector<QString>  speciesNames_;
       int       heatEqnID_;     
@@ -100,7 +99,7 @@ class ModelChemistry : public ModelBase
 	  double  * tempIntraDataSpecies_;
       double  * tempIntraDataHeat_; 
  
-      double    kSurface_arrhenius_;    //surface reation rete for arrhenius egn 
+      double    kSurface_arrhenius_;    //surface reation rate for arrhenius eqn 
  
         
       bool verbose_;

@@ -18,3 +18,10 @@ rm -r 6*
 rm -r 7*
 rm -r 8*
 rm -r 9*
+
+rm log.*
+rm octave/*.png
+rm octave/transient_heat_conduction.dat
+rm verificationStats/error_stat.dat
+rm codeInfo.*
+

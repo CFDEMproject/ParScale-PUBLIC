@@ -46,6 +46,7 @@ License
 #include "model_base.h"
 #include <map>
 #include <string>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace PASCAL_NS
 {
@@ -66,7 +67,7 @@ class ModelContainer : public ParScaleBase, public ParScaleBaseInterface
       
       int modelCount() {return models_.size();};
 
-      ModelBase* model(int idx) {return models_[idx];}    
+      ModelBase* model(int idx) {return &models_[idx];}    
 
     private:
 
@@ -75,7 +76,7 @@ class ModelContainer : public ParScaleBase, public ParScaleBaseInterface
 
       template <typename T> static ModelBase *model_creator(ParScale *ptr, char *name);
 
-      vector<ModelBase*> models_;
+      boost::ptr_vector<ModelBase> models_;
       
 
 };

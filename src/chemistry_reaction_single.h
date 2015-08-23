@@ -52,7 +52,9 @@ License
 #include "particle_data.h"
 #include "input.h"
 
-#define UNIVERSAL_GAS_CONSTANT 8.3144621
+#define UNIVERSAL_GAS_CONSTANT 8314.4621                //SI UNITS: J/kMol/K !!
+#define INVERSE_UNIVERSAL_GAS_CONSTANT 0.0001202723625  //SI UNITS: kMol*K/J !!
+#define MINIMUM_CONCENTRATION  1e-16                    //below which 0-order reaction will be linearly reduced
 
 namespace PASCAL_NS
 {
@@ -73,8 +75,9 @@ class ChemistryReactionSingle : public ParScaleBaseAccessible, ParScaleBaseInter
     void calculate_k_f_i(int grid_point_);
     void calculate_q_i(int grid_point_,int particleID_);
     void correct_q_i(double factor, int grid_point_,int particleID_);
+    double integrateVolume_q_i(int particleID, double &particleVolume);
     
-    inline double arrheniusRate(double temperature)
+    inline double arrheniusRate(double& temperature)
     {
         double rate = MathExtraPascal::fastPow(temperature, arrhenius_beta_i_);
         rate *=  arrhenius_A_i_ 
@@ -85,12 +88,39 @@ class ChemistryReactionSingle : public ParScaleBaseAccessible, ParScaleBaseInter
         return rate;
     }
 
-    inline double reactionProduct(vector<double> concentration, vector<double> exponent)
+    //This is the prefactor to the arrheniusRate that will give the 
+    //derivative of the arrheniusRate with respect to the temperature
+    //this is needed for the Jacobi calculation
+    inline double arrheniusRateDerivativePrefactor(double& temperature)
+    {
+        double inverseTemperature = 1.0 / temperature;
+        return  arrhenius_beta_i_ * inverseTemperature
+              + arrhenius_E_i_    * inverseTemperature * inverseTemperature * INVERSE_UNIVERSAL_GAS_CONSTANT;
+    }
+    inline double computeArrheniusRateDerivativePrefactor(int _grid_point)
+    {
+        return arrheniusRateDerivativePrefactor(actual_temp_[_grid_point]);
+    }
+
+    inline double reactionProduct(vector<double>& concentration, vector<double>& exponent)
     {
         double product = 1.0;
         for (uint i_reactant = 0; i_reactant < concentration.size(); i_reactant++)
-            product *= MathExtraPascal::fastPow(concentration[i_reactant],
-                                                exponent[i_reactant]);
+        {
+            //compute product, however,
+            //if reactant species is fully depleted, reaction stops
+            if( exponent[i_reactant]==0 && concentration[i_reactant]<cMinimum_  ) 
+                product *= concentration[i_reactant]/cMinimum_; //linear approximate for very small concentrations
+            else
+                product *= MathExtraPascal::fastPow(concentration[i_reactant],
+                                                    exponent[i_reactant]);
+                                               
+        if (verbose_)
+          printf("***reactant %d, conc: %g, exponent: %g, product: %g  \n",
+                  i_reactant, concentration[i_reactant], exponent[i_reactant], product
+                );
+        }
+        
         return product;
     }
 
@@ -118,22 +148,50 @@ class ChemistryReactionSingle : public ParScaleBaseAccessible, ParScaleBaseInter
 
     void resetOriginalIDs()
     {
+      if(original_IDs_reactant_.size()!=species_names_reactant_.size())
+      {
         original_IDs_reactant_.resize(species_names_reactant_.size(),0);
-        original_IDs_product_.resize(species_names_product_.size(),0);
         
-        for(int i =0; i<original_IDs_reactant_.size(); i++)
+        for(uint i =0; i<original_IDs_reactant_.size(); i++)
         {
             original_IDs_reactant_[i]= i + modelEqnContainer().nrHeatEqns();
             if(original_IDs_reactant_[i]>=modelEqnContainer().nrEqns())
                 error().throw_error_one(FLERR,"ERROR: failed to reset original IDs for reactants    . Most likely, you have not enough species equations in your input file. \n");
+            
+            if (species_names_reactant_[i].compare(modelEqnContainer().modelEqn(original_IDs_reactant_[i])->nameSpecies()) !=0 )
+            {
+                printf("detected problem with reactant id %d (name: %s) when comparing to modelEqn dataId=%d, name: %s (nrHeatEqns: %d).\n", 
+                        i, species_names_reactant_[i].c_str(),
+                        modelEqnContainer().modelEqn(original_IDs_reactant_[i])->particleDataID(),
+                        modelEqnContainer().modelEqn(original_IDs_reactant_[i])->nameSpecies(),
+                        modelEqnContainer().nrHeatEqns()
+                      );
+                error().throw_error_one(FLERR,"ERROR: Mismatch of names in chemistry and in modelEqns detected. Re-order you modelEqns to match the names! \n");
+            }
         }
-        
-        for(int i =0; i<original_IDs_product_.size(); i++)
-        {
+      }
+      
+      if(original_IDs_product_.size()==species_names_product_.size()) 
+            return;
+            
+      original_IDs_product_.resize(species_names_product_.size(),0);
+      for(uint i =0; i<original_IDs_product_.size(); i++)
+      {
             original_IDs_product_[i]= i + modelEqnContainer().nrHeatEqns();
             if(original_IDs_product_[i]>=modelEqnContainer().nrEqns())
                 error().throw_error_one(FLERR,"ERROR: failed to reset original IDs for products. Most likely, you have not enough species equations in your input file. \n");
-        }
+            if (species_names_product_[i].compare(modelEqnContainer().modelEqn(original_IDs_product_[i])->nameSpecies()) !=0 )
+            {
+                printf("detected problem with product id %d (name: %s) when comparing to modelEqn dataId=%d, name: %s (nrHeatEqns: %d). \n", 
+                        i, species_names_product_[i].c_str(),
+                        modelEqnContainer().modelEqn(original_IDs_product_[i])->particleDataID(),
+                        modelEqnContainer().modelEqn(original_IDs_product_[i])->nameSpecies(),
+                        modelEqnContainer().nrHeatEqns()
+                      );
+                error().throw_error_one(FLERR,"ERROR: Mismatch of names in chemistry and in modelEqns detected. Re-order you modelEqns to match the names! \n");
+            }
+            
+      }
     }
 
     void returnOriginalIDsreactant(vector<int> & original_IDs_reactant) 
@@ -209,7 +267,12 @@ class ChemistryReactionSingle : public ParScaleBaseAccessible, ParScaleBaseInter
    
     //setting the actual temperature to particular time step
     void SetActualTemp (double* actual_temp)         {actual_temp_ = actual_temp;};
-    
+
+    void setCMinimum(double _x)    
+    {
+         cMinimum_ = _x;
+    }
+
     //Setting the Enthalpy, vector includes all species Enthalpies in order of species ID
     void SetEnthalpySpecies(vector<double> Enthalpy) 
         {
@@ -240,7 +303,7 @@ class ChemistryReactionSingle : public ParScaleBaseAccessible, ParScaleBaseInter
             error().throw_error_one(FLERR,"ERROR: names, order, or stoichiometry not set for all speicies. \n");
 
         printf("\n *** ChemistryReactionSingle - Status *** \n");
-        printf("reversible: %d, temperature_dependend: %d, elementary_reaction_: %d, involved species: %d \n", 
+        printf("reversible: %d, temperature_dependend: %d, elementary_reaction_: %d, involved species: %lu \n", 
                reversible_, temperature_dependend_,
                elementary_reaction_,
                species_names_reactant_.size()
@@ -248,7 +311,7 @@ class ChemistryReactionSingle : public ParScaleBaseAccessible, ParScaleBaseInter
         printf("Arrhenius-Props: A_i: %g,  beta: %g,  E_i: %g \n", 
                arrhenius_A_i_, arrhenius_beta_i_, arrhenius_E_i_
               );
-        for(int i=0; i<species_names_reactant_.size();i++)
+        for(uint i=0; i<species_names_reactant_.size();i++)
         {
             printf("*   reactant: %s, \n", species_names_reactant_[i].c_str());
             printf("    order   : %g, \n", reaction_order_reactant_[i]);
@@ -271,6 +334,7 @@ class ChemistryReactionSingle : public ParScaleBaseAccessible, ParScaleBaseInter
     vector<double> K_p_i_;  
 
     vector<double> q_dot_i_;                  //Rate of progress of the ith reaction 
+    double         q_dot_i_Integral_;         //Volume integral of Rate of ith reaction 
 
     vector<double> delta_S_i_0_;              //molar entropy used for the calculation of K_p_i                 - to be calculated
     vector<double> delta_H_i_0_;              //molar enthalpy used for the calculation of K_p_i                - to be calculated
@@ -289,12 +353,13 @@ class ChemistryReactionSingle : public ParScaleBaseAccessible, ParScaleBaseInter
     bool pressure_dependend_;       //determines whether a reaction is pressure dependend or not        - to be read in from chemkin
     bool third_bodies_;             //determines whether a third body reaction is influencing           - not supported yet- to be read in from chemkin
 
+    double cMinimum_;
     double arrhenius_A_i_;          //pre-exponential factor                                            - to be read in from chemkin 
     double arrhenius_beta_i_;       //exponential factor for temperature dependency                    - to be read in from chemkin
     double arrhenius_E_i_;          //activation energy                                                 - to be read in from chemkin
     //Arrhenius k_f_i = A_i * T^(beta_i) * exp ((-E_i)/(R_c*T))
 
-    double P_atm_;           //[bar] TODO: think about unit!
+    double P_atm_;           //[Pa] WARNING: SI Units!
 
 
     //********Containers with size of number reactants/products***********//

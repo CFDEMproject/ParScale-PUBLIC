@@ -1,0 +1,30 @@
+{
+    "reactants":
+    {
+         "names": ["A","Solid"]
+    },
+
+
+    "reaction":
+	{
+      "cMinimum"       :  1e-3,
+      "isIsoThermal"   :  true,
+      "temperature"    :  1,  
+      "Arrhenius_A"    :  2e3,
+      "Arrhenius_beta" :  0,
+      "Arrhenius_E_A"  :  0,
+      "growthMolesFormed": 0
+    },
+
+    "A":
+    {
+         "reactionOrder": 1,
+         "stoichiometry": -0.5
+    },
+    "Solid":
+    {
+         "reactionOrder": 0,
+         "stoichiometry": -1
+    }
+    
+}

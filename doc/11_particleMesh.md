@@ -29,8 +29,8 @@ Syntax
         "name": "radius",
         "data" :
         {
-            "0": [ [number] ],
-            "1": [ [number] ]
+            "1": [ [number] ],
+            "2": [ [number] ]
         }
     }
 ````
@@ -43,8 +43,8 @@ Example lines from `0/radius.json`
         "name": "radius",
         "data" :
         {
-            "0": [ [5e-3] ],
-            "1": [ [5e-4] ]
+            "1": [ [5e-3] ],
+            "2": [ [5e-4] ]
         }
     }
 ````
@@ -57,8 +57,8 @@ Explanation
 
 Read next
 -----------
- - [12_ParticleNumber.md](12_ParticleNumber.md)
+ - [12_particleData.md](12_particleData.md)
 
 Related
 -----------
- - [13_Coupling.md](13_Coupling.md) (for more information on coupling models)
+ - [13_CouplingModel.md](13_CouplingModel.md) (for more information on coupling models)

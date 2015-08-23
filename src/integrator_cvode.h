@@ -43,7 +43,12 @@ License
 #include "integrator.h"
 #include "model_eqn.h"
 #include <cvode/cvode.h>             		/* prototypes for CVODE fcts., consts. */
-#include <cvode/cvode_band.h>        		/* prototype for CVBand */
+#include <cvode/cvode_dense.h>        		
+#include <cvode/cvode_band.h>        		
+#include <cvode/cvode_diag.h>         		
+#include <cvode/cvode_spgmr.h>         		
+#include <cvode/cvode_spbcgs.h>        		
+#include <cvode/cvode_sptfqmr.h>      		
 #include <nvector/nvector_serial.h>  		/* serial N_Vector types, fcts., macros */
 #include <sundials/sundials_band.h>  		/* definitions of type DlsMat and macros */
 #include <sundials/sundials_types.h> 		/* definition of type realtype */
@@ -53,6 +58,15 @@ License
 
 namespace PASCAL_NS
 {
+
+enum{ CVDENSE,          //0
+      CVBAND,           //1
+      CVDIAG,           //2
+      CVSPGMR,          //3
+      CVSPBCG,          //4
+      CVSPTFQMR         //5
+    };
+
 
 class modelData;
 
@@ -67,14 +81,18 @@ class IntegratorCvode : public Integrator
 	
 	~IntegratorCvode();
      
-    //int returnParticleID() {return particleID;}; 
-
     private:
 
  	FILE *fp;			    //pointer for writing data
 	N_Vector u;             //solution-vector 
     double dx; 		        //data to be saved in an instance of particleMesh 
     void *cvode_mem;
+    int mxsteps_;           //maximum number of steps taken by CVODE
+    int maxord_;            //maximum order of the integration method
+    realtype deltaTInit_;   //Initial time step size
+    realtype deltaTMin_;    //Minimum time step size  
+    realtype deltaTMax_;    //Maximum time step size 
+    int maxNonLinearIterations_; //Maximum number of nonlinear iterations
     realtype reltol;        //relative tolerance for iteration
   	realtype abstol;		//absolute tolerance for iteration
   	realtype t;			    //actual time, doesnt matter
@@ -89,12 +107,13 @@ class IntegratorCvode : public Integrator
 	void *flagvalue;
 	char *funcname;
 	int opt;
+    int linearSolver_;      //id of linear solver used
 
     modelData* m_data_;
      
   	virtual void init(double t0, ModelEqn& m_eqn);
 
-   	virtual void integrate_begin(const char* stateType, int nGridPointsUsed_, int particleDataID_);
+   	virtual void integrate_begin(const char* stateType, int nGridPointsUsed, int particleDataID, bool updatePhaseFraction);
   	virtual void integrate_middle() {};
    	virtual void integrate_end() {};	
 

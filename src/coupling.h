@@ -45,6 +45,7 @@ License
 #include "coupling_model.h"
 #include "pascal_base_accessible.h"
 #include "pascal_base_interface.h"
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace PASCAL_NS
 {
@@ -80,7 +81,9 @@ class Coupling : public ParScaleBaseAccessible, public ParScaleBaseInterface, pu
 
       // TODO extend in case of > 1 couplingmodel
       CouplingModel& couplingModel()
-      { return *couplingModels_[0]; }
+      { return couplingModels_[0]; }
+
+      int nlocal, nghost, nbody_all;
 
     private:
 
@@ -98,7 +101,7 @@ class Coupling : public ParScaleBaseAccessible, public ParScaleBaseInterface, pu
 
       template <typename T> static CouplingModel *couplingModel_creator(ParScale *ptr, char *name);
 
-      vector<CouplingModel*> couplingModels_;
+      boost::ptr_vector<CouplingModel> couplingModels_;
 
       bool isInitialized_;
 };

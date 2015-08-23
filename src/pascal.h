@@ -77,11 +77,13 @@ class ParScale
   class Error    *error_;      // error handling
 
   // data and physical/chemical models
-  class ParticleMesh      *particleMesh_;     //default particle mesh
-  class ModelContainer    *modelContainer_;   // container for physical/chemical models
-  class ModelEqnContainer *modelEqnContainer_; // container for (discretized) equations
-  class ModelChemistryContainer *modelChemistryContainer_; //Container for chemistry models
-  class ChemistryReader *chemistryReader_;
+  class ParticleMesh      *particleMesh_;                   //default particle mesh
+  class ModelContainer    *modelContainer_;                 // container for physical/chemical models
+  class ModelEqnContainer *modelEqnContainer_;              // container for (discretized) equations
+  class ModelPhaseChangeContainer *modelPhaseChangeContainer_;  //Container for phase change models
+  class ModelChemistryContainer   *modelChemistryContainer_;               //Container for chemistry models
+  class ChemistryReader           *chemistryReader_;
+  class ChemistryReaderCHEMKIN    *chemistryReaderCHEMKIN_;
   class Coupling          *coupling_;       // coupling to other codes
                                             // must come before particleData_ so coupling_.read()
                                             // is executed before particleData_.read()

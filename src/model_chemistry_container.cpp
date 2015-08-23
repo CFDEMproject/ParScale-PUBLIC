@@ -68,7 +68,7 @@ ModelChemistryContainer::~ModelChemistryContainer()
 {
     delete model_map_;
 
-    // TODO destroy all members of modelEqns_
+    modelChemistryEqns_.clear();
 }
 
 /* ----------------------------------------------------------------------
@@ -100,11 +100,12 @@ void ModelChemistryContainer::parse_command(int narg, char const* const* arg)
                 arg[0],
                 modelChemistryEqns_.size()-1);
 
-        modelChemistryEqns_[modelChemistryEqns_.size()-1]->init(narg, arg, REACTION, modelChemistryEqns_.size()-1);
+        modelChemistryEqns_[modelChemistryEqns_.size()-1].init(narg, arg, REACTION, modelChemistryEqns_.size()-1);
     }
     else
         printf("FAIL: ModelChemistryContainer PARSING: model name not found\n");
 
+    delete [] modelName;
 }
 
 
@@ -114,7 +115,7 @@ void ModelChemistryContainer::begin_of_step()
 {
 	
     for(uint iEqn=0; iEqn<modelChemistryEqns_.size(); iEqn++)
-            modelChemistryEqns_[iEqn]->begin_of_step();
+            modelChemistryEqns_[iEqn].begin_of_step();
 
 }
 

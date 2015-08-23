@@ -31,8 +31,9 @@ Every coupling model needs a settings file in the `settings/` folder which is na
      
 Read next
 -----------
- - [14_Model_Equations.md](14_Model_Equations.md)
+ - [14_ModelEquation.md](14_ModelEquation.md)
  
  Related
 -----------
- - [40_LIGGGHTSCoupling.md](40_LIGGGHTSCoupling.md) (for more information on coupling models)
+ - [13_CouplingModel_LIGGGHTS.md](13_CouplingModel_LIGGGHTS.md) (for more information on LIGGGHTS coupling model)
+ - [13_CouplingModel_JSON.md](13_CouplingModel_JSON.md) (for more information on JSON coupling model)

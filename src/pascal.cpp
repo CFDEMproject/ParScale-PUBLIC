@@ -48,10 +48,12 @@ License
 #include "fluid_data.h"
 #include "model_container.h"
 #include "model_eqn_container.h"
+#include "model_phasechange_container.h"
 #include "model_chemistry_container.h"
 #include "model_base.h"
 #include "pascal_base_interface_vector.h"
 #include "chemistry_reader.h"
+#include "chemistry_reader_chemkin.h"
 #include "coupling_model.h"
 
 using namespace PASCAL_NS;
@@ -72,12 +74,14 @@ ParScale::ParScale(int narg, char **arg, MPI_Comm communicator,void* caller) :
   particleMesh_ ( paScalBaseInterfaceVector_->add<ParticleMesh>(new ParticleMesh(this),"particle_mesh")),
   modelContainer_( paScalBaseInterfaceVector_->add<ModelContainer>(new ModelContainer(this),"model")),
   modelEqnContainer_( paScalBaseInterfaceVector_->add<ModelEqnContainer>(new ModelEqnContainer(this),"modelEqn")),
+  modelPhaseChangeContainer_( paScalBaseInterfaceVector_->add<ModelPhaseChangeContainer>(new ModelPhaseChangeContainer(this),"modelPhaseChange")),
   modelChemistryContainer_( paScalBaseInterfaceVector_->add<ModelChemistryContainer>(new ModelChemistryContainer(this),"modelchemistry")),
   // must come before particleData_ so coupling_.read() is executed before particleData_.read()
   // and coupling.pull() is executed before particleData_.pull(
   coupling_ ( paScalBaseInterfaceVector_->add<Coupling>(new Coupling(this),"coupling")),
   particleData_ ( paScalBaseInterfaceVector_->add<ParticleData>(new ParticleData(this),"particle_data")),
-  fluidData_ ( paScalBaseInterfaceVector_->add<FluidData>(new FluidData(this),"fluid_data"))
+  fluidData_ ( paScalBaseInterfaceVector_->add<FluidData>(new FluidData(this),"fluid_data")),
+  chemistryReaderCHEMKIN_ ( paScalBaseInterfaceVector_->add<ChemistryReaderCHEMKIN>(new ChemistryReaderCHEMKIN(this),"chemistryReaderCHEMKIN"))
 
 {
 }
@@ -89,7 +93,6 @@ ParScale::ParScale(int narg, char **arg, MPI_Comm communicator,void* caller) :
 ParScale::~ParScale()
 {
     delete paScalBaseInterfaceVector_;
-
     delete input_;
     delete output_;
     delete control_;
@@ -100,7 +103,9 @@ ParScale::~ParScale()
     delete fluidData_;
     delete modelContainer_;
     delete modelEqnContainer_;
+    delete modelPhaseChangeContainer_;
     delete modelChemistryContainer_;
+    delete chemistryReaderCHEMKIN_;
     //delete couplingModel_;
     delete comm_;          // delete this one last
    // delete modelBase_;
@@ -116,13 +121,12 @@ ParScale::~ParScale()
 void ParScale::init()
 {
 
-    printf("\n*******************************************\n");
-    printf("\nCreating a Pascal object \n");
-    printf("Will initialize individual components of Pascal now... \n");
+    output_->write_screen_all("*******************************************\n");
+    output_->write_screen_all("Will initialize individual components of Pascal now... \n");
 
     paScalBaseInterfaceVector_->init();
 
-    printf("\n*******************************************\n\n");
+    output_->write_screen_all("\n*******************************************\n\n");
 
 }
 

@@ -1,0 +1,29 @@
+{
+    "reactants":
+    {
+         "names": ["Dissolved", "Catalyst"]
+    },
+
+
+    "reaction":
+	{
+      "isIsoThermal"   :  false, 
+      "Arrhenius_A"    :  0.3,
+      "Arrhenius_beta" :  0 ,
+      "Arrhenius_E_A"  :  0,
+      "growthMolesFormed"           : 1.0,
+      "growthProductMolarWeight"    : 10,
+      "growthProductDensity"        : 900
+    },
+
+    "Dissolved":
+    {
+         "reactionOrder": 1,
+         "stoichiometry": -1
+    },
+    "Catalyst":
+    {
+         "reactionOrder": 0.25,
+         "stoichiometry": 0
+    }
+}

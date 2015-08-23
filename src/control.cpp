@@ -79,8 +79,8 @@ void Control::init()
 
 void Control::parse_command(int narg,char const* const* arg)
 {
-    double endTime(0.0);
-    double timeStep(1.0);
+  double endTime(0.0);
+  double timeStep(1.0);
 
   // parse optional args
   int iarg = 0;
@@ -105,8 +105,7 @@ void Control::parse_command(int narg,char const* const* arg)
             {
                 if(strcmp(arg[iarg++],"init"))
                     error().throw_error_all(FLERR,"Expecting keyword 'init' for 'control run' command\n");
-
-                printf("arg[%d]: %s \n", iarg,arg[iarg]);
+//                printf("arg[%d]: %s \n", iarg,arg[iarg]);
                 if(0 == strcmp(arg[iarg],"yes"))
                     do_init = true;
                 else if(0 == strcmp(arg[iarg],"no"))
@@ -131,9 +130,9 @@ void Control::parse_command(int narg,char const* const* arg)
 
             // Run the simulation
             // this also inits the simulation
-            output().write_screen_one("Control is firing up ParScale.");
+//            output().write_screen_one("Control is firing up ParScale.");
             driver_.run(endTime,do_init);
-            output().write_screen_one("ParScale run done.");
+//            output().write_screen_one("ParScale run done. \n");
 
             iarg++;
       }

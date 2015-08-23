@@ -1,0 +1,10 @@
+{
+    "modelParameters":
+    {
+         "type"         : "none",
+         "solidID"      : 1,
+         "cSolidInit"   : 1.0,
+         "psi0"         : 0.75,
+         "alpha"        : 0.5       
+    }
+}

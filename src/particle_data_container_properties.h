@@ -112,7 +112,9 @@ namespace PASCAL_NS
         COUPLING_TYPE_NONE,
         COUPLING_TYPE_PULL,
         COUPLING_TYPE_PUSH,
-        COUPLING_TYPE_PUSH_MIN_MAX, //just pushes the first and last value in the array
+        COUPLING_TYPE_PUSH_MIN_MAX,            //just pushes the first and last value in the array
+        COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET, //just pushes the first and last value in the array, 
+                                               //pulls 2 reset values (one for fluid, one for mean value)
         COUPLING_TYPE_PULL_PUSH};
 
   class OperationProperties
@@ -194,6 +196,7 @@ namespace PASCAL_NS
                     COUPLING_TYPE_PUSH         == couplingType_ 
                  || COUPLING_TYPE_PULL_PUSH    == couplingType_ 
                  || COUPLING_TYPE_PUSH_MIN_MAX == couplingType_ 
+                 || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
                )
                 return true;
             return false;
@@ -201,21 +204,37 @@ namespace PASCAL_NS
 
           inline bool pushMax() const
           { 
-            if (COUPLING_TYPE_PUSH_MIN_MAX == couplingType_ )
+            if (   COUPLING_TYPE_PUSH_MIN_MAX == couplingType_ 
+                || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
+               )
                 return true;
             return false;
           }
 
           inline bool pushMin() const
           { 
-            if (COUPLING_TYPE_PUSH_MIN_MAX == couplingType_ )
+            if (   COUPLING_TYPE_PUSH_MIN_MAX            == couplingType_ 
+                || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
+               )
                 return true;
             return false;
           }
           
           inline bool needsPull() const
           { 
-            if (COUPLING_TYPE_PULL==couplingType_ || COUPLING_TYPE_PULL_PUSH==couplingType_)
+            if (   COUPLING_TYPE_PULL==couplingType_ 
+                || COUPLING_TYPE_PULL_PUSH==couplingType_
+                || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
+               )
+                return true;
+            return false;
+          }
+
+          inline bool pullReset() const
+          { 
+            if (   
+                   COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
+               )
                 return true;
             return false;
           }

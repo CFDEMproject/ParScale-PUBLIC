@@ -76,6 +76,11 @@ class Comm : public ParScaleBaseAccessible, public ParScaleBaseInterface
       //TODO route this to CommModel
       void exchange();
 
+      void wait() const 
+      {
+          MPI_Barrier( world_ ) ;
+      };
+
     private:
 
       inline double SMALL_COMM()
@@ -90,9 +95,9 @@ class Comm : public ParScaleBaseAccessible, public ParScaleBaseInterface
       inline int BUFMIN()
       { return 2000; }
 
-      int popExchangeBcast(int nrecv,int dim,double *buf,class OperationProperties &op);
-      int pushExchangeBcast(int dim,class OperationProperties &op);
-
+      int pushExchangeBcast(int,            class OperationProperties &op);
+      int popExchangeBcast (int,double *buf,class OperationProperties &op);
+      
       void grow_send(int n, int flag);
       void grow_recv(int n);
 
@@ -100,8 +105,10 @@ class Comm : public ParScaleBaseAccessible, public ParScaleBaseInterface
       // class CommModel *commModel_;
       // can be CommModelCartesian or CommModelMany2Many
 
+      bool verbose_;
+
       int me_, nprocs_;        // number of MPI procs and my rank
-      MPI_Comm &world_;        // MPI communicator
+      MPI_Comm world_;         // MPI communicator, MUST be a copy of calling programm in order to be called from other routines
 
       // domain extent for global box and my box
       double boxlo_[3],boxhi_[3];
@@ -112,13 +119,20 @@ class Comm : public ParScaleBaseAccessible, public ParScaleBaseInterface
       int procgrid_[3];                  // procs assigned in each dim of 3d grid
       int myloc_[3];                     // which proc I am in each dim
       int procneigh_[3][2];              // my 6 neighboring procs, 0/1 = left/right
+      int neighAgoCaller_;               // number of steps the caller programm did re-neighbor/exchange
 
       // communication buffers
 
       double *buf_send_;                 // send buffer for all comm
       double *buf_recv_;                 // recv buffer for all comm
       int maxsend_,maxrecv_;              // current size of send/recv buffer
-
+     
+      std::vector<int> * exchangeEventsLocalId_;
+      std::vector<int> * exchangeEventsReceivingProcess_;
+      int sizeExchangeEvents_;
+      class CustomValueTracker * data_;
+      int * exchangeCounts_;             //counts to be received from each process in buffer
+      int * exchangeDisplacements_;      //associated displacements of received buffer
 };
 
 } //end PASCAL_NS

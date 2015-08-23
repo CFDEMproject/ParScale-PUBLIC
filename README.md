@@ -17,7 +17,7 @@ Note that some modules within the ParScale package are not under the copyright o
 
 License
 -----------------
-See license `LICENSE.md` file for details.
+See the [LICENSE.md](LICENSE.md) file for details.
 
 Warranty
 -----------------
@@ -29,11 +29,11 @@ ParScale stands for “Particle Scale Models”, and is a publicly available lib
 
 ParScale is available via https://github.com/CFDEMproject, and is designed as an add-on to the soft-sphere particle simulation tool `LIGGGHTS`. As such, ParScale is part of the [CFDEMproject](http://www.cfdem.com) initiated by Christoph Kloss and Christoph Goniva. However, ParScale can also be run in stand-alone mode for predicting, e.g., the chemical conversion of particles, fitting of model parameters to experimental data, or optimization studies of reactive particulate systems.
 
-Hints for Usage
+Important Hints for Usage
 -----------------
 
+- for installation instructions see the file src/INSTALL.md
 - there are separate README.md files in each sub-directory, so you might want to check them
-- for installation instructions see src/INSTALL.md
 - for a detailed model and user documentation see the doc folder
 - there is background information for developers in src/DEVELOPERS.md
 - in case you plan to add more details to the documentation, Markdown should be used for this purpose. The tool "ReText" (in the OpenSUSE standard package) or gedit (with the appropriate [gedit-markdown plugin](http://www.jpfleury.net/en/software/gedit-markdown.php)) for previewing markdown documentation on linux systems should be used to edit and view documentation.

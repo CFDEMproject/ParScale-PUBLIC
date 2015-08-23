@@ -67,8 +67,10 @@ class ParScaleBaseAccessible : public ParScaleBase
     inline FluidData&      fluidData()      {return *fluidData_;}
     inline ModelContainer& modelContainer() {return *modelContainer_;}
     inline ModelEqnContainer& modelEqnContainer() {return *modelEqnContainer_;}
+    inline ModelPhaseChangeContainer& modelPhaseChangeContainer() {return *modelPhaseChangeContainer_;}
     inline ModelChemistryContainer& modelChemistryContainer() {return *modelChemistryContainer_;}
     inline CouplingModel&       couplingModel()       {return *couplingModel_;}
+    inline ChemistryReaderCHEMKIN& chemistryReaderCHEMKIN() {return *chemistryReaderCHEMKIN_;}
 
 
     inline void*            callingProgram()  { return callingProgram_;};

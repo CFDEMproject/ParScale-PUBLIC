@@ -39,6 +39,7 @@ License
 
 
 #include "model_eqn_1D_cartesian.h"
+#include "output.h"
 
 using namespace PASCAL_NS;
 
@@ -49,8 +50,12 @@ using namespace PASCAL_NS;
 ModelEqn1DCartesian::ModelEqn1DCartesian(ParScale *ptr, char *name) :
       ModelEqn(ptr, name)
 {
-        printf("...this is a ModelEqn1DCartesian. \n");
-        debug_ = true;
+  printf("...this is a ModelEqn1DCartesian. \n");
+  debug_ = false;
+        
+  //check the particle mesh
+   if(particleMesh().nGridPoints()<1)
+       output().write_screen_one("WARNING: ModelEqn1DSpherical:your particle mesh has no grid points! \n");
 }
 
 //------------------------------------
@@ -58,17 +63,20 @@ void ModelEqn1DCartesian::init(int narg, char const* const* arg, int eqnType, in
 {
     //Allocate temporary memory to exchange particle data with particleData class
     nGridPointsUsed_ = particleMesh().nGridPoints() + 1; // allocate one interior and one exterior grid point
+    printf("nGridPointsUsed_ = %i \n",nGridPointsUsed_);
     modelingApproach = CONTINUUM;    
     ModelEqn::init(narg,arg,eqnType,modelEqnID);
+    
+    error().throw_error_one(FLERR,"ModelEqn1DCartesian currently not supported in this version. \n");
 }
 
 //------------------------------------
 void ModelEqn1DCartesian::begin_of_step()
 {
-        if(debug_)
-            printf("begin_of_step: advancing modelEqn %s ... \n", name());
+    if(debug_)
+        printf("begin_of_step: advancing modelEqn %s ... \n", name());
 
-       integrator().integrate_begin("udata", nGridPointsUsed_,particleDataID_);
+    integrator().integrate_begin("udata", nGridPointsUsed_,particleDataID_,updatePhaseFraction);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +84,7 @@ void ModelEqn1DCartesian::begin_of_step()
 void ModelEqn1DCartesian::eval(double t, double* udata, double* dudata, double* p)
 {
 	 double uh, ult, urt, hordc, horac, hdiff, hadv;
-        if(debug_)
+     if(debug_)
             printf("ModelEqn1DCartesian::eva  ... \n");
 	// Loop over all grid points.
         for (int h=0;  h < particleMesh().nGridPoints(); h++)
@@ -89,10 +97,10 @@ void ModelEqn1DCartesian::eval(double t, double* udata, double* dudata, double* 
             urt = (h == particleMesh().nGridPoints()) ? 0 : udata[h+1];
 
             // Set diffusion and advection terms and load into udot
-            hdiff = hordc*(ult - 2.0*uh + urt);	        //CDS
-            hadv = horac*(urt - ult);			//CDS
+            hdiff     = hordc*(ult - 2.0*uh + urt);	        //CDS
+            hadv      = horac*(urt - ult);			//CDS
             dudata[h] = hdiff + hadv;
-            }
+        }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -151,27 +159,27 @@ void ModelEqn1DCartesian::updateProperties()
         //TODO: all this will not work in case we have locally-defined (i.e., intra-particle)
         //      variable properties!
         //set properties
-        if (porosity!=NULL)
+        if (phaseFraction!=NULL)
         {
             if(eqnType_==HEAT)
             {
                 //get thermal conductivity from in.fil,calculate effective thermal conductivity
                 lambda_solid=thermal_solid_conductivity->value();
                 lambda_gas=thermal_gas_conductivity->value();
-                lambda_eff=(1.0-(porosity->value()*porosity->value()))*lambda_solid
-                      +(porosity->value()*porosity->value())*lambda_gas; //TODO: check this eqn.
+                lambda_eff=(1.0-(phaseFraction->value()*phaseFraction->value()))*lambda_solid
+                      +(phaseFraction->value()*phaseFraction->value())*lambda_gas; //TODO: check this eqn.
 
                 //get heat capacity from in.fil,calculate effective heat capacity
                 c_p_solid=capacity_solid->value();
                 c_p_gas=capacity_gas->value();
-                c_p_eff=(1.0-porosity->value())*c_p_solid
-                        +porosity->value()*c_p_gas;
+                c_p_eff=(1.0-phaseFraction->value())*c_p_solid
+                        +phaseFraction->value()*c_p_gas;
 
                 //get density from in.fil,calculate effective density
                 rho_solid=density_solid->value();
                 rho_gas=density_gas->value();
-                rho_eff=(1.0-porosity->value())*rho_solid
-                        +porosity->value()*rho_gas;
+                rho_eff=(1.0-phaseFraction->value())*rho_solid
+                        +phaseFraction->value()*rho_gas;
 
                 diffu_eff_=lambda_eff/(c_p_eff*rho_eff);
             }
@@ -211,43 +219,38 @@ void ModelEqn1DCartesian::updateProperties()
         {
             if(transfer_coeff!=NULL)
 		    {
-                alpha=transfer_coeff->value();
-			    //printf("alpha = %g \n", alpha);
+                environmentTransCoeff=transfer_coeff->value();
+			    //printf("environmentTransCoeff = %g \n", environmentTransCoeff);
 		    }
 		    else
             {
                 printf("WARNING: you have not specified a transfer coefficient. Assuming 0.\n");
-                alpha=0.;
+                environmentTransCoeff=0.;
             }
 
             //Biot number
             if(eqnType_==HEAT)
-                biot_num = (alpha*dx)/lambda_eff;   //TODO: check this
+                biot_num = (environmentTransCoeff*dx)/lambda_eff;   //TODO: check this
             else if(eqnType_==SPECIES)
-                biot_num = (alpha*dx)/diffu_eff_;   //TODO: check this
+                biot_num = (environmentTransCoeff*dx)/diffu_eff_;   //TODO: check this
         }
         else
         {
-            alpha=0.0;
+            environmentTransCoeff=0.0;
         }
 
         if(BC[1]==NEUMANN)
         {
-            if(flux!=NULL)
-                environmentFlux=flux->value();
-            else
+            environmentFlux=environmentU;
+
+            if(environmentFlux=0)
             {
                 printf("WARNING: you have not specified a flux. Assuming 0.\n");
-                environmentFlux=0.;
             }
         }
-        else
-        {
-            environmentFlux=0.0;
-        }
 
-        //printf("using diffu_eff_: %g, alpha: %g, biot_num: %g.\n",
-        //       diffu_eff_, alpha, biot_num);
+        //printf("using diffu_eff_: %g, environmentTransCoeff: %g, biot_num: %g.\n",
+        //       diffu_eff_, environmentTransCoeff, biot_num);
     }
     return;
 }

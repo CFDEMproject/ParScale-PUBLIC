@@ -1,0 +1,127 @@
+ %\documentclass[doktyp=marbeit,nummern=abschnitt, parskip=half]
+\documentclass{article}
+\usepackage{geometry}
+\geometry{a4paper,left=35mm,right=35mm, top=2.5cm, bottom=2.5cm} 
+%\usepackage[utf8]{inputenc}
+%\usepackage[T1]{fontenc}
+
+\usepackage{float}
+\usepackage{booktabs} %horizontale Linien in Tabellen 
+\usepackage{array} %notwendig für neue column-Stile
+\usepackage{caption}  
+\usepackage{footnote} % footnote cross reference
+\usepackage{psfrag}
+\usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\usepackage{amssymb}
+\usepackage{setspace}
+\usepackage{amsmath}
+%\usepackage{mathtools}
+%\usepackage{breqn}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{subfig}
+
+\newcommand{\RM}[1]{\MakeUppercase{\romannumeral #1}} 
+
+\usepackage{tabularx}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} 
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} 
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+\usepackage[inactive]{pst-pdf}
+\usepackage{pstricks,pst-node,pst-blur}
+\newcounter{leaves}
+\newcounter{directories}
+
+
+\newenvironment{directory}[2][0.4\linewidth]%
+% Startet neues Verzeichnis 
+% und produziert eine Minipage der angeg. Breite.
+% Syntax: \begin{directory}[width]{text}
+% text muss in eine \parbox der angegebenen Breite passen;
+% wenn keine Breite angegeben ist, wird \linewidth angenommen.
+{%
+\setcounter{leaves}{0}%
+\addtocounter{directories}{1}
+\edef\directoryname{D\thedirectories}
+\begin{minipage}[t]{#1}% <-------- !!!
+  \setlength{\parindent}{3\linewidth}
+  \addtolength{\parindent}{-\dirshrink\parindent}
+  \parskip0pt%
+  \noindent
+  \Rnode[href=-0.6\dirshrink]{\directoryname}{\parbox[t]{#1}{#2}}%
+  \par
+}  
+{\end{minipage}}
+\newcommand{\file}[2][]{%
+% Fuer einen einzelnen Eintrag innerhalb der directory-Umgebung.
+% Das Argument darf seinerseits eine directory-Umgebung sein.
+  \addtocounter{leaves}{1}%
+  \edef\leaflabel{L\theleaves\directoryname}%
+  \par
+  \Rnode{\leaflabel}{\parbox[t]{1\dirshrink\linewidth}{#2\hfill#1}}%
+  \ncangle[angleA=270,angleB=180,armB=0,nodesep=1pt]
+    {\directoryname}{\leaflabel}%
+  % \typeout{\directoryname,\leaflabel}% Debugging
+\par}
+
+\newcommand{\dirshrink}{.95}%{.95} 
+
+\usepackage[final]{pdfpages}
+\usepackage{listings}
+\lstset{showspaces=false,breaklines=true, showtabs=false, numbers=left, numberstyle=\scriptsize, numbersep=5pt,language=[Visual]C++}
+\renewcommand{\lstlistingname}{File section}
+\usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\bibliographystyle{unsrt}
+%#############################################################################################################################
+
+\usepackage[breaklinks, colorlinks=false, pdfborder={0 0 0}]{hyperref}
+
+\clubpenalties 3 10000 10000 100 
+\widowpenalty = 10000 
+\displaywidowpenalty = 10000 
+\usepackage{hyperref}
+
+\begin{document}
+
+\pagenumbering{roman} 
+
+\begin{center}
+\LARGE
+Analytical Solution for Stefan Diffusion of a wet core
+\end{center} 
+
+\section{Mole Fraction Profile}
+The mole fraction concentration distribution in the porous spherical shell is:
+\begin{align}
+y_1(r) = 1 - (1 - y_{1,0}) \left[\dfrac{1 - y_{1,int}}{1 - y_{1,0}} \right]^{\dfrac{r_{core}^{-1} - r^{-1}}{r_{core}^{-1} - R_{part}^{-1}}}
+\end{align}
+
+\section{Species Flux}
+\begin{align}
+\dot{n} = \dfrac{C_{tot} \, D_{eff}}{r^2 \left( \dfrac{1}{r_{core}} - \dfrac{1}{R_{part}}\right)} \, \text{ln} \left( \dfrac{1-y_{1,int}}{1-y_{1,0}} \right)
+\end{align}
+
+\section{Drying Time}
+The time needed for a complete drying of the wet core is:
+\begin{align}
+t_v = \dfrac{\rho_E \, \varepsilon_l}{C_{tot}\, MG_E \, D_{eff} \text{ln} \left(\dfrac{1 - y_{1,int}}{1 - y_{1,0}} \right)}  \, \, \dfrac{r_{core}^2 (3 R_{part} - 2 r_{core})}{6 R_{part}}
+\end{align}
+
+\section{Convective velocity}
+From the species flux the convective velocity can easily be calculated:
+\begin{align}
+\dot{n} = v_s \, C_{tot} 
+\end{align}
+\begin{align}
+v_s = \dfrac{D_{eff}}{r^2 \left( \dfrac{1}{r_{core}} - \dfrac{1}{R_{part}}\right)} \, \text{ln} \left( \dfrac{1-y_{1,int}}{1-y_{1,0}} \right)
+\end{align}
+
+For Nomenclature see octave documents.
+\end{document}

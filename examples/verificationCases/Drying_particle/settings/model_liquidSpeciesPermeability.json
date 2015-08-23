@@ -1,0 +1,9 @@
+{
+    "properties":
+    {
+      "model" :  "const",
+      "const_value" :  1e-15,
+      "comment":    "typical value from Liu et al., IECR 49:2649"
+    }
+	
+}

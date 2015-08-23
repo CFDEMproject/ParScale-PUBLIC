@@ -20,9 +20,9 @@ SHELL = /bin/sh
 
 srcdir       = .
 builddir     = .
-abs_builddir = /home/sradl/LIGGGHTS/ParScale-PUBLIC/thirdParty/sundials-2.5.0
+abs_builddir = /home/sradl/LIGGGHTS/ParScale/thirdParty/sundials-2.5.0
 top_builddir = .
-prefix       = /home/sradl/LIGGGHTS/ParScale-PUBLIC/platforms/linux64
+prefix       = /home/sradl/LIGGGHTS/ParScale/platforms/linux64
 exec_prefix  = ${prefix}
 includedir   = ${prefix}/include
 libdir       = ${exec_prefix}/lib64

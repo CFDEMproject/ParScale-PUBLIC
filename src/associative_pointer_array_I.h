@@ -171,6 +171,7 @@ License
     //  printf("%d %s %d\n",i,id_[i], strcmp(id_[i],"v"));
   }
 
+  // ***********************************
   template<typename T>
   void AssociativePointerArray<T>::grow(int to)
    {
@@ -183,6 +184,7 @@ License
       }
   }
 
+  // ***********************************
   template<typename T>
   int AssociativePointerArray<T>::size()
   {
@@ -192,7 +194,6 @@ License
   /* ----------------------------------------------------------------------
    copy data from element from to element to
   ------------------------------------------------------------------------- */
-
   template<typename T>
   void AssociativePointerArray<T>::copyElement(int from, int to)
   {
@@ -406,132 +407,156 @@ License
   ------------------------------------------------------------------------- */
 
   template<typename T>
-  void AssociativePointerArray<T>::sortPropsByExtMap(int *_id,int _len_id,  //Pascal's LOCAL ->GLOBAL ids to be set
-                                                     int *_map,int _len_map,//external GLOBAL->LOCAL  map with data for setting id
-                                                     ErrorBase const* err)
+  void AssociativePointerArray<T>::sortPropsByExtMap(int *_id, int _nlocal,  //Pascal's LOCAL ->GLOBAL ids to be set
+                                                     int &_id_length,
+                                                     int *_map,int _len_map,//external GLOBAL->LOCAL  map with data for setting id, map starts with 0 for globalId = 1!!
+                                                     ErrorBase const* err,
+                                                     bool verbose, int me)
   {
-
-    printf("sortPropsByExtMap is sorting your data... \n");
-
-    bool verbose_=false; 
 
     // check consistency of number of elements in containers
     // new nbody might have been pulled before already
     int nbody_old = content_[0]->size();
     for(int icontainer=1;icontainer<numElem_;icontainer++)
-        if(nbody_old != content_[icontainer]->size() || _len_id != nbody_old)
+        if( nbody_old != content_[icontainer]->size() || nbody_old != _id_length )
+        {
+            printf("[proc:%d] content_[icontainer]->size(): %d _id_length: %d,  nbody_old: %d\n",
+                    me, 
+                    content_[icontainer]->size(), _id_length,  nbody_old);
             err->throw_error_all(FLERR,"internal error; assertion failed because containers have different size");
+        }
 
-    // ensure there is enough space in the containers for swap, so add 1
-    grow(nbody_old+1);
+    // Add a spare at the very end: this is to ensure that there is enough space in the containers for swap
+    grow(nbody_old+1); //size of content is now nbody_old+1!
 
-    int  ibody = 0,ibody_new;
+    int  iLocal = 0;
     int  globalCurrID;              //current GLOBAL ID of the atom
-    int  globalCurrMem;             //position in the global MEM
+    int  globalCurrMem;             //position in the global MEM of _map!
     
     
     //Check if all bodies have a valid global ID
-    for(ibody=0; ibody<nbody_old; ibody++)
+    for(iLocal=0; iLocal<_id_length; iLocal++)
     {
-        if(_id[ibody]==-1) //global ID was not set before or is invalid: Assume consecutive ordering
+        if(_id[iLocal]==-1) //global ID was not set before or is invalid: Assume consecutive ordering
         {
-            _id[ibody] = ibody+1; //ids start with 1!
-            if(verbose_)
+            _id[iLocal] = iLocal+1; //ids start with 1!
+            if(verbose)
             {
-                printf("ibody: %d, resetting global ID to %d\n",
-                        ibody, _id[ibody]);
+                printf("[proc:%d]: iLocal: %d, resetting global ID to %d\n",
+                        me, iLocal, _id[iLocal]);
             }
         }            
     }
     
 
     // go through all bodies/elements available in ParScale
-    ibody=0;
-    while(ibody < nbody_old)    //loop all GLOBAL values and get values of the map
+    iLocal=0;
+    while(iLocal < _id_length)    //loop all GLOBAL values and get values of the map
     {
         //A - Get the current global ID 
-        globalCurrID = _id[ibody];
+        globalCurrID = _id[iLocal];
         globalCurrMem = globalCurrID-1;
 
         //B - Get the data location from the global map
         int dataLocation = _map[globalCurrMem]; //this is the LOCAL data location
         
-        if(verbose_)
+        if(verbose)
         {
-            printf("sortPropsByExtMap::nbody_old: %d, ibody: %d, globalCurrID: %d, dataLocation: %d\n",
-                    nbody_old, ibody, globalCurrID, dataLocation);
+            printf("[proc:%d]: sortPropsByExtMap::_nlocal: %d, _id_length: %d iLocal: %d, globalCurrID: %d, dataLocation: %d\n",
+                    me, _nlocal, _id_length, iLocal, globalCurrID, dataLocation);
         }
 
         //Nothing to do if data location corresponds to index
-        if(dataLocation == ibody)
+        if( dataLocation == iLocal)
         {
-            ibody++;
+            iLocal++;
             continue;
         }
         // body not in tag list, delete from ParScale
-        else if(dataLocation < 0) //local index not found --> particle not on this machine
+        else if( (dataLocation < 0) || (dataLocation >= _nlocal) ) 
         {
-            if(verbose_)
-                printf("sortPropsByExtMap::data location not found. Will delete the particle...\n");
+            //copy last-1 to last to prepare deletion of iLocal
+            copyElement(nbody_old-1,nbody_old);
 
-            // delete data of ibody
-            for(int icontainer=0;icontainer<numElem_;icontainer++)
-                content_[icontainer]->del(ibody);
+            // delete data at iLocal
+            deleteElement(iLocal);
 
             // copy GLOBAL ID from last to current (same way as done by del() call)
-            _id[ibody] = _id[nbody_old-1];
+            _id[iLocal] = _id[nbody_old-1]; //copy last global ID into current
+            nbody_old--;    //update counts of content
+            _id_length--;   //update counts in _id container
 
-            nbody_old--;
+            if(verbose)
+                printf("[proc:%d]: sortPropsByExtMap::data location not found. Deleted the particle at %d. Have now %d in content_ (+1 spare), and _id_length: %d \n", 
+                       me, iLocal, nbody_old, _id_length
+                      );
         }
         // swap
         else
         {
-            if(verbose_)
+            if(verbose)
             {
-              printf("sortPropsByExtMap::will swap data for global id: %d. \n",
-                     globalCurrID);
-              printf("sortPropsByExtMap::spare new location at %d by putting data to end (= %d) \n",
-                     dataLocation, nbody_old);
-              printf("sortPropsByExtMap::copy data from %d to %d \n",
-                     ibody, dataLocation);
-              printf("sortPropsByExtMap::copy spare from %d to %d \n",
-                     nbody_old, ibody);
+              printf("[proc:%d]: sortPropsByExtMap::will swap data for global id: %d. \n",
+                     me, globalCurrID);
+              printf("[proc:%d]: sortPropsByExtMap::spare new location at %d (with globalId: %d) by putting data to end (slot: %d) \n",
+                     me, dataLocation, _id[dataLocation], nbody_old);
+              printf("[proc:%d]: sortPropsByExtMap::copy data from %d to %d \n",
+                     me, iLocal, dataLocation);
+              printf("[proc:%d]: sortPropsByExtMap::copy spare from %d to %d \n",
+                     me, nbody_old, iLocal);
             }
+
+            if(globalCurrID == _id[dataLocation])
+                err->throw_error_all(FLERR,"globalCurrID == _id[dataLocation]. duplicate globalIds detected. This is fatal");
 
             // copy data at inew to the end of containers
             copyElement(dataLocation,nbody_old);
 
             // copy data at i to inew
-            copyElement(ibody,dataLocation);
+            copyElement(iLocal,dataLocation);
 
             // copy from spare place to i
-            copyElement(nbody_old,ibody);
+            copyElement(nbody_old,iLocal);
 
             // update the IDs
             int id_tmp = _id[dataLocation];  
             _id[dataLocation] = globalCurrID; //set GLOBAL ID at new data location
-            _id[ibody] = id_tmp;
+            _id[iLocal] = id_tmp;
             
-            if(verbose_)
-              printf("new GLOBAL ID at ibody: %d, and at dataLocation: %d \n",
-                     _id[ibody], _id[dataLocation]);
+            if(verbose)
+              printf("[proc:%d]: new GLOBAL ID at iLocal: %d, and at dataLocation: %d \n",
+                     me, _id[iLocal], _id[dataLocation]);
         }
     }
     
     nbody_old = content_[0]->size();
     deleteElement(nbody_old-1);
-    if(verbose_)
+    if(verbose)
     {
-         printf("Deleting last element in array with size: %d, size is now: %d \n",
-                 nbody_old, content_[0]->size());
+         printf("[proc:%d]: Deleted last element (=Spare) in array with size: %d, size is now: %d \n",
+                 me, nbody_old, content_[0]->size());
     }
-    
-    for(ibody=0; ibody<(content_[0]->size()-1); ibody++)
+ 
+    //Remove unecessary elements of contents that are not on this machine
+    iLocal = content_[0]->size();
+    while(iLocal > _nlocal)
     {
-       if(verbose_)
+        deleteElement(iLocal-1); //delete Last element of content
+        iLocal--;
+        _id_length--;
+        if(verbose)
+        {
+             printf("[proc:%d]: Deleted last element, size is now: %d, _nlocal: %d \n",
+                 me, content_[0]->size(),_nlocal);
+        }
+    }
+
+    for(iLocal=0; iLocal<_nlocal; iLocal++)
+    {
+       if(verbose)
        {
-                printf("final check: ibody: %d, global ID: %d, dataLocation: %d\n",
-                        ibody, _id[ibody], _map[_id[ibody]]);
+                printf("[proc:%d]: final check: iLocal: %d, global ID: %d, dataLocation: %d\n",
+                        me, iLocal, _id[iLocal], _map[ _id[iLocal]-1 ]); //ids start with 1!
        }
     }
   }
