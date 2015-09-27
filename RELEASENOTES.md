@@ -7,7 +7,7 @@ ParScale is part of the [NanoSim Project](http://sintef.no/NanoSim)
 
 Graz University of Technology and DCS Computing GmbH releases ParScale 1.1.1 beta
 ------------------
-24th of August 2014
+24th of August 2015
 
 ###Features
 Version 1.1.1-beta is a major upgrade of the ParScale library with extended features to study intra-particle transport phenomena including phase change phenomena (e.g., evaporation of water inside the pores of the particles). Specifically, the following features are new, or have been significantly improved in the latest version of ParScale:
