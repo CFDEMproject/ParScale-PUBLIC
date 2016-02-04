@@ -32,7 +32,11 @@ For a manual installation,
 
 After installation of hdf5, make sure the directories $PASCAL_HDF5_DIR/include and  $PASCAL_HDF5_DIR/lib or  ($PASCAL_HDF5_DIR/lib64) exist and contain include files and all relevant shared libraries.
 
-In case you DO NOT wish to use HDF5 output, you can compile ParScale without HDF5 support. Simply use the `fedora_fpic_noHDF5` keyword (instead of `fedora_fpic`), as well as the `refresh*NoHDF5` scripts when compiling ParScale.
+In case you DO NOT wish to use HDF5 output, you can compile ParScale without HDF5 support. Simply use the `fedora_fpic_noHDF5` keyword (instead of `fedora_fpic`), as well as the `refresh*NoHDF5` scripts when compiling ParScale. Also, set the `PASCAL_HDF5_DIR` to empty in your .bashrc, i.e., do
+
+> `export PASCAL_HDF5_DIR=""`
+
+in your .bashrc file to let your operating system know that ParScale does not need HDF5 libraries during the linking process.
 
 Also, it is useful to have a HDF5 viewer installed. Visit [this homepage](http://www.hdfgroup.org/products/java/release/download.html) to install 'hdfview'. Just download the installation script, and follow the installation instructions.
 
