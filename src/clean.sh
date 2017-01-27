@@ -18,5 +18,3 @@ chmod 777 Install.sh
 cd $PASCAL_SRC_DIR
 
 make clean-all
-rm -r ../platforms/linux64/include
-rm -r ../platforms/linux64/bin/*
