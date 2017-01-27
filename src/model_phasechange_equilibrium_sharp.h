@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,14 +28,14 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
-/* 
+/*
     Contributing author:    Thomas Forgber, TU Graz
     Phase change model for sharp phase changes at saturation concentration
     (i.e., liquid <-> solid) phenomena
@@ -47,7 +47,7 @@ License
 ModelPhaseChangeStyle(Equilibrium_sharp, ModelPhaseChangeEquilibrium_sharp)
 
 #else
- 
+
 #ifndef PASC_PHASECHANGE_EQUILIBRIUM_SHARP_H
 #define PASC_PHASECHANGE_EQUILIBRIUM_SHARP_H
 
@@ -77,18 +77,18 @@ class ModelPhaseChangeEquilibrium_sharp : public ModelPhaseChange
      double         evaporationRateConstant_;   //Constant to control evaporation rate
      double         jacobiForDensePhase_;       //Jacobi for dense phase
 
-     double         sat_concentration_liq_;          //Concentraiton of liquid phase at saturation pressure 
-     double         sat_concentration_solid_;        //Concentraiton of solid phase at saturation pressure 
+     double         sat_concentration_liq_;          //Concentraiton of liquid phase at saturation pressure
+     double         sat_concentration_solid_;        //Concentraiton of solid phase at saturation pressure
 
      double         delta_concentration_;
 
-     bool           update_phase_fraction_;     // Find out if phase fraction is updated 
-     int            update_fraction_id;         // Model eqn id for which fraction is solved   
+     bool           update_phase_fraction_;     // Find out if phase fraction is updated
+     int            update_fraction_id;         // Model eqn id for which fraction is solved
 
      ParScale       *ptr_;
 
      QJsonObject    global_properties_;
-     
+
      //Functions
      void           readEquilibriumSharpJSON();
 
@@ -99,4 +99,3 @@ class ModelPhaseChangeEquilibrium_sharp : public ModelPhaseChange
 #endif
 
 #endif
-

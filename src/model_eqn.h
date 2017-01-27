@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,19 +28,19 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------------------
 Description
-	This class is the base class for all physical sub-models (e.g., for properties),
-	as well as overall particle model equations (e.g., for transient heat conduction
-	inside the particle).
+    This class is the base class for all physical sub-models (e.g., for properties),
+    as well as overall particle model equations (e.g., for transient heat conduction
+    inside the particle).
 -----------------------------------------------------------------------------------*/
 
 #ifndef PASC_MODEL_EQN_H
@@ -71,9 +71,9 @@ namespace PASCAL_NS
 #define INVERSE_UNIVERSAL_GAS_CONSTANT 0.0001202723625
 
 //numbering of boundary condition types
-enum{ NEUMANN,		//0
-      DIRICHLET,	//1
-      CONVECTIVE	//2
+enum{ NEUMANN,        //0
+      DIRICHLET,    //1
+      CONVECTIVE    //2
     };
 
 //numbering of modeling approaches, i.e., variable modelingApproach
@@ -100,11 +100,11 @@ class ModelEqn : public ModelBase
       virtual void computeSurfaceFluxes() = 0;
 
       virtual void begin_of_step() {};
-      
+
       virtual void pre_middle_of_step() {};
-      
+
       virtual void post_middle_of_step() {};
-      
+
       virtual void end_of_step();
 
       /*
@@ -127,7 +127,7 @@ class ModelEqn : public ModelBase
 
       void          setParticleDataID(int ID) const {   particleDataID_ = ID; haveParticleDataID=true; };
       int           particleDataID()          const {   return particleDataID_; };
-      
+
       int           nGridPointsUsed()         const {   return nGridPointsUsed_; };
       int           modelingApproach;
 
@@ -148,29 +148,30 @@ class ModelEqn : public ModelBase
       bool          averagePhaseFraction;   //average will be that of phase fraction (not that of species)
 
       bool          solveConvectiveFlux;    //switch to activate convective flux calculation
-      
+
       bool          writeDebugContainers;   //switch to activate dumping of secondary containers
-      
+
       bool          normalizeDuringGrowth;  //switch to activate normalization of concentration during growth
+
+      bool          writeVolAvgProp;        //switch to write volume averaged property for run-time statistics
 
      private:
       Integrator     * integrator_;         //ptr - the (time) integrator that will be used to solve this equation
 
       //Initial & Boundary conditions
-      double    ICvalue;            //IC value
       int       BC[2];              //BC type
       double    BCvalue[2];         //BC value
       double    rMAX;                              //radius of the current particle
-      double    environmentU;         			   //enviroment temperature/concentration 
-      double    environmentFlux;                   //flux to environment, EXPLICIT or EXPLICIT+IMPLICIT 
+      double    environmentU;                        //enviroment temperature/concentration
+      double    environmentFlux;                   //flux to environment, EXPLICIT or EXPLICIT+IMPLICIT
                                                    //flux is SURFACE-AREA SPECIFIC !!
       double    environmentTransCoeff;             //transfer coefficient to environment, only for fixed calculation
-                                                      //(i.e., heat/species flux across particle interface)   
+                                                      //(i.e., heat/species flux across particle interface)
       int       heatEqnID_;                         //ID refering to the heat equation
       bool      IsoThermal_;                        //Determine whether species is isothermal or not
       double    isoTemp_;                           //Temperature if species system is isothermal
 
-      //Temporary array for intra-particle data 
+      //Temporary array for intra-particle data
       double *  tempIntraData_;
       double *  tempPhaseDataGas_;
       double *  tempPhaseDataLiquid_;
@@ -192,15 +193,15 @@ class ModelEqn : public ModelBase
       ModelBase*    capacity_solid;
       ModelBase*    capacity_gas;
       ModelBase*    capacity_liquid;
-      ModelBase*	thermal_solid_conductivity; 
-      ModelBase*	thermal_gas_conductivity;
-      ModelBase*	thermal_liquid_conductivity;
-      ModelBase* 	transfer_coeff;
-      ModelBase*	density_solid;
-      ModelBase* 	density_gas;
-      ModelBase* 	density_liquid;
-	  ModelBase*	global_properties;
-      ModelBase*	tortuosity;
+      ModelBase*    thermal_solid_conductivity;
+      ModelBase*    thermal_gas_conductivity;
+      ModelBase*    thermal_liquid_conductivity;
+      ModelBase*     transfer_coeff;
+      ModelBase*    density_solid;
+      ModelBase*     density_gas;
+      ModelBase*     density_liquid;
+      ModelBase*    global_properties;
+      ModelBase*    tortuosity;
       ModelBase*    pore_radius;
       ModelBase*    molar_mass;
       ModelBase*    permeability;
@@ -215,7 +216,7 @@ class ModelEqn : public ModelBase
       mutable int   particleDataID_;   //id of the object in the particleData class that saves the information
       mutable bool  haveParticleDataID;
       mutable int   nGridPointsUsed_;   //number of grid points used to define state of the model
-      
+
 };
 
 } //end PASCAL_NS

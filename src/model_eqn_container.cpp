@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -85,20 +85,20 @@ ModelEqn *ModelEqnContainer::model_creator(ParScale *ptr, char *name)
 
 void ModelEqnContainer::parse_command(int narg, char const* const* arg)
 {
-    int n = strlen(arg[1]) + 1;   
+    int n = strlen(arg[1]) + 1;
     char *modelName = new char[n];
     strcpy(modelName,arg[1]);
 
     if (model_map_->find(arg[0]) != model_map_->end())
     {
         ModelEqnCreator model_creator = (*model_map_)[arg[0]];
-        
+
         if(strstr(modelName, "heat") != NULL)
         {
             modelHeatEqns_.push_back(model_creator(pascal_ptr(), modelName));
-            printf("...this heat transport Eqn of type %s is registered with ID %d\n", 
+            printf("...this heat transport Eqn of type %s is registered with ID %d\n",
                      arg[0],
-                     modelHeatEqns_.size()-1);
+                     (int)modelHeatEqns_.size()-1);
             modelHeatEqns_[modelHeatEqns_.size()-1].init(narg, arg, HEAT, modelHeatEqns_.size()-1);
         }
         else if(strstr(modelName, "species") != NULL)
@@ -106,22 +106,22 @@ void ModelEqnContainer::parse_command(int narg, char const* const* arg)
             modelSpeciesEqns_.push_back(model_creator(pascal_ptr(), modelName));
             printf("...this species transport Eqn of type %s is registered with ID %d\n",
                     arg[0],
-                    modelSpeciesEqns_.size()-1);
+                    (int)modelSpeciesEqns_.size()-1);
             modelSpeciesEqns_[modelSpeciesEqns_.size()-1].init(narg, arg, SPECIES, modelSpeciesEqns_.size()-1);
         }
         else
         {
             modelOtherEqns_.push_back(model_creator(pascal_ptr(), modelName));
-            printf("...this other transport Eqn of type %s is registered with ID %d\n", 
+            printf("...this other transport Eqn of type %s is registered with ID %d\n",
                      arg[0],
-                     modelOtherEqns_.size()-1);
+                     (int)modelOtherEqns_.size()-1);
             modelOtherEqns_[modelOtherEqns_.size()-1].init(narg, arg, SPECIES, modelOtherEqns_.size()-1);
         }
-        
+
     }
     else
         printf("ERROR: ModelEqnContainer PARSING: model name not found\n");
- 
+
     delete [] modelName;
 
 }
@@ -144,22 +144,22 @@ void ModelEqnContainer::setupParticle()
 // ----------------------------------------------------------------------
 void ModelEqnContainer::computeParticleProps()
 {
-  
-		for(uint iEqn=0; iEqn<modelHeatEqns_.size(); iEqn++)
-		        modelHeatEqns_[iEqn].computeParticleProps();
 
-		for(uint iEqn=0; iEqn<modelSpeciesEqns_.size(); iEqn++)
-		        modelSpeciesEqns_[iEqn].computeParticleProps();
+        for(uint iEqn=0; iEqn<modelHeatEqns_.size(); iEqn++)
+                modelHeatEqns_[iEqn].computeParticleProps();
 
-		for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
-		        modelOtherEqns_[iEqn].computeParticleProps();
+        for(uint iEqn=0; iEqn<modelSpeciesEqns_.size(); iEqn++)
+                modelSpeciesEqns_[iEqn].computeParticleProps();
+
+        for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
+                modelOtherEqns_[iEqn].computeParticleProps();
 
 }
 // ----------------------------------------------------------------------
 
 void ModelEqnContainer::begin_of_step()
 {
-	
+
     for(uint iEqn=0; iEqn<modelHeatEqns_.size(); iEqn++)
             modelHeatEqns_[iEqn].begin_of_step();
 
@@ -168,7 +168,7 @@ void ModelEqnContainer::begin_of_step()
 
     for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
             modelOtherEqns_[iEqn].begin_of_step();
-   
+
 }
 
 // ----------------------------------------------------------------------
@@ -194,7 +194,7 @@ void ModelEqnContainer::post_middle_of_step()
 
     for(uint iEqn=0; iEqn<modelOtherEqns_.size(); iEqn++)
             modelOtherEqns_[iEqn].post_middle_of_step();
-            
+
 }// ----------------------------------------------------------------------
 void ModelEqnContainer::end_of_step()
 {
@@ -210,7 +210,7 @@ void ModelEqnContainer::end_of_step()
 }
 
 // ----------------------------------------------------------------------
-int ModelEqnContainer::lookupEqn(const char *name) const  
+int ModelEqnContainer::lookupEqn(const char *name) const
 {
     for(int iEqn=0; iEqn<nrEqns(); iEqn++)
         if(strcmp(name,modelEqn(iEqn)->name()) == 0 )
@@ -218,5 +218,3 @@ int ModelEqnContainer::lookupEqn(const char *name) const
 
     return -1;
 };
-
-

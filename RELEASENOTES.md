@@ -4,6 +4,17 @@ A Compilation of Particle Scale Models.
 
 ParScale is part of the [NanoSim Project](http://sintef.no/NanoSim)
 
+Graz University of Technology and DCS Computing GmbH releases ParScale 1.2.1 beta
+------------------
+27th of January 2017
+
+###Features
+Version 1.2.1-beta is a major upgrade of the ParScale library with extended features and bugfixes. Specifically, the following features are new, or have been significantly improved in the latest version of ParScale:
+
+- we now use the latest version of Qt5 (5.8.0). This requires the C++11 std.
+- removed compiler warnings
+- ParScale is now fully integrated with LIGGGHTS and CFDEM, and has been run to run in parallel model with full coupling (i.e., ParScale-LIGGGHTS-CFDEM)
+
 
 Graz University of Technology and DCS Computing GmbH releases ParScale 1.1.1 beta
 ------------------

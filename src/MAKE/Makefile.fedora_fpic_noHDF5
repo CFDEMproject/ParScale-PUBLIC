@@ -10,7 +10,7 @@ GIT_BRANCH := $(shell git symbolic-ref --short HEAD)
 GIT_VERSION := $(shell git describe --abbrev=8 --dirty --always --tags)
 
 CC =		mpic++
-CCFLAGS =	-O2 \
+CCFLAGS =	$(PASCAL_C11_STD) -O2 \
 		-funroll-loops -fstrict-aliasing -Wall -W -Wno-uninitialized -g -Wno-unused-parameter \
 		-Wno-reorder -Wno-write-strings  -U H5_LIB \
         -DGITREMOTE=\"$(GIT_REMOTE)\" -DGITBRANCH=\"$(GIT_BRANCH)\" -DGITCOMMIT=\"$(GIT_VERSION)\" 

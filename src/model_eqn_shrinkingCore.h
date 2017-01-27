@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -80,28 +80,24 @@ class ModelEqnShrinkingCore : public ModelEqn
     private:
         bool debug_;
 
-        double dx;									//dx: distance between grid points
-		double coeff_2nd_dev, coeff_1st_dev;		//coefficients of first end second derivatives
-        double x_coeff_1st_dev;						//actual radial position depending on h,MX
-        int h; 						                //index of spatial position 1 (reaction front) ... 2 (fluid)
-        int j; 						                //Jacobian matrix index 0...MX-1
-        realtype *col_j;							//jth collum of jacobian matrix
+        int h;                                         //index of spatial position 1 (reaction front) ... 2 (fluid)
+        int j;                                         //Jacobian matrix index 0...MX-1
+        realtype *col_j;                            //jth collum of jacobian matrix
 
-        double biot_num;    						//Biot Number
         double diffu_eff_;                          //effective diffusivity
 
-        double lambda_solid;                        //thermoconductivity solid,gas,effective
-        double lambda_gas;
-        double lambda_eff;
+        double lambda_solid_;                        //thermoconductivity solid,gas,effective
+        double lambda_gas_;
+        double lambda_eff_;
 
-        double c_p_solid;                           //heat capacity solid,gas,effective
-        double c_p_gas;
-        double c_p_eff;
+        double c_p_solid_;                           //heat capacity solid,gas,effective
+        double c_p_gas_;
+        double c_p_eff_;
 
-        double rho_solid;                           //density solid,gas,effective
-        double rho_gas;
-        double rho_eff;
-        
+        double rho_solid_;                           //density solid,gas,effective
+        double rho_gas_;
+        double rho_eff_;
+
         double kSurface_;
 
 };
@@ -111,4 +107,3 @@ class ModelEqnShrinkingCore : public ModelEqn
 #endif
 
 #endif
-

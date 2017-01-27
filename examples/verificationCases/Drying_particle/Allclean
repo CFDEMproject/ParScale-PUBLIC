@@ -29,8 +29,9 @@ rm *.out
 rm *.gz
 
 rm verificationStats/error_stat.dat
-
+rm species.vol_avg
+rm heat.vol_avg
 rm octave/test.png
 rm octave/Property_evolution.png
 rm octave/Stefan_diffu_1D_spherical.png
-
+rm heat.temp_avg

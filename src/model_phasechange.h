@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,16 +28,16 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
-/* 
-    Base Class for phase change models (e.g., evaporation, solidification, 
-    precipitation...) between phase A (more dense, e.g., liquid) 
+/*
+    Base Class for phase change models (e.g., evaporation, solidification,
+    precipitation...) between phase A (more dense, e.g., liquid)
     and phase B (less dense, e.g., gas).
 
 \*-----------------------------------------------------------------------------------*/
@@ -56,7 +56,7 @@ using namespace PASCAL_MEMORY_NS;
 namespace PASCAL_NS
 {
 
-class ModelPhaseChange : public ModelBase 
+class ModelPhaseChange : public ModelBase
 {
     public:
 
@@ -81,7 +81,7 @@ class ModelPhaseChange : public ModelBase
      ParScale      *ptr_;
 
      bool           verbose_;
-     
+
      bool           isActive_;
 
      bool           isSet_;
@@ -97,9 +97,9 @@ class ModelPhaseChange : public ModelBase
 
      vector<double> phaseFractions_;         //local phase fractions
      vector<double> species_concentrations_; //concentration of species
-     
+
      int            heatEqnID_;         //id of heat eqn.
-          
+
      double*        tempIntraDataSpecies_;
      double*        tempIntraDataHeat_;
 
@@ -111,4 +111,3 @@ class ModelPhaseChange : public ModelBase
 } //end PASCAL_NS
 
 #endif
-

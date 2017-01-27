@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,17 +28,17 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 /*-----------------------------------------------------------------------------------
 Description
-	This class holds all scalar (e.g., local temperature) and vectorial (e.g.,
-	particle velocity) information.
+    This class holds all scalar (e.g., local temperature) and vectorial (e.g.,
+    particle velocity) information.
 -----------------------------------------------------------------------------------*/
 
 #ifndef PASC_PARTICLE_DATA_H
@@ -82,12 +82,12 @@ class ParticleData : public ParScaleBase, public ParScaleBaseInterface
       void init();
 
       void push();
-      
+
       void pull();
 
       void parse_command(int narg,char const* const* arg);
 
-      bool hasPulled() const    
+      bool hasPulled() const
       {return hasPulled_;  }
 
       bool runtimeContainersExist() const
@@ -106,26 +106,26 @@ class ParticleData : public ParScaleBase, public ParScaleBaseInterface
 
       void requestIntraParticleData(int particleDataID_, int particleID, double * data);
 
-	  void setParticleIDPointer(int particleDataID_, int particleID);
+      void setParticleIDPointer(int particleDataID_, int particleID);
       void setParticleIDPointerPhaseFraction( int particleID);
 
- 	  void returnIntraData(double * data);
+       void returnIntraData(double * data);
 
       void returnPhaseFractionData(double * phaseFracGas, double * phaseFracLiq);
 
       void returnPhaseFractionDataGridpoint(double &phaseFracGas, double &phaseFracLiq, int grid_point);
- 	  
- 	  void returnIntraFlux(int particleID, double &flux);
- 	  
-  	  void returnIntraTransCoeff(int particleID, double &transCoeff);
- 	  
- 	  inline int returnId(int _particleID) const {return id_.get(_particleID);};
- 	  
- 	  void resetIds() const;
+
+       void returnIntraFlux(int particleID, double &flux);
+
+        void returnIntraTransCoeff(int particleID, double &transCoeff);
+
+       inline int returnId(int _particleID) const {return id_.get(_particleID);};
+
+       void resetIds() const;
 
       void scanPhaseInformation() const;
- 	  
- 	  void countBodiesOnMachine() const;
+
+       void countBodiesOnMachine() const;
 
       void resetParticleIDPointer(int particleDataID_);
 
@@ -144,14 +144,14 @@ class ParticleData : public ParScaleBase, public ParScaleBaseInterface
       void phaseFractionChangeRateStart(int particleID, double * dataGas, double * dataLiquid);
 
       void returnDataPoint(double & data, int j);
-      
+
       void setDataPoint(double data, int j);
 
       void returnchemistryDataPoint(int particleDataID_, int particleID, int gridPoint, double & data);
       void returnchemistryJacDataPoint(int particleDataID_, int particleID, int gridPoint, double & data);
 
       void   retrieveIntraData(vector<int> dataIDs_, int particleID, int gridPoint, vector<double>& output);
-      
+
       double retrieveIntraData(int dataID, int particleID, int gridPoint);
 
       void   retrievePhaseFractionData(vector<int> _dataIDs, int _particleID, int _gridPoint, vector<double>& output);
@@ -201,8 +201,8 @@ class ParticleData : public ParScaleBase, public ParScaleBaseInterface
 
       double *** ptr3;
       double *** ptr3Jac;
-	  int current_particleID_ ;
-	  int current_particleDataID_;
+      int current_particleID_ ;
+      int current_particleDataID_;
 
       double *** ptr3GasPhase_;
       double *** ptr3LiquidPhase_;
@@ -212,10 +212,10 @@ class ParticleData : public ParScaleBase, public ParScaleBaseInterface
       mutable int  numberOfPhases;
       mutable int  eqnIdFirstLiquid;          //id of first liquid-phase equation (=solvent), useful for many liquid flux calculations
       mutable vector<int>  phaseList;         //list of phases
-      mutable vector<int>  phaseIDMap;        //list of ids for each phase, 0...SOLID, 1...GAS, 2 ... LIQUID, 3 ... NONE, 
+      mutable vector<int>  phaseIDMap;        //list of ids for each phase, 0...SOLID, 1...GAS, 2 ... LIQUID, 3 ... NONE,
                                               //this is the inverse map of phaseList
-      mutable double referencePressure;       //a reference pressure. useful for many flux calculations. to be set by 
-    
+      mutable double referencePressure;       //a reference pressure. useful for many flux calculations. to be set by
+
       mutable bool haveConvectiveFluxGasPhase;
       mutable bool haveConvectiveFluxLiquidPhase;
 
@@ -256,7 +256,7 @@ class ParticleData : public ParScaleBase, public ParScaleBaseInterface
       mutable vector< ContainerScalar<double>* > intraPartAv_;    //Volume-average particle information
       mutable vector< ContainerScalar<double>* > intraPartFlux_;  //Fluxes at the boundary of the particle, only EXPLICIT part on pull, on EXPLICIT+IMPLICIT on push
       mutable vector< ContainerScalar<double>* > intraPartTransCoeff_;  //Transfer coefficient at the boundary of the particle, for IMPLICIT flux calculation, only pull
-    
+
       mutable vector< ContainerCvode<double,1,N_INTRA_GRIDPOINTS_DEF>* > intraPhaseFractionMem_;
       mutable vector< ContainerCvode<double,1,N_INTRA_GRIDPOINTS_DEF>* > intraPhaseChangeRateMem_;
       mutable vector< ContainerCvode<double,1,N_INTRA_GRIDPOINTS_DEF>* > intraPhaseChangeRateMemJacobi_;
@@ -264,7 +264,7 @@ class ParticleData : public ParScaleBase, public ParScaleBaseInterface
 
       //Convective fluxes
       mutable vector< ContainerCvode<double,1,N_INTRA_GRIDPOINTS_DEF>* > intraConvectiveFluxMem_;
-      
+
       // ************ DATA STORED FOR EACH PARTICLE *****************
       mutable double * tmpSourceVariable_;
       mutable int* nBodyPerProcess_;            //number of particles per process AT THE TIME OF ALLOC!
@@ -273,7 +273,7 @@ class ParticleData : public ParScaleBase, public ParScaleBaseInterface
 
       bool verbose_;
       bool hasPulled_;
-      
+
       // global-local lookup
       //int mapTagMax_;
       //int *mapArray_;

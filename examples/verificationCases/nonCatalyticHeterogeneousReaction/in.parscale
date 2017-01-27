@@ -14,8 +14,8 @@ model propertiesThermo speciesSolidDiffusivity
 model propertiesThermo speciesSolidTransferCoeff 
 
 #Transport Equations to solve - WARNING: order must match with chemical species!
-modelEqn 1DSpherical   speciesA     gas   BC0 1  BC1 2  writeDebugContainers #verbose #solveConvectiveFlux
-modelEqn 1DSpherical   speciesSolid solid BC0 1  BC1 2  #verbose
+modelEqn 1DSpherical   speciesA     gas   BC0 1  BC1 2  writeVolAvgProp writeDebugContainers #verbose #solveConvectiveFlux
+modelEqn 1DSpherical   speciesSolid solid BC0 1  BC1 2  writeVolAvgProp #verbose
 
 modelchemistry SingleReaction myChem
 

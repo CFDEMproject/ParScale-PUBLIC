@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -80,7 +80,7 @@ void CouplingModelJSON::read()
         QJsonArray  currValues  = currSetting["values"].toArray();
         settingBCValue_.push_back(currValues);
 
-        //Settings for where to apply   
+        //Settings for where to apply
         applyAt_ = -1;
         if( !currSetting["applyAt"].isNull() )
         {
@@ -91,7 +91,7 @@ void CouplingModelJSON::read()
             else
                 applyAt_ = currSetting["applyAt"].toInt();
         }
-        settingBCApplyAt_.push_back(applyAt_); 
+        settingBCApplyAt_.push_back(applyAt_);
 
         //check for correct length of values
         if(!(currValues.size()==currTimes.size()))
@@ -124,6 +124,10 @@ void CouplingModelJSON::read()
 ------------------------------------------------------------------------- */
 bool CouplingModelJSON::fill_container_from_coupling(class ContainerBase &container) const
 {
+   // if (!container.isDoubleData())
+   //     error().throw_error_one(FLERR,"Container is not double data. Please check!\n");
+
+
     if(pullNext_ > control().simulationState().timeStep() )
         return false;
 
@@ -164,16 +168,16 @@ bool CouplingModelJSON::fill_container_from_coupling(class ContainerBase &contai
 
                 double *  ptr     = (double*)      container.begin_slow_dirty();   //ptr to scalar per-particle data
                 double ***ptr3    = (double***)    container.begin_slow_dirty();   //ptr to vectorial per-particle data
- 
+
                 //This type will apply the same BC to all particles
                 if(strcmp("applyToAllParticles",settingBCType_[iSetting].toStdString().c_str()) == 0)
                 {
                     if(container.lenVec()>1)
                         for (int iP = 0; iP < particleData().nbody(); ++iP)
-                            insertSingleValueInArray(currValue, container, iP, ptr3 );  
-                    else              
+                            insertSingleValueInArray(currValue, container, iP, ptr3 );
+                    else
                         for (int iP = 0; iP < particleData().nbody(); ++iP)
-                            insertSingleValue(currValue, container, iP, ptr );  
+                            insertSingleValue(currValue, container, iP, ptr );
                 }
                 else
                     error().throw_error_one(FLERR,"This type is not implemented! See src code for implemented types. \n");
@@ -195,8 +199,8 @@ bool CouplingModelJSON::dump_container_to_coupling(class ContainerBase &containe
 
 
 /* -------------------------------------------------------------------- */
-void CouplingModelJSON::insertSingleValue(  double currValue, 
-                                            class  ContainerBase &container, 
+void CouplingModelJSON::insertSingleValue(  double currValue,
+                                            class  ContainerBase &container,
                                             int    iP,
                                             double *  ptr
                                          ) const
@@ -207,13 +211,13 @@ void CouplingModelJSON::insertSingleValue(  double currValue,
     ptr[iP] = currValue;
 
     if(verbose_)
-        printf("...inserted single value (%g) in a scalar container.  \n \n", 
+        printf("...inserted single value (%g) in a scalar container.  \n \n",
                 currValue);
 }
 
 /* -------------------------------------------------------------------- */
-void CouplingModelJSON::insertSingleValueInArray(  double currValue, 
-                                            class  ContainerBase &container, 
+void CouplingModelJSON::insertSingleValueInArray(  double currValue,
+                                            class  ContainerBase &container,
                                             int    iP,
                                             double *** ptr3
                                          ) const
@@ -223,7 +227,7 @@ void CouplingModelJSON::insertSingleValueInArray(  double currValue,
 
     ptr3[iP][0][applyAt_] = currValue; //Insert at a certain position
     if(verbose_)
-        printf("...inserted single value (%g) at position %d of an array with length %d.  \n \n", 
+        printf("...inserted single value (%g) at position %d of an array with length %d.  \n \n",
                 currValue, applyAt_, container.lenVec());
 
 }

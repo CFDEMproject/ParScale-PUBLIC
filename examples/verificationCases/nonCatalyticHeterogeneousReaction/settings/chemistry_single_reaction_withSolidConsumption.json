@@ -13,7 +13,10 @@
       "Arrhenius_A"    :  2e3,
       "Arrhenius_beta" :  0,
       "Arrhenius_E_A"  :  0,
-      "growthMolesFormed": 0
+      "GrowthActive"   : false,
+	  "GrowthMolesFormed": 0.0,
+	  "growthProductMolarWeight": 10,
+	  "growthProductDensity": 900
     },
 
     "A":

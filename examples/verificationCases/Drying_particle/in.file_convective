@@ -21,18 +21,24 @@ model propertiesThermo speciesTransferCoeff
 model propertiesThermo speciesTortuosity
 
 #Equations
-modelEqn 1DSpherical  heat                 BC0 1  BC1 1 inactive #solveConvectiveFlux #writeDebugContainers
-modelEqn 1DSpherical  species       gas    BC0 1  BC1 1 writeDebugContainers #solveConvectiveFlux phaseFractionMinimumConvection 0.05 convectionBoundMinStefanFactor 0.03 #verbose #inactive 
+modelEqn 1DSpherical  heat                 BC0 1  BC1 1 inactive writeVolAvgProp #solveConvectiveFlux #writeDebugContainers
+modelEqn 1DSpherical  species       gas    BC0 1  BC1 1 writeDebugContainers writeVolAvgProp #solveConvectiveFlux phaseFractionMinimumConvection 0.05 convectionBoundMinStefanFactor 0.03 #verbose #inactive 
 modelEqn 1DSpherical  liquidSpecies liquid BC0 1  BC1 2 updatePhaseFraction averagePhaseFraction writeDebugContainers
 
 #Phase Change
 modelPhaseChange Evaporation liquidToGasEvaporation
 
 control outputTimeStep 2e-2
+
+#without convective flux
 control timeStep 1e-5
 control run      400e-2
 
-#control run      2e-2
+#with convective flux
+#control timeStep 1e-5
+#control run      10e-2
+
+#for debug
 #control outputTimeStep 1e-5
 #control timeStep 1e-5
 #control run      10e-5

@@ -41,6 +41,14 @@ namespace IO
             //! Is this reaction a duplicate?
             bool flagDuplicate_;
 
+            // Third bodies.
+            //! Set to true if this reaction requires third bodies.
+            bool flagThirdBody_;
+            bool flagLOW_, flagTROE_, flagSRI_;
+            //! Set if (+M) or e.g. (+H2O) is found.
+            bool flagPressureDependent_;
+
+
             //! reactant & product stoichiometry.
             std::multimap<std::string, double> reactants_, products_;
 
@@ -49,12 +57,6 @@ namespace IO
 
             Arrhenius forwardArrhenius_, reverseArrhenius_;
 
-            // Third bodies.
-            //! Set to true if this reaction requires third bodies.
-            bool flagThirdBody_;
-            bool flagLOW_, flagTROE_, flagSRI_;
-            //! Set if (+M) or e.g. (+H2O) is found.
-            bool flagPressureDependent_;
             //! Reaction third bodies and their coefficients.
             std::multimap<std::string, double> thirdBodies_;
 

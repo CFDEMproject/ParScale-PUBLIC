@@ -57,7 +57,7 @@ shift $(( $OPTIND - 1 ))
 
 # main
 
-prefix=/home/sradl/LIGGGHTS/ParScale-PUBLIC/platforms/linux64;
+prefix=/home/sradl/LIGGGHTS/ParScale-PUBLIC/src/../platforms/linux64;
 exec_prefix=${prefix};
 includedir=${prefix}/include;
 libdir=${exec_prefix}/lib64;

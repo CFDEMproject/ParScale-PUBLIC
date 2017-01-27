@@ -21,9 +21,9 @@ model propertiesThermo speciesCatalystTortuosity
 model propertiesThermo speciesCatalystTransferCoeff 
 
 #Equations
-modelEqn 1DSpherical  heat                      BC0 1  BC1 2 #inactive #writeDebugContainers
-modelEqn 1DSpherical  speciesDissolved  solid   BC0 1  BC1 2 normalizeDuringGrowth #writeDebugContainers  #inactive #no need to specify any properties if inactive
-modelEqn 1DSpherical  speciesCatalyst   solid   BC0 1  BC1 2 normalizeDuringGrowth #writeDebugContainers  #verbose  #inactive #no need to specify any properties if inactive
+modelEqn 1DSpherical  heat                      BC0 1  BC1 2 writeVolAvgProp #inactive #writeDebugContainers
+modelEqn 1DSpherical  speciesDissolved  solid   BC0 1  BC1 2 writeVolAvgProp normalizeDuringGrowth #writeDebugContainers  #inactive #no need to specify any properties if inactive
+modelEqn 1DSpherical  speciesCatalyst   solid   BC0 1  BC1 2 writeVolAvgProp normalizeDuringGrowth #writeDebugContainers  #verbose  #inactive #no need to specify any properties if inactive
 
 
 

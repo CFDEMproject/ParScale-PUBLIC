@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,19 +28,19 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------------------
 Description
-	This class is the basis for all time integrators. Spatial discretization (e.g. 
-	using the method of lines) has to be supplied separately (i.e., via a 
-	"modelEquation" object).
+    This class is the basis for all time integrators. Spatial discretization (e.g.
+    using the method of lines) has to be supplied separately (i.e., via a
+    "modelEquation" object).
 
 -----------------------------------------------------------------------------------*/
 
@@ -50,18 +50,13 @@ Description
 #include "pascal_base_accessible.h"
 #include "simulation_state.h"
 
-#define __PIC__
-#include <QtCore/QJsonArray>
-#include <QtCore/QJsonObject>
-#include <QtCore/QJsonDocument>
-#include <QtCore/QString>
-#include <QtCore/QFile>
+#include "qjson_includes.h"
 
 namespace PASCAL_NS
 {
 
 //numbering of boundary condition types
-enum{ CVODE		//0
+enum{ CVODE        //0
     };
 
 class ModelEqn;
@@ -82,7 +77,7 @@ class Integrator : public ParScaleBaseAccessible
       virtual void integrate_begin(const char* stateType, int nGridPointsUsed, int dataID, bool updatePhaseFraction) {};
       virtual void integrate_middle() {};
       virtual void integrate_end() {};
-      virtual int returnParticleID() {return particleID;}; 
+      virtual int returnParticleID() {return particleID;};
 
       double *  tempIntraData_;
       double *  tempPhaseDataGas_;
@@ -97,7 +92,7 @@ class Integrator : public ParScaleBaseAccessible
     int particleID;
     mutable QJsonObject    parameters_;
     mutable QJsonObject    integrator_;
-    
+
 };
 
 } //end PASCAL_NS

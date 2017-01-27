@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -54,7 +54,7 @@ isIsoThermal_(true)
     if(global_properties_["ModelChemistrySingleReaction"].isNull())
         error().throw_error_one(FLERR,"ERROR: could not read verbose settings for this class. \n",
                                 "ModelChemistrySingleReaction");
-    verbose_   = global_properties_["ModelChemistrySingleReaction"].toBool();    
+    verbose_   = global_properties_["ModelChemistrySingleReaction"].toBool();
 
 
 }
@@ -68,10 +68,10 @@ ModelChemistrySingleReaction::~ModelChemistrySingleReaction()
 // *************************************************************************************
 void ModelChemistrySingleReaction::init(int narg, char const* const* arg, int eqnType, int modelChemistryID)
 {
-    
+
     ModelChemistry::init(narg,arg,eqnType,modelChemistryID);
     read_chemisty_JSON();
-   
+
     //Error Checks
     if( (heatEqnID_<0) && !isIsoThermal_)
         error().throw_error_one(FLERR,"ERROR: no heat equation found, but you like to run a non-isothermal simulations. This is impossible. \n");
@@ -85,7 +85,7 @@ void ModelChemistrySingleReaction::init(int narg, char const* const* arg, int eq
 void ModelChemistrySingleReaction::begin_of_step()
 {
 
-    int nrHeatEqn = modelEqnContainer().nrHeatEqns();
+    //int nrHeatEqn = modelEqnContainer().nrHeatEqns();
 
     //TODO: Must reset the original IDs for now, check in future to avoid this
     reaction_->resetOriginalIDs();
@@ -98,17 +98,17 @@ void ModelChemistrySingleReaction::begin_of_step()
 
     for(int particleID=0; particleID<particleData().nbody(); particleID++)
     {
-        int frontGridPoint     = 0; //for SHRINKINGCORE 
-        int frontConcentration = 0; //for SHRINKINGCORE 
-        
-        if(verbose_) 
-            printf("Now particle %i with heat eqn id %i \n", particleID, heatEqnID_); 
+        int frontGridPoint     = 0; //for SHRINKINGCORE
+        int frontConcentration = 0; //for SHRINKINGCORE
+
+        if(verbose_)
+            printf("Now particle %i with heat eqn id %i \n", particleID, heatEqnID_);
 
 
         if(isIsoThermal_)
         {
             double sourceSpecIConst = reaction_->arrheniusRate(temperature_);
-            
+
             if (verbose_)
                 printf("SINGLE ISOTHERM REACT: raction rate is = %g \n",sourceSpecIConst);
 
@@ -121,28 +121,28 @@ void ModelChemistrySingleReaction::begin_of_step()
               }
               else if(modelApproachFirst==CONTINUUM)
               {
-                //Retrieve the local species concentration        
-                particleData().retrieveIntraData(original_IDs_reactant_, 
-                                                 particleID, grid_point, 
+                //Retrieve the local species concentration
+                particleData().retrieveIntraData(original_IDs_reactant_,
+                                                 particleID, grid_point,
                                                  species_concentrations_);
-                
+
                 source *= reaction_->reactionProduct( species_concentrations_,
                                                       species_order_)
-                        * grainModel_->f(species_concentrations_[grainModel_->solidID()]); 
+                        * grainModel_->f(species_concentrations_[grainModel_->solidID()]);
 
                 if (verbose_)
                 {
                     printf("...retrieved concentrations. grainModel->f: %g \n",
-                            grainModel_->f(species_concentrations_[grainModel_->solidID()]) 
+                            grainModel_->f(species_concentrations_[grainModel_->solidID()])
                           );
-                    for(int iC=0;iC<species_concentrations_.size();iC++)
+                    for(unsigned int iC=0;iC<species_concentrations_.size();iC++)
                          printf("%g  \n", species_concentrations_[iC] );
                 }
               }
               else
                    error().throw_error_one(FLERR,"ERROR: reaction handling for this modelingApproach not implemented \n");
-              
-              for (uint idSpec=0; idSpec < species_stoich_.size(); idSpec++)
+
+              for (unsigned int idSpec=0; idSpec < species_stoich_.size(); idSpec++)
               {
                     double sourceSpecI   = source;
                     double jacobianSpecI = 0.0;
@@ -157,22 +157,21 @@ void ModelChemistrySingleReaction::begin_of_step()
                     {
                          sourceSpecI *= molar_mass_[idSpec];
                          //Jacobian (derivative of grain model IS NOT considered here, since no trivial analytical approach)
-                         jacobianSpecI =  sourceSpecI 
+                         jacobianSpecI =  sourceSpecI
                                          *  species_order_[idSpec]
                                          / (species_concentrations_[idSpec] + 1e-64);
                     }
 
                     if (verbose_)
-                      printf("SINGLE ISOTHERM REACT: source = %g / jac: %g (stoich: %g) for Particle %i chem species ID %i, modelApproach: %i and grid Point %i \n",
-                                sourceSpecI, 
-                                
+                      printf("SINGLE ISOTHERM REACT: source = %g (stoich: %g) for Particle %i chem species ID %i, modelApproach: %i and grid Point %i \n",
+                                sourceSpecI,
                                 species_stoich_[idSpec],
-                                particleID, 
-                                speciesDataId, modelApproachFirst, 
+                                particleID,
+                                speciesDataId, modelApproachFirst,
                                 grid_point
                               );
 
-                    double linearizedSpeciesD = sourceSpecI - jacobianSpecI * species_concentrations_[idSpec];  
+                    double linearizedSpeciesD = sourceSpecI - jacobianSpecI * species_concentrations_[idSpec];
                     particleData().saveChemistryParticleData(
                                    speciesDataId,
                                    particleID,
@@ -183,18 +182,18 @@ void ModelChemistrySingleReaction::begin_of_step()
                                    particleID,
                                    jacobianSpecI,
                                    grid_point);
-                
+
               }
             } //end grid_point loop
         }
 
         else  //non-isothermal Case
         {
-            particleData().setParticleIDPointer(heatEqnID_,particleID);	
-    	    particleData().returnIntraData(tempIntraDataHeat_);
+            particleData().setParticleIDPointer(heatEqnID_,particleID);
+            particleData().returnIntraData(tempIntraDataHeat_);
             reaction_->SetActualTemp(tempIntraDataHeat_);
 
-            for (int grid_point = particleMesh().nGridPoints()-1; grid_point >= 0 ; grid_point--) 
+            for (int grid_point = particleMesh().nGridPoints()-1; grid_point >= 0 ; grid_point--)
             //MUST loop from back to front, to avoid problems with frontGridPoint used in SHRINKINGCORE
             {
                 reaction_->calculate_k_f_i(grid_point);
@@ -202,7 +201,7 @@ void ModelChemistrySingleReaction::begin_of_step()
                 reaction_->calculate_q_i(grid_point, particleID);
 
                 //retrieve concentrations since needed in Jacobian calculation
-                particleData().retrieveIntraData(original_IDs_reactant_, 
+                particleData().retrieveIntraData(original_IDs_reactant_,
                                                  particleID, grid_point,
                                                  species_concentrations_
                                                  );
@@ -218,13 +217,13 @@ void ModelChemistrySingleReaction::begin_of_step()
                     if (verbose_)
                     {
                         printf("...retrieved concentrations. grainModel->f: %g \n",
-                                grainModel_->f(species_concentrations_[grainModel_->solidID()]) 
+                                grainModel_->f(species_concentrations_[grainModel_->solidID()])
                               );
-                        for(int iC=0;iC<species_concentrations_.size();iC++)
+                        for(unsigned int iC=0;iC<species_concentrations_.size();iC++)
                              printf("%g  \n", species_concentrations_[iC] );
                     }
                 }
-                
+
                 reaction_->returnQDoti(q_i_dot_);
 
                 // 1 - Fill source terms for each involved species
@@ -239,7 +238,7 @@ void ModelChemistrySingleReaction::begin_of_step()
                         //Determine grid point next to front
                         double rCore = 0.0;
                         rCore = particleData().retrieveIntraData(speciesDataId,particleID,0);
-                        frontGridPoint =max(0, 
+                        frontGridPoint =max(0,
                                                min( particleMesh().nGridPoints()-1,
                                                 (int)floor(
                                                           (double)(particleMesh().nGridPoints())
@@ -247,23 +246,23 @@ void ModelChemistrySingleReaction::begin_of_step()
                                                         )
                                                )
                                            );
-                                           
+
                         //TODO: compute concentration on front with fluid concentrations
                         //and intra-partile resistances in SHRINKINGCORE model
                         frontConcentration = 0.0;
                                 //this is the fluid concentration:
                                 //particleData().retrieveIntraData(speciesDataId,particleID,XXX);
-                        
+
                         if(grid_point==0) //just set for 0-th grid point --> radius of SCM
                         {
                             sourceSpecI = species_stoich_[idSpec]
                                         * k_f_i_[frontGridPoint];
                         }
-                               
+
                         if (verbose_)
                             printf("...variables @ front of SCM: Rate = %g for Particle %i species data id: %i, front grid Point %i, rCore: %g \n",
-                                sourceSpecI, particleID, 
-                                speciesDataId,  
+                                sourceSpecI, particleID,
+                                speciesDataId,
                                 frontGridPoint,rCore
                                   );
                     }
@@ -271,30 +270,30 @@ void ModelChemistrySingleReaction::begin_of_step()
                     {
                         sourceSpecI = species_stoich_[idSpec]
                                * molar_mass_[idSpec]
-                               * q_i_dot_[grid_point];   
+                               * q_i_dot_[grid_point];
 
                         //Jacobian (derivative of grain model IS NOT considered here, since no trivial analytical approach)
-                        jacobianSpecI =  sourceSpecI 
+                        jacobianSpecI =  sourceSpecI
                                       *  species_order_[idSpec]
                                       / (species_concentrations_[idSpec] + 1e-64);
-                 
+
                     }
                     else
                         error().throw_error_one(FLERR,"ERROR: reaction handling for this modelingApproach not implemented \n");
 
 
 
-                    
+
                     if (verbose_)
                         printf("SINGLE REACT: Rate = %g / jac: %g for Particle %i chem species ID %i, data id: %i, modelApproach: %i and grid Point %i \n",
                                 sourceSpecI, jacobianSpecI,
-                                particleID, 
-                                idSpec, speciesDataId, modelApproach, 
+                                particleID,
+                                idSpec, speciesDataId, modelApproach,
                                 grid_point
                               );
 
-                    //Save to data array 
-                    double linearizedSpeciesD = sourceSpecI - jacobianSpecI * species_concentrations_[idSpec];  
+                    //Save to data array
+                    double linearizedSpeciesD = sourceSpecI - jacobianSpecI * species_concentrations_[idSpec];
                     particleData().saveChemistryParticleData(
                                    speciesDataId,
                                    particleID,
@@ -306,7 +305,7 @@ void ModelChemistrySingleReaction::begin_of_step()
                                    jacobianSpecI,
                                    grid_point);
                 } //End species loop
-                
+
                 // 2 - Fill source terms for heat equations
                 {
                     double heatSource   = 0.0;
@@ -326,22 +325,22 @@ void ModelChemistrySingleReaction::begin_of_step()
                     {
                         heatSource =-q_i_dot_[grid_point]
                                    * deltaH_r;
-                        jacobianHeat = heatSource 
+                        jacobianHeat = heatSource
                                      * reaction_->computeArrheniusRateDerivativePrefactor(grid_point);
                     }
                     else
                         error().throw_error_one(FLERR,"ERROR: reaction handling for this modelingApproach not implemented \n");
 
-                    
+
 
                     if (verbose_)
                         printf("SINGLE REACT: heat source = %g for Particle %i, modelApproachFirst: %i. \n",
-                                heatSource, particleID, 
+                                heatSource, particleID,
                                 modelApproachFirst
-                              );  
+                              );
 
-                    //Save to data array                     
-                    double linearizedHeatD = heatSource - jacobianHeat * tempIntraDataHeat_[grid_point];                         
+                    //Save to data array
+                    double linearizedHeatD = heatSource - jacobianHeat * tempIntraDataHeat_[grid_point];
                     particleData().saveChemistryParticleData(
                                    heatEqnID_,
                                    particleID,
@@ -354,9 +353,9 @@ void ModelChemistrySingleReaction::begin_of_step()
                                    grid_point);
                 }
             } //end loop over grid points
-            
+
             //Compute growth
-            if(growthMolesFormed_!=0.0)
+            if((growthMolesFormed_!=0.0) && (growthActive_)) 
             {
                 double particleVolume(0.0);
                 double molarGain = growthMolesFormed_*
@@ -365,7 +364,7 @@ void ModelChemistrySingleReaction::begin_of_step()
                                          + molarGain
                                          * growthProductMolarWeight_
                                          / growthProductDensity_;
-                                         
+
                 //Update particle properties and grow particles
                 particleData().normalizeInternalFields(particleID, particleVolume/newParticleVolume);
                 particleData().pRadius(particleID) =
@@ -390,8 +389,8 @@ void ModelChemistrySingleReaction::begin_of_step()
 void ModelChemistrySingleReaction::read_chemisty_JSON()
 {
     //init new chemistry reaction
-    reaction_   = new ChemistryReactionSingle(ptr_);   
-    grainModel_ = new ChemistryGrainModel(ptr_); 
+    reaction_   = new ChemistryReactionSingle(ptr_);
+    grainModel_ = new ChemistryGrainModel(ptr_);
 
     QJsonObject myJSONDict = readQJsonObject("chemistry_single_reaction", "reactants");
     QJsonArray  myReactants = myJSONDict["names"].toArray();
@@ -405,9 +404,9 @@ void ModelChemistrySingleReaction::read_chemisty_JSON()
         //Names
         species_names_.push_back((*i).toString().toStdString());
         reaction_->SetSpeciesNamesReactant(species_names_.back());
-    
+
         //Molar Mass
-        double myMass;  
+        double myMass;
         read_species_properties(species_names_.back().c_str(),"molarMass", &myMass);
         molar_mass_.push_back(myMass);
 
@@ -421,7 +420,7 @@ void ModelChemistrySingleReaction::read_chemisty_JSON()
         species_order_.push_back(myJSONDict["reactionOrder"].toDouble());
         species_stoich_.push_back(myJSONDict["stoichiometry"].toDouble());
         reaction_->SetSpeciesStoichReactant(species_stoich_.back());
-                
+
         //Reaction enthalyp
         double myEnthalpy;
         read_species_properties(species_names_.back().c_str(),"H_i", &myEnthalpy);
@@ -436,10 +435,11 @@ void ModelChemistrySingleReaction::read_chemisty_JSON()
     read_chemistry_single_react_json_file("Arrhenius_A",   &arrhenius_A_,  true);
     read_chemistry_single_react_json_file("Arrhenius_beta",&arrhenius_beta_, true);
     read_chemistry_single_react_json_file("Arrhenius_E_A", &arrhenius_E_A_, true);
-    
-    read_chemistry_single_react_json_file("growthMolesFormed", &growthMolesFormed_, true);
-    if(growthMolesFormed_!=0.0)
+    read_chemistry_single_react_json_file("GrowthActive",  &growthActive_, true); 
+
+    if(growthActive_)
     {
+        read_chemistry_single_react_json_file("growthMolesFormed", &growthMolesFormed_, true);
         read_chemistry_single_react_json_file("growthProductMolarWeight", &growthProductMolarWeight_, true);
         read_chemistry_single_react_json_file("growthProductDensity", &growthProductDensity_, true);
     }
@@ -448,14 +448,14 @@ void ModelChemistrySingleReaction::read_chemisty_JSON()
     if(isIsoThermal_)
         read_chemistry_single_react_json_file("temperature",  &temperature_, true);
 
-    //Fill the reaction 
+    //Fill the reaction
     reaction_->setArrheniusConstants(arrhenius_A_,arrhenius_beta_,arrhenius_E_A_);
     reaction_->setCMinimum(cMinimum_);
     reaction_->SetElementaryReaction(false);
-    
+
     //Init grain model
     grainModel_->init();
-        
+
     //Report Status
     reaction_->printStatus();
     grainModel_->printStatus();

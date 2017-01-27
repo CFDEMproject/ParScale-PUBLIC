@@ -65,7 +65,7 @@ class CouplingModelLiggghts : public CouplingModel
       void pull_n_bodies(int &_nbody, int &_nghost, int &_nbody_all);
       void pull_box(double *_boxlo,double *_boxhi,double *_sublo,double *_subhi);
       void pull_proc_info(int *_procgrid,int *_myloc,int (&_procneigh)[3][2]);
-      void pull_timeStepping_info(double &deltaT, int &neighAgo);
+      void pull_timeStepping_info(double &deltaT, int &neighAgo, int &timeStepFromRun);
       int* get_external_map(int &length);
 
 
@@ -82,10 +82,10 @@ class CouplingModelLiggghts : public CouplingModel
       LAMMPS_NS::LAMMPS*                    lmp_;
       mutable LAMMPS_NS::FixParScaleCouple* fix_coupling_;
 
-      char* dumpName;
-      char* type;
-      char* pullName;
-      char* pullName2;
+      char* dumpName_;
+      char* type_;
+      char* pullName_;
+      char* pullName2_;
 };
 
 } //end PASCAL_NS

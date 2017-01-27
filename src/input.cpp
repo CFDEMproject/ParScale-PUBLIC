@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -66,7 +66,7 @@ using namespace PASCAL_NS;
 
 Input::Input(ParScale *ptr) : ParScaleBase(ptr),
     infile_(0),
-    myName("test"),
+    myName_("test"),
     writePrecision_(5)
 {
 
@@ -99,7 +99,7 @@ void Input::set_input_script(const char *filename)
     infile_ = &myFile; //set pointer to infile
 
     infileSet_ = true;
-   
+
 }
 
 // * * * * * * * * * * * * * * * * * * * * *
@@ -112,7 +112,7 @@ void Input::set_runDirectory(const char *dir)
 /* ----------------------------------------------------------------------
    process an input command
 ------------------------------------------------------------------------- */
-void Input::process_input(const char * command)
+void Input::process_input(const char *command)
 {
     {
 //        output().write_screen_all(" ParScale is processing a single input line ...");
@@ -136,7 +136,7 @@ void Input::process_input(const char * command)
 
 //        output().write_screen_all("**Processed single input line.");
     }
-    
+
 }
 
 /* ----------------------------------------------------------------------
@@ -209,9 +209,9 @@ void Input::process_input_script()
           }
 
           output().write_screen_one("**Processed input");
-          
+
     }
-    
+
 }
 
 /* ----------------------------------------------------------------------
@@ -223,20 +223,20 @@ void Input::process_JSONInput()
     openJsonFile("settings", "parscale", "input", global_settings_ );
     if(global_settings_["writeJSON"].isNull())
     {
-        printf("file 'settings/parscale.json' does not contain settings for input/%s. Will Abort. \n", 
+        printf("file 'settings/parscale.json' does not contain settings for input/%s. Will Abort. \n",
                 "writeJSON");
         comm().abort_one();
     }
-    writeJSON_   = global_settings_["writeJSON"].toBool();    
+    writeJSON_   = global_settings_["writeJSON"].toBool();
 
 #ifdef H5_LIB
     if(global_settings_["writeHDF5"].isNull())
     {
-        printf("file 'settings/parscale.json' does not contain settings for input/%s. Will Abort. \n", 
+        printf("file 'settings/parscale.json' does not contain settings for input/%s. Will Abort. \n",
                 "writeHDF5");
         comm().abort_one();
     }
-    writeHDF5_   = global_settings_["writeHDF5"].toBool();    
+    writeHDF5_   = global_settings_["writeHDF5"].toBool();
 #else
     writeHDF5_ = false;
 #endif
@@ -255,7 +255,6 @@ void Input::write_containersJSON(ContainerBase &container) const
 
     const char *id = container.prop().id();
     const char *scope = container.prop().scope();
-    const bool element_property = container.prop().element_property();
 
     // if scope equals ID, try to open JSON file here directly
     if(strcmp(id,scope) == 0)
@@ -305,13 +304,13 @@ void Input::write_containersJSON(ContainerBase &container) const
 
 void Input::openJsonFile(const char* dirName, const char* fileName, const char* objectName, QJsonObject &json ) const
 {
-    char jsonfile[200],errmsg[300];
+    char jsonfile[200];
     sprintf(jsonfile,"./%s/%s/%s.json",runDirectory_, dirName,fileName);
 
     QFile    loadFile( jsonfile );
     if(!loadFile.open(QIODevice::ReadOnly))
     {
-        printf("can not open loadfile: %s. Will Abort. \n", 
+        printf("can not open loadfile: %s. Will Abort. \n",
                 jsonfile);
         comm().abort_one();
     }
@@ -320,12 +319,12 @@ void Input::openJsonFile(const char* dirName, const char* fileName, const char* 
     QJsonDocument loadDoc  = QJsonDocument::fromJson(saveData);
 
     if(loadDoc.isNull())
-	{
+    {
         printf("QJsonDocument is invalid. Check!  \n");
         comm().abort_one();
-	}
+    }
 
-	json = loadDoc.object()[objectName].toObject();
+    json = loadDoc.object()[objectName].toObject();
 
 }
 
@@ -338,7 +337,7 @@ void Input::writeQJsonObject(QJsonObject &json, ContainerBase &container) const
     json["time"]  = str;
 }
 
-// * * * * * * * * * * * * * *  * * * * * * *  * * * * * * *  * * * * * * *  
+// * * * * * * * * * * * * * *  * * * * * * *  * * * * * * *  * * * * * * *
 void Input::writeQJsonArray(char *jsonfile,
                             QJsonObject &myParticles,
                             ContainerBase &container) const
@@ -348,12 +347,8 @@ void Input::writeQJsonArray(char *jsonfile,
 
     if(container.size()==0)
         return;
-        
-    //output().write_screen_one("Input::writeQJsonArray is writing...");
-    
-    //Iterate through the data for each particle
-    int particleId    = 0;
 
+    //Iterate through the data for each particle
     QFile saveFile( jsonfile );
 
     if (!saveFile.open(QIODevice::WriteOnly))
@@ -365,10 +360,10 @@ void Input::writeQJsonArray(char *jsonfile,
     double doub_value;
     int    int_value;
 
-    for(uint iPart = 0; iPart < container.size(); iPart++)
+    for(int iPart = 0; iPart < container.size(); iPart++)
     {
         QJsonArray  dataArray;
-        for(uint jVec = 0; jVec < container.lenVecUsed(); jVec++)
+        for(int jVec = 0; jVec < container.lenVecUsed(); jVec++)
         {
             if(container.lenVec()>1) //these is ContainerCVODE data
             {
@@ -390,12 +385,12 @@ void Input::writeQJsonArray(char *jsonfile,
                 if(container.isDoubleData())
                 {
                     doub_value = static_cast<double*>(ptr)[iPart];
-                    dataArray << doub_value;                             
+                    dataArray << doub_value;
                 }
                 else if(container.isIntData())
                 {
                     int_value = static_cast<int*>(ptr)[iPart];
-                    dataArray << int_value;     
+                    dataArray << int_value;
                 }
                 else
                     error().throw_error_one(FLERR,"Data format of container unknown.\n");
@@ -404,7 +399,7 @@ void Input::writeQJsonArray(char *jsonfile,
         }
 
         uint globalID = particleData().returnId(iPart);
-        QString  pId;  pId.setNum(globalID); 
+        QString  pId;  pId.setNum(globalID);
         particleDataQ[pId] = dataArray;
     }
     myParticles["data"] = particleDataQ;
@@ -420,10 +415,12 @@ void Input::writeQJsonArray(char *jsonfile,
 void Input::readQJsonArray(const QJsonObject &myParticles, ContainerBase &container) const
 {
     //Iterate through the data for each particle
-    bool foundThisParticle = false;
     int particleId    = 0;
     QJsonObject::const_iterator i;
     int currentKey;
+
+    if (!container.isDoubleData())
+        error().throw_error_one(FLERR,"Container is not double. Please check! \n");
 
     double *  ptr     = (double*)      container.begin_slow_dirty();   //ptr to scalar per-particle data
     double ***ptr3    = (double***)    container.begin_slow_dirty();   //ptr to vectorial per-particle data
@@ -436,7 +433,7 @@ void Input::readQJsonArray(const QJsonObject &myParticles, ContainerBase &contai
         currentKey    = i.key().toInt() - 1; //data indexing starts with zero
         if( currentKey>=container.size() )
         {
-            printf("problem with data having the key %d: it is larger than the container.size(%d).\n", 
+            printf("problem with data having the key %d: it is larger than the container.size(%d).\n",
                    currentKey, container.size());
             error().throw_error_one(FLERR,"You have specified an incorrect key in the JSON file.\n");
         }
@@ -445,7 +442,7 @@ void Input::readQJsonArray(const QJsonObject &myParticles, ContainerBase &contai
         QJsonValue  value;
         if(data.size()<container.lenVecUsed())
         {
-            printf("problem with data.size(): %d, and container.lenVecUsed(): %d.\n", 
+            printf("problem with data.size(): %d, and container.lenVecUsed(): %d.\n",
                     data.size(), container.lenVecUsed());
             error().throw_error_one(FLERR,"j<container.lenVecUsed(). You have specified too few data in the JSON file.\n");
         }
@@ -463,7 +460,6 @@ void Input::readQJsonArray(const QJsonObject &myParticles, ContainerBase &contai
 
         }
         particleId++;
-        foundThisParticle = false;
     }
     if(particleId < container.size())
         error().throw_error_one(FLERR,"particleId<container.size(). You have specified too few data in the input.");
@@ -485,7 +481,7 @@ void Input::fill_container_from_json(ContainerBase &container) const
     // if scope equals ID, try to open JSON file here directly
     if(strcmp(id,scope) == 0)
     {
-        char jsonfile[200],errmsg[300];
+        char jsonfile[200];
         sprintf(jsonfile,"./%s/0/%s.json",runDirectory_, scope);
 
        QFile    loadFile( jsonfile );
@@ -498,7 +494,7 @@ void Input::fill_container_from_json(ContainerBase &container) const
        if(loadDoc.isNull())
              error().throw_error_one(FLERR,"QJsonDocument is invalid. Check! \n");
 
-       myName = loadDoc.object()["name"].toString();
+       myName_ = loadDoc.object()["name"].toString();
 
     }
     else
@@ -519,41 +515,45 @@ void Input::fill_container_from_json(ContainerBase &container) const
 }
 
 // *************************************************************
-void Input::global_properties_json() const
+/*void Input::global_properties_json() const
 {
-	printf("\nInput::read global properties: \n");
+    printf("\nInput::read global properties: \n");
 
-    char global_jsonfile[200],errmsg[300];
+    char global_jsonfile[200];
     sprintf(global_jsonfile,"./%s/settings/parscale.json",runDirectory_);
 
     QFile    loadFile( global_jsonfile );
     if(!loadFile.open(QIODevice::ReadOnly))
-	{
+    {
              error().throw_error_one(FLERR,"can not open loadfile ",global_jsonfile);
-	}
+    }
 
     QByteArray        saveData = loadFile.readAll();
     loadDoc  = QJsonDocument::fromJson(saveData);
 
     if(loadDoc.isNull())
-	{
+    {
              error().throw_error_one(FLERR,"QJsonDocument is invalid. Check! \n");
-	}
+    }
 
-    myName = loadDoc.object()["name"].toString();
+    myName_ = loadDoc.object()["name"].toString();
 
-	QJsonObject globalData = loadDoc.object()["global_parameters"].toObject();
+    QJsonObject globalData = loadDoc.object()["global_parameters"].toObject();
 
-	readglobal_properties(globalData);
-}
+    readglobal_properties(globalData);
+}*/
 
 // *************************************************************
 
-void Input::readglobal_properties(const QJsonObject &json) const
+/*void Input::readglobal_properties(const QJsonObject &json) const
 {
-	double global_property_1;
-	global_property_1 = json["test"].toDouble();
-}
+    double global_property_1;
+
+    if (!container.isDoubleData())
+        error().throw_error_one(FLERR,"Container is not double. Please check! \n");
+
+    global_property_1 = json["test"].toDouble();
+}*/
 
 
 //HDF5 Routines
@@ -569,4 +569,3 @@ int Input::write_containersHDF5(ContainerBase &container) const
 }
 
 #endif
-

@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #ifndef PASC_INPUT_H
@@ -53,12 +53,7 @@ License
     #include "H5Cpp.h"
 #endif
 
-#define __PIC__
-#include <QtCore/QJsonArray>
-#include <QtCore/QJsonObject>
-#include <QtCore/QJsonDocument>
-#include <QtCore/QString>
-#include <QtCore/QFile>
+#include "qjson_includes.h"
 
 using std::ifstream;
 
@@ -72,15 +67,15 @@ class Input : public ParScaleBase, public ParScaleBaseInterface, public InputBas
       Input(ParScale *ptr);
       ~Input();
 
-      void set_input_script(const char *);  //sets the name of the input script
+      void set_input_script(const char *filename);  //sets the name of the input script
 
-      void set_runDirectory(const char *);  //sets the name of the directory to run in
+      void set_runDirectory(const char *dir);  //sets the name of the directory to run in
 
       char* runDirectory() {return runDirectory_;};
 
       void process_input_script();
 
-      void process_input(const char *);  //processes a single input command
+      void process_input(const char *command);  //processes a single input command
 
       void process_JSONInput();
 
@@ -88,20 +83,20 @@ class Input : public ParScaleBase, public ParScaleBaseInterface, public InputBas
       // in a container. storage in a container is preferred so can
       // comunicate, restart more easily
       void fill_container_from_json(class ContainerBase &container) const;
-      
+
       void write_containersJSON(class ContainerBase &container) const;
 
-      void openJsonFile(const char*, const char*, const char*, QJsonObject &json ) const;
+      void openJsonFile(const char* dirName, const char* fileName, const char* objectName, QJsonObject &json ) const;
 
       void readQJsonArray(const QJsonObject &json, ContainerBase &container) const;
 
       void writeQJsonObject(QJsonObject &json, ContainerBase &container) const;
 
-      void writeQJsonArray(char *jsonfile, QJsonObject &json, 
+      void writeQJsonArray(char *jsonfile, QJsonObject &json,
                            ContainerBase &container) const;
 
-	  void global_properties_json() const;
-	 
+      //void global_properties_json() const;
+
       void readglobal_properties(const QJsonObject &json) const;
 
       //under namespace H5
@@ -121,13 +116,13 @@ class Input : public ParScaleBase, public ParScaleBaseInterface, public InputBas
       mutable QJsonDocument  loadDoc;
 
       QJsonObject            global_settings_;
-      
+
       bool                   writeJSON_;
-      
+
       bool                   writeHDF5_;
 
-      mutable QString        myName;
-      
+      mutable QString        myName_;
+
       mutable int            writePrecision_;
 };
 

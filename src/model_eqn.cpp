@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -50,45 +50,24 @@ using namespace PASCAL_NS;
 ------------------------------------------------------------------------- */
 
 ModelEqn::ModelEqn(ParScale *ptr,  char *name) :
-          ModelBase(ptr, name),
-          integrator_(NULL),
-          tempIntraData_(NULL),
-          tempPhaseDataGas_(NULL),
-          tempPhaseDataLiquid_(NULL),
-          tempAvData_(0.0),
-          tempPartFlux_(0.0),
-          diffusivity(NULL),
-          thermal_solid_conductivity(NULL),
-          thermal_gas_conductivity(NULL),
-          transfer_coeff(NULL),
-          phaseFraction(NULL),
-          capacity_solid(NULL),
-          capacity_gas(NULL),
-          capacity_liquid(NULL),
-          density_solid(NULL),
-          density_gas(NULL),
-          tortuosity(NULL),
-          eqnSolveThis_(true),
-          eqnID_(-1),
-          eqnType_(-1),
-          particleDataID_(-1),
-          haveParticleDataID(false),
-          modelingApproach(CONTINUUM),
-          nGridPointsUsed_(0),
-          inPhase_(-1),
-          surface_area(NULL),
-          segment_vol(NULL),
-          heatEqnID_(-1),
-          molar_mass(NULL),
-          permeability(NULL),
-          viscosity(NULL),
-          surface_tension(NULL),
-          film_flow(NULL),
-          pore_radius(NULL),
-          particleID(-1),
-          IsoThermal_(FALSE),
-          diffu_eff_(NULL)
+          ModelBase(ptr, name)
 {
+    verbose_ = false;
+    
+    particleID = -1;
+    tempAvData_ = 0.0;
+    tempPartFlux_ = 0.0;
+    eqnSolveThis_ = true;
+    eqnID_ = -1;
+    eqnType_ = -1;
+    particleDataID_ = -1;
+    haveParticleDataID = false;
+    modelingApproach = CONTINUUM;
+    nGridPointsUsed_ = 0;
+    inPhase_ = -1;
+    heatEqnID_ = -1;
+    IsoThermal_ = false;
+    diffu_eff_ = 0.0;
     phaseFractionMinimum = SMALLNUMBER;
     phaseFractionMinimumConvection = SMALLNUMBER;
     convectionBoundMinStefanFactor = 1e-2;
@@ -98,8 +77,31 @@ ModelEqn::ModelEqn(ParScale *ptr,  char *name) :
     solveConvectiveFlux = false;
     writeDebugContainers= false;
     normalizeDuringGrowth = false;
-
-    verbose_ = false;
+    writeVolAvgProp = false;
+    surface_area = 0;
+    segment_vol = 0;
+   
+   integrator_ = NULL;
+   tempIntraData_ = NULL;
+   tempPhaseDataGas_ = NULL;
+   tempPhaseDataLiquid_ = NULL;
+   diffusivity = NULL;
+   thermal_solid_conductivity = NULL;
+   thermal_gas_conductivity = NULL;
+   transfer_coeff = NULL;
+   phaseFraction = NULL;
+   capacity_solid = NULL;
+   capacity_gas = NULL;
+   capacity_liquid = NULL;
+   density_solid = NULL;
+   density_gas = NULL;
+   tortuosity = NULL;
+   molar_mass = NULL;
+   permeability = NULL;
+   viscosity = NULL;
+   surface_tension = NULL;
+   film_flow = NULL;
+   pore_radius = NULL;
 
 }
 
@@ -141,12 +143,12 @@ void ModelEqn::end_of_step()
         else
         {
           //Pull out data and correct
-          particleData().setParticleIDPointer(particleDataID_,particleID);	
-          particleData().returnIntraData(tempIntraData_); 
-    
+          particleData().setParticleIDPointer(particleDataID_,particleID);
+          particleData().returnIntraData(tempIntraData_);
+
           for(int i=0; i<particleMesh().nGridPoints(); i++)
               tempIntraData_[i] = max(0.0, tempIntraData_[i]); //bound concentrations to zero
-         
+
           particleData().saveIntraParticleData(particleDataID_, particleID, tempIntraData_);
         }
        }
@@ -158,17 +160,17 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
 {
   eqnType_ = eqnType;
   eqnID_   = modelEqnID;
-    
+
   if(modelEqnContainer().nrHeatEqns() > 0)
   {
     heatEqnID_ = 0; //take the first heat equation for the temperature dependency
-  }  
+  }
   else
-  { 
+  {
     read_chemistry_single_react_json_file("isIsoThermal",  &IsoThermal_, true);
-  }  
+  }
   //TODO: make this more pretty - runs only if chemistry eqn is there
-   
+
   //Error Checks
     if( (heatEqnID_<0) && !IsoThermal_)
         error().throw_error_one(FLERR,"ERROR: no heat equation found, but you like to run a non-isothermal simulations. This is impossible. \n");
@@ -178,9 +180,9 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
 
 
   //Allocate mem
-  tempIntraData_       = create<double>(tempIntraData_, nGridPointsUsed_); 
-  tempPhaseDataGas_    = create<double>(tempPhaseDataGas_, nGridPointsUsed_); 
-  tempPhaseDataLiquid_ = create<double>(tempPhaseDataLiquid_, nGridPointsUsed_); 
+  tempIntraData_       = create<double>(tempIntraData_, nGridPointsUsed_);
+  tempPhaseDataGas_    = create<double>(tempPhaseDataGas_, nGridPointsUsed_);
+  tempPhaseDataLiquid_ = create<double>(tempPhaseDataLiquid_, nGridPointsUsed_);
 
   //Check models for physical properties one might need
   //TODO:throw errors,effective values possible - check for that in model_eqn_1D_spherical
@@ -194,29 +196,29 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
               phaseFraction=modelContainer().model(iModel);
               printf("with value: %g \n", phaseFraction->value());
       }
-    
+
       //B - these models are specific for a certain type of eqn.
-       
+
       if(strstr(modelContainer().model(iModel)->name(), name()) != NULL)
       {
 
-		 if(strstr(modelContainer().model(iModel)->name(), "Diffusivity") != NULL)
+         if(strstr(modelContainer().model(iModel)->name(), "Diffusivity") != NULL)
           {
-			  printf("found diffusivity in model %s \n", modelContainer().model(iModel)->name());
+              printf("found diffusivity in model %s \n", modelContainer().model(iModel)->name());
               diffusivity=modelContainer().model(iModel);
               printf("with value: %g \n", diffusivity->value());
           }
 
           if(strstr(modelContainer().model(iModel)->name(), "Tortuosity") != NULL)
           {
-			  printf("found tortuosity in model %s \n", modelContainer().model(iModel)->name());
+              printf("found tortuosity in model %s \n", modelContainer().model(iModel)->name());
               tortuosity=modelContainer().model(iModel);
               printf("with value: %g \n", tortuosity->value());
           }
 
           if(strstr(modelContainer().model(iModel)->name(), "Capacity_solid") != NULL)
           {
-			 
+
               printf("found solid capacity in model %s \n", modelContainer().model(iModel)->name());
               capacity_solid=modelContainer().model(iModel);
               printf("with value: %g \n", capacity_solid->value());
@@ -236,7 +238,7 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
               printf("with value: %g \n", capacity_liquid->value());
           }
 
-		  if(strstr(modelContainer().model(iModel)->name(), "ThermalConductivity_solid") != NULL)
+          if(strstr(modelContainer().model(iModel)->name(), "ThermalConductivity_solid") != NULL)
           {
               printf("found solid thermal conductivity in model %s \n", modelContainer().model(iModel)->name());
               thermal_solid_conductivity=modelContainer().model(iModel);
@@ -257,7 +259,7 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
               printf("with value: %g \n", thermal_liquid_conductivity->value());
           }
 
-		  if(strstr(modelContainer().model(iModel)->name(), "TransferCoeff") != NULL)
+          if(strstr(modelContainer().model(iModel)->name(), "TransferCoeff") != NULL)
           {
               printf("found heat/mass transfer coefficient in model %s \n", modelContainer().model(iModel)->name());
               transfer_coeff=modelContainer().model(iModel);
@@ -285,9 +287,9 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
               printf("with value: %g \n", density_liquid->value());
           }
 
-		  if(strstr(modelContainer().model(iModel)->name(), "global_properties") != NULL)
+          if(strstr(modelContainer().model(iModel)->name(), "global_properties") != NULL)
           {
-			  printf("found global_properties in model %s \n", modelContainer().model(iModel)->name());
+              printf("found global_properties in model %s \n", modelContainer().model(iModel)->name());
               global_properties=modelContainer().model(iModel);
               //printf("with value: %g \n", diffusivity->value());
           }
@@ -342,7 +344,6 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
 
   // parse boundary conditions and id of storage
   int iarg = 0;
-  ICvalue=-999;
   BC[0]=BC[1]=-1;
   BCvalue[0]=BCvalue[1]=-999;
 
@@ -399,10 +400,10 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
 
     if (strcmp(arg[iarg],"inactive")==0)
          solveMe = false;
- 
+
     if (strcmp(arg[iarg],"solveConvectiveFlux")==0)
          solveConvectiveFlux = true;
-            
+
     if (strcmp(arg[iarg],"writeDebugContainers")==0)
          writeDebugContainers = true;
 
@@ -412,10 +413,13 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
     if (strcmp(arg[iarg],"verbose")==0)
          verbose_ = true;
 
+     if (strcmp(arg[iarg],"writeVolAvgProp")==0)
+         writeVolAvgProp = true;
+   
     iarg++;
   };
 
-  // Error Checks 
+  // Error Checks
   if(updatePhaseFraction && eqnType_!=SPECIES)
     error().throw_error_one(FLERR,"In case 'updatePhaseFraction' = true, you must have a species eqn.\n");
 
@@ -436,17 +440,17 @@ void ModelEqn::init(int narg, char const* const* arg, int eqnType, int modelEqnI
   }
 
   if(pore_radius!=NULL && molar_mass==NULL)
-  {  
+  {
     printf("Since you specefied a pore radius and a molar mass, Knudsen Diffusion is activated\n");
   }
 
   if(pore_radius==NULL && molar_mass!=NULL)
-  {  
+  {
      error().throw_error_one(FLERR,"You specified a molar mass in one of you species Eqn. In order to activate Knudsen diffusion you must also set a pore radius!\n");
   }
 
   if(pore_radius!=NULL && molar_mass==NULL)
-  {  
+  {
      error().throw_error_one(FLERR,"You specified a pore radius in one of you species Eqn. In order to activate Knudsen diffusion you must also set a molar mass!\n");
   }
 
@@ -478,13 +482,13 @@ void ModelEqn::computeParticleProps()
 {
 
     if(!haveParticleDataID)
-	error().throw_error_one(FLERR,"You must specify a 'particleDataID' to let this model know where to save/request data.\n");	
+    error().throw_error_one(FLERR,"You must specify a 'particleDataID' to let this model know where to save/request data.\n");
 
-	//compute the averages
-	computeParticleAverages(); 
+    //compute the averages
+    computeParticleAverages();
 
-	//compute flux at surface
-	computeSurfaceFluxes();  
+    //compute flux at surface
+    computeSurfaceFluxes();
 
     return;
 }

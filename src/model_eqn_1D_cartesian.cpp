@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -52,7 +52,7 @@ ModelEqn1DCartesian::ModelEqn1DCartesian(ParScale *ptr, char *name) :
 {
   printf("...this is a ModelEqn1DCartesian. \n");
   debug_ = false;
-        
+
   //check the particle mesh
    if(particleMesh().nGridPoints()<1)
        output().write_screen_one("WARNING: ModelEqn1DSpherical:your particle mesh has no grid points! \n");
@@ -64,9 +64,9 @@ void ModelEqn1DCartesian::init(int narg, char const* const* arg, int eqnType, in
     //Allocate temporary memory to exchange particle data with particleData class
     nGridPointsUsed_ = particleMesh().nGridPoints() + 1; // allocate one interior and one exterior grid point
     printf("nGridPointsUsed_ = %i \n",nGridPointsUsed_);
-    modelingApproach = CONTINUUM;    
+    modelingApproach = CONTINUUM;
     ModelEqn::init(narg,arg,eqnType,modelEqnID);
-    
+
     error().throw_error_one(FLERR,"ModelEqn1DCartesian currently not supported in this version. \n");
 }
 
@@ -83,24 +83,7 @@ void ModelEqn1DCartesian::begin_of_step()
 
 void ModelEqn1DCartesian::eval(double t, double* udata, double* dudata, double* p)
 {
-	 double uh, ult, urt, hordc, horac, hdiff, hadv;
-     if(debug_)
-            printf("ModelEqn1DCartesian::eva  ... \n");
-	// Loop over all grid points.
-        for (int h=0;  h < particleMesh().nGridPoints(); h++)
-        {
-            //dudata[h]=udata[h];
-
-            // Extract u at x_i and two neighboring points
-            uh = udata[h];
-            ult = (h == 1)  ? 0 : udata[h-1];
-            urt = (h == particleMesh().nGridPoints()) ? 0 : udata[h+1];
-
-            // Set diffusion and advection terms and load into udot
-            hdiff     = hordc*(ult - 2.0*uh + urt);	        //CDS
-            hadv      = horac*(urt - ult);			//CDS
-            dudata[h] = hdiff + hadv;
-        }
+     error().throw_error_one(FLERR,"ModelEqn1DCartesian::eval: not implemented yet!\n");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -128,18 +111,14 @@ void ModelEqn1DCartesian::computeParticleAverages()
 
         particleData().saveIntraParticleAv(particleDataID_, particleID, tempAvData_);
    }
-    
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
 void ModelEqn1DCartesian::computeSurfaceFluxes()
 {
-    for(int particleID=0; particleID<particleData().nbody(); particleID++)
-    {
-        tempPartFlux_ = 0.0;
-        particleData().saveIntraParticleFlux(particleDataID_, particleID, tempPartFlux_);
-    }
+     error().throw_error_one(FLERR,"ModelEqn1DCartesian::computeSurfaceFluxes: not implemented yet!\n");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -151,7 +130,7 @@ void ModelEqn1DCartesian::updateProperties()
         //set grid coefficients and BC condition
         rMAX=particleData().pRadius(particleID);
 
-        particleData().setParticleIDPointer(particleDataID_,particleID);	
+        particleData().setParticleIDPointer(particleDataID_,particleID);
         particleData().returnIntraData(tempIntraData_);
 
         BCvalue[1] = tempIntraData_[particleMesh().nGridPoints()]; //set environment variable, re-use intra-particle container for this purpose
@@ -196,7 +175,7 @@ void ModelEqn1DCartesian::updateProperties()
             if(eqnType_==HEAT)
             {
                 lambda_eff=thermal_solid_conductivity->value();
-		        c_p_eff=capacity_solid->value();
+                c_p_eff=capacity_solid->value();
                 rho_eff=density_solid->value();
                 diffu_eff_=lambda_eff/(c_p_eff*rho_eff);
 
@@ -207,7 +186,7 @@ void ModelEqn1DCartesian::updateProperties()
                     error().throw_error_one(FLERR,"ERROR: You must specify a diffusivity! \n");
 
                 diffu_eff_ = diffusivity->value();
-	         }
+             }
         }
 
         //set boundary properties
@@ -215,14 +194,28 @@ void ModelEqn1DCartesian::updateProperties()
         //coeffcient results off 2nd deviation O(dx^2)
         coeff_2nd_dev = (1.0)/(dx*dx);
 
+        //Set Neumann BC via flux
+        if(BC[1]==NEUMANN)
+        {
+            if (strcmp(coupling().couplingModel().name(),"liggghts") == 0)// && environmentFlux != 0)
+                particleData().returnIntraFlux(particleID,environmentFlux);
+            else
+                environmentFlux = BCvalue[1];
+
+            if( environmentFlux==0.0 )
+                if(verbose_)
+                    printf("WARNING: you have not specified a flux. Assuming 0.\n");
+        }
+
+
         if(BC[1]==CONVECTIVE)
         {
             if(transfer_coeff!=NULL)
-		    {
+            {
                 environmentTransCoeff=transfer_coeff->value();
-			    //printf("environmentTransCoeff = %g \n", environmentTransCoeff);
-		    }
-		    else
+                //printf("environmentTransCoeff = %g \n", environmentTransCoeff);
+            }
+            else
             {
                 printf("WARNING: you have not specified a transfer coefficient. Assuming 0.\n");
                 environmentTransCoeff=0.;
@@ -237,16 +230,6 @@ void ModelEqn1DCartesian::updateProperties()
         else
         {
             environmentTransCoeff=0.0;
-        }
-
-        if(BC[1]==NEUMANN)
-        {
-            environmentFlux=environmentU;
-
-            if(environmentFlux=0)
-            {
-                printf("WARNING: you have not specified a flux. Assuming 0.\n");
-            }
         }
 
         //printf("using diffu_eff_: %g, environmentTransCoeff: %g, biot_num: %g.\n",

@@ -10,6 +10,7 @@ rm *.dat
 rm *.bin
 rm -r 0.*
 rm -r 1*
+rm *.vol_avg
 rm -r 2*
 rm -r 3*
 rm -r 4*
@@ -22,4 +23,8 @@ rm -r 9*
 rm log.*
 rm octave/*.png
 rm codeInfo.*
+
+rm speciesCatalyst.vol_avg
+rm peciesDissolved.vol_avg
+rm heat.vol_avg
 

@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
      Copyright (C): 2012 - 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -32,12 +32,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -270,21 +270,21 @@ bool MathExtraPascal::compDouble(double const a, double const b, double const pr
 inline double MathExtraPascal::fastPow(double base, double exponent)
 {
     double result = 1.0;  int i_ = 0;
-    if (floor(exponent) == exponent) 
+    if (floor(exponent) == exponent)
     {   while(i_ < floor(exponent))
         {
-                result *= base; 
+                result *= base;
                 i_++;
         }
     }
     else
            result = pow(base, exponent);
-           
+
     return result;
 
 }
 /* -----------------------------------------------------------------------------
- * Operations 
+ * Operations
  -------------------------------------------------------------------------------*/
 inline double MathExtraPascal::interpolateLinearly(QJsonArray x, QJsonArray y, double xToInterpolate)
 {
@@ -301,20 +301,20 @@ inline double MathExtraPascal::interpolateLinearly(QJsonArray x, QJsonArray y, d
 
             //otherwise, interpolate
             else
-            {   
+            {
                 double deltaX = x[i].toDouble() - x[i-1].toDouble();
                 if(deltaX<SMALLNUMBER) //avoid division by zero and extrapolation
                     result = y[i-1].toDouble();
                 else
-                    result = y[i-1].toDouble() 
+                    result = y[i-1].toDouble()
                           +  ( xToInterpolate - x[i-1].toDouble() )
                             /( deltaX )
                             *( y[i].toDouble() - y[i-1].toDouble() );
 
             }
-        }  
+        }
     }
-    
+
     return result;
 }
 

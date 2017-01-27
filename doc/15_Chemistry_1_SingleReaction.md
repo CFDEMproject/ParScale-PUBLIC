@@ -16,6 +16,7 @@ Syntax
     
         "reaction":
     	{
+    	  "cMinimum"       :  [number],
           "isIsoThermal"   :  [true/false],
           "temperature"    :  [number],  
           "Arrhenius_A"    :  [number],
@@ -49,6 +50,7 @@ Example from `chemistry_single_reaction.json`
     
         "reaction":
     	{
+    	  "cMinimum"       :  1e-3,
           "isIsoThermal"   :  false,
           "temperature"    :  400,  
           "Arrhenius_A"    :  1e0,
@@ -72,6 +74,7 @@ Example from `chemistry_single_reaction.json`
  Explanation
 ----------------
 - `reactants` are the names of the species taking part in the reaction
+- `cMinimum` only relevant for 0-order reaction: this is the concentration below which a linear approximation will be used to stop the reaction (i.e., for very small concentrations a zero-order reaction must stop)
 - `isIsoThermal` set the simulation to an isotermal state or not (`true` or `false` as input parameters)
 - `temperature` is read in if `isIsoThermal` is set to `true`
 - `Arrhenius_A`,`Arrhenius_beta`, `Arrhenius_E_A` sets the Arrhenuis constants for the single reaction

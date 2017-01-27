@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #include "model_phasechange_evaporation.h"
@@ -59,7 +59,7 @@ ModelPhaseChange(ptr,name)
         error().throw_error_one(FLERR,"ERROR: could not read verbose settings for this class. \n",
                                 "ModelPhaseChangeEvaporation");
 
-    verbose_   = global_properties_["ModelPhaseChangeEvaporation"].toBool();    
+    verbose_   = global_properties_["ModelPhaseChangeEvaporation"].toBool();
 
 }
 // *************************************************************************************
@@ -70,7 +70,7 @@ ModelPhaseChangeEvaporation::~ModelPhaseChangeEvaporation()
 // *************************************************************************************
 void ModelPhaseChangeEvaporation::init(int narg, char const* const* arg, int eqnType, int modelPhaseChangeID)
 {
-    
+
     ModelPhaseChange::init(narg,arg,eqnType,modelPhaseChangeID);
     readEvaporationJSON();
 }
@@ -85,14 +85,11 @@ void ModelPhaseChangeEvaporation::begin_of_step()
         error().throw_error_one(FLERR,"ERROR: evaporationRateConstant is too large for this time step (i.e., rate is > 0.1/deltaT). Reduce time step or evaporationRateConstant. \n",
                                 "ModelPhaseChangeEvaporation");
 
-    double phaseFractionMinimumConvection = modelEqnContainer().modelEqn(speciesModelEqnID_[1])->phaseFractionMinimumConvection;
-    double convectionBoundMinStefanFactor = modelEqnContainer().modelEqn(speciesModelEqnID_[1])->convectionBoundMinStefanFactor;
-
     for(int particleID=0; particleID<particleData().nbody(); particleID++)
     {
-       
-        if(verbose_) 
-            printf("setting evaporation rate for particle %i with heat eqn id %i \n", particleID, heatEqnID_); 
+
+        if(verbose_)
+            printf("setting evaporation rate for particle %i with heat eqn id %i \n", particleID, heatEqnID_);
 
 
         double currentTemp = evaporationTemp_;
@@ -100,7 +97,7 @@ void ModelPhaseChangeEvaporation::begin_of_step()
 
         if(!isIsoThermal_)
         {
-            particleData().setParticleIDPointer(heatEqnID_,particleID);	
+            particleData().setParticleIDPointer(heatEqnID_,particleID);
             particleData().returnIntraData(tempIntraDataHeat_);
         }
 
@@ -109,19 +106,19 @@ void ModelPhaseChangeEvaporation::begin_of_step()
         {
 
                 if(!isIsoThermal_)
-                {   
+                {
                     currentTemp = tempIntraDataHeat_[grid_point];
                     pSat        = (this->*vaporPressure)(currentTemp);
                 }
- 
+
                 double rateDensePhase    = 0;
                 double rateDilutePhase   = 0;
                 double jacobiDensePhase  = 0;
                 double jacobiDilutePhase = 0;
 
-                //Retrieve the local species concentration        
-                particleData().retrieveIntraData(speciesParticleDataID_, 
-                                                 particleID, grid_point, 
+                //Retrieve the local species concentration
+                particleData().retrieveIntraData(speciesParticleDataID_,
+                                                 particleID, grid_point,
                                                  species_concentrations_);
 
                 if(phaseID_[0] == 0 || phaseID_[1] == 0) //if dense is solid
@@ -129,7 +126,7 @@ void ModelPhaseChangeEvaporation::begin_of_step()
                     error().throw_error_one(FLERR,"No phase change of solid phase possilbe if phase changemodel is evaporation \n", "ModelPhaseChangeEvaporation");
                 }
 
-                particleData().retrievePhaseFractionData(phaseID_, 
+                particleData().retrievePhaseFractionData(phaseID_,
                                                  particleID, grid_point,
                                                  phaseFractions_);
                 double densephaseFactor  = 0;
@@ -141,12 +138,12 @@ void ModelPhaseChangeEvaporation::begin_of_step()
                     dilutephaseFactor = 1.0;
 
 
-                //Must save LINEARIZED source term due to phase change    
+                //Must save LINEARIZED source term due to phase change
                 jacobiDilutePhase= -1*evaporationRateConstant_ // phaseFractions_[1]
                                    *densephaseFactor*dilutephaseFactor;
                 rateDilutePhase  = -1*jacobiDilutePhase * pSat * INVERSE_UNIVERSAL_GAS_CONSTANT / currentTemp;
 
-                rateDensePhase   = rateDilutePhase 
+                rateDensePhase   = rateDilutePhase
                                  - evaporationRateConstant_ * species_concentrations_[1]  // phaseFractions_[1]
                                   *densephaseFactor*dilutephaseFactor;
                 rateDensePhase  *= -1 / phaseFractions_[1]; //multiply with -1/phaseFraction since dense phase is evaporating
@@ -165,17 +162,17 @@ void ModelPhaseChangeEvaporation::begin_of_step()
                 //Save the old temperature
                 particleData().savePhaseChangeParticleDataJacLastSlot(particleID, currentTemp, grid_point);
 
-                if(verbose_) 
-                    printf("species_concentrations_: %g/%g, phaseID_: %d/%d, pSat: %g, rateDense/Dilute: %g/%g, jacobi dense/dilute: %g/%g, oldTemperature: %g. \n", 
+                if(verbose_)
+                    printf("species_concentrations_: %g/%g, phaseID_: %d/%d, pSat: %g, rateDense/Dilute: %g/%g, jacobi dense/dilute: %g/%g, oldTemperature: %g. \n",
                             species_concentrations_[0], species_concentrations_[1],
                             phaseID_[0], phaseID_[1],
-                            pSat, 
+                            pSat,
                             rateDensePhase,   rateDilutePhase,
                             jacobiDensePhase, jacobiDilutePhase, currentTemp
-                          ); 
+                          );
         }
     }
-    
+
 }
 
 // *************************************************************************************
@@ -209,7 +206,7 @@ void ModelPhaseChangeEvaporation::readEvaporationJSON()
         {
             vaporPressureParameters_.push_back((*i).toDouble());
         }
-        printf("ModelPhaseChangeEvaporation: have read model '%s', with %d parameters. \n \n",
+        printf("ModelPhaseChangeEvaporation: have read model '%s', with %lu parameters. \n \n",
                qPrintable(myModel), vaporPressureParameters_.size());
 
         if(vaporPressureParameters_.size()!=3)
@@ -241,8 +238,8 @@ double ModelPhaseChangeEvaporation::vaporPressureAntoine(double temperatureK) co
     //Result is then in Pascal
 
     return 133.32236 * pow(10.0,                        //convert from mmHg to Pa
-                              vaporPressureParameters_[0] 
-                         -    vaporPressureParameters_[1] 
+                              vaporPressureParameters_[0]
+                         -    vaporPressureParameters_[1]
                            / (vaporPressureParameters_[2]+temperatureK)
                           );
 }
@@ -259,7 +256,7 @@ double ModelPhaseChangeEvaporation::derivativeConcTempAntoine(double temperature
 
     return  pSat * INVERSE_UNIVERSAL_GAS_CONSTANT * inverseTemp
           * (
-                 2.30258509299 //ln(10) 
+                 2.30258509299 //ln(10)
                 -inverseTemp
             );
 }

@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #include "comm.h"
@@ -73,6 +73,7 @@ Comm::Comm(ParScale *ptr,MPI_Comm &communicator) : ParScaleBaseAccessible(ptr),
     vectorZeroize2D(procneigh_[1]);
     vectorZeroize2D(procneigh_[2]);
     neighAgoCaller_ = -1;
+    timeStepFromRun_ = -1;
 
     // do some MPI stuff
     MPI_Comm_rank(MPI_COMM_WORLD,&me_);
@@ -86,7 +87,7 @@ Comm::Comm(ParScale *ptr,MPI_Comm &communicator) : ParScaleBaseAccessible(ptr),
     create<int>(exchangeCounts_,       nprocs_);
     create<int>(exchangeDisplacements_,nprocs_);
     verbose_ = false; //true; //Developer to set here if needed for debugging
-   
+
 }
 
 Comm::~Comm()
@@ -116,7 +117,7 @@ void Comm::pull()
         cm.pull_box(boxlo_,boxhi_,subboxlo_,subboxhi_);
         cm.pull_proc_info(procgrid_,myloc_,procneigh_);
         double timeStep;
-        cm.pull_timeStepping_info(timeStep,neighAgoCaller_);
+        cm.pull_timeStepping_info(timeStep,neighAgoCaller_,timeStepFromRun_);
 
         exchangeEventsLocalId_          = cm.exchangeEventsLocalId();
         exchangeEventsReceivingProcess_ = cm.exchangeEventsReceivingProcess();
@@ -176,56 +177,52 @@ void Comm::exchange() //this is similar the class MultiNodeMeshParallel in LIGGG
     if(1 == nprocs_)
         return;
 
-    // exchange particles to neighboring procs only if calling program did
-    if(neighAgoCaller_!=0)
+    // exchange particles to neighboring procs only after neighboring, or during very first step
+    if(neighAgoCaller_!=0 && timeStepFromRun_ != 1)
         return;
-    
-    int nrecv1,nrecv2;
-    double *buf;
-    MPI_Request request;
-    MPI_Status status;
+
     int mpi_err;
-    
+
     // scale translate rotate not needed here
     OperationProperties op(OPERATION_COMM_EXCHANGE,false,false,false);
     sizeExchangeEvents_   = exchangeEventsLocalId_->size();
     data_ = &(particleData().data());
-    
+
     //Loop all processes to gather data to currProcess
     for (int currProcess=0; currProcess<nprocs_; currProcess++)
     {
         int nrecv=0; int nsend=0;
-    
+
         //fill puffers with data for sending to currProcess
         if( currProcess!=me_ )
         {
             nsend = pushExchangeBcast(currProcess,op);
             if(verbose_ && nsend > 0)
               printf("[%d/%d]: **exchange: will send %d doubles to process %d \n",
-                 me_, nprocs_,   
+                 me_, nprocs_,
                  nsend, currProcess
                 );
         }
-        
-        wait(); //be sure we are in sync        
-    	mpi_err = MPI_Gather(&nsend,           1,MPI_INT, 
-		    			      exchangeCounts_, 1,MPI_INT, 
-		    			      currProcess,MPI_COMM_WORLD
-		    			    );
-	    			    
-        //Calculate displacements and the size of the recv array 
-    	if( currProcess==me_ )
-    	{
-		    exchangeDisplacements_[0] = 0;
-		    for(int iPro=1; iPro<nprocs_; iPro++)
-			    exchangeDisplacements_[iPro] = exchangeCounts_[iPro-1]
-			                                 + exchangeDisplacements_[iPro-1];
 
-    		nrecv=0;
-	    	for(int iPro=0; iPro<nprocs_; iPro++)
-			    nrecv += exchangeCounts_[iPro];
+        wait(); //be sure we are in sync
+        mpi_err = MPI_Gather(&nsend,           1,MPI_INT,
+                              exchangeCounts_, 1,MPI_INT,
+                              currProcess,MPI_COMM_WORLD
+                            );
 
-            if (nrecv > maxrecv_) grow_recv(nrecv);  		
+        //Calculate displacements and the size of the recv array
+        if( currProcess==me_ )
+        {
+            exchangeDisplacements_[0] = 0;
+            for(int iPro=1; iPro<nprocs_; iPro++)
+                exchangeDisplacements_[iPro] = exchangeCounts_[iPro-1]
+                                             + exchangeDisplacements_[iPro-1];
+
+            nrecv=0;
+            for(int iPro=0; iPro<nprocs_; iPro++)
+                nrecv += exchangeCounts_[iPro];
+
+            if (nrecv > maxrecv_) grow_recv(nrecv);
 
             if(verbose_ && nrecv > 0)
             {
@@ -238,35 +235,37 @@ void Comm::exchange() //this is similar the class MultiNodeMeshParallel in LIGGG
                         );
               printf("\n");
              }
-    	}
-    	
+        }
+
         wait(); //be sure we are in sync
-    	mpi_err = MPI_Gatherv(buf_send_,   nsend,                                  MPI_DOUBLE, 
-        	                  buf_recv_,   exchangeCounts_, exchangeDisplacements_,MPI_DOUBLE, 
-	                          currProcess, MPI_COMM_WORLD);
+        mpi_err = MPI_Gatherv(buf_send_,   nsend,                                  MPI_DOUBLE,
+                              buf_recv_,   exchangeCounts_, exchangeDisplacements_,MPI_DOUBLE,
+                              currProcess, MPI_COMM_WORLD);
 
         if(verbose_ && nrecv > 0 )
-          printf("[%d/%d]: **exchange: MPI_Gatherv to %d complete! Poping buffer with wize %d... \n",
-                 me_, nprocs_,   
-                 currProcess, nrecv
+          printf("[%d/%d]: **exchange: MPI_Gatherv to %d complete (error: %d)! Poping buffer with size %d... \n",
+                 me_, nprocs_,
+                 currProcess, 
+                 mpi_err,
+                 nrecv
                 );
 
         if( currProcess==me_ && nrecv > 0 )
             popExchangeBcast(nrecv, buf_recv_,op);
-            
+
     } //loop over all processes
-    
-    //Delete all elements that have been sent 
+
+    //Delete all elements that have been sent
     for(int event=(sizeExchangeEvents_-1); event>=0; event--)
         data_->deleteElement( (*exchangeEventsLocalId_)[event] );
-    
+
     // re-calculate nbody_all, no error if lost particle
     // (could be by exit of simulation domain in liggghts)
-    data_->recalc_nbody_all(false); 
-    
+    data_->recalc_nbody_all(false);
+
     exchangeEventsLocalId_->clear();
     exchangeEventsReceivingProcess_->clear();
-    
+
 }
 
 /* ----------------------------------------------------------------------
@@ -286,8 +285,8 @@ int Comm::pushExchangeBcast(int currProcess,OperationProperties &op)
                 sprintf(errorMsg,"pushExchangeBcast: attempting to push body %d, but only have %d bodies.",
                         iToPush,particleData().nbody());
                 error().throw_error_all(FLERR,errorMsg);
-            }        
-            
+            }
+
             nsend_this = data_->pushElemToBuffer(iToPush,&(buf_send_[nsend+1]),op);
             buf_send_[nsend] = static_cast<double>(nsend_this+1);
             nsend += (nsend_this+1);
@@ -297,11 +296,11 @@ int Comm::pushExchangeBcast(int currProcess,OperationProperties &op)
       if (nsend > maxsend_)
       {
             grow_send(nsend,1);
-      }        
+      }
 
       if( verbose_ && nsend>0 )
       printf("[%d/%d]: **pushExchangeBcast: size of buffer (nsend): %d\n",
-              me_, nprocs_,   
+              me_, nprocs_,
               nsend);
 
       return nsend;
@@ -369,7 +368,7 @@ int Comm::popExchangeBcast(int nrecv, double *buf, OperationProperties &op)
 ------------------------------------------------------------------------- */
 void Comm::bcast() //this is similar the class MultiNodeMeshParallel in LIGGGHTS
 {
-// DONT NEED THIS FUNCTION RIGHT NOW, SINCE 
+// DONT NEED THIS FUNCTION RIGHT NOW, SINCE
 /*
     // no action required for serial
     if(1 == nprocs_)
@@ -408,7 +407,7 @@ void Comm::bcast() //this is similar the class MultiNodeMeshParallel in LIGGGHTS
         MPI_Bcast(&nsend,1,MPI_INT,0,world_); //DEFECT-TODO
         if (nsend > maxsend_)
             grow_send(nsend,1);
-        
+
         if( nsend == 0)
             continue;
 
@@ -429,6 +428,3 @@ void Comm::bcast() //this is similar the class MultiNodeMeshParallel in LIGGGHTS
 
 */
 }
-
-
-

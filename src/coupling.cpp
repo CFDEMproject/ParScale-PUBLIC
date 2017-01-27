@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #include "coupling.h"
@@ -58,7 +58,7 @@ Coupling::Coupling(ParScale *ptr) :
     couplingModels_(0)
 {
     isInitialized_ = false;
-    verbose_ = false;        
+    verbose_ = false;
     // fill map with all models listed in style_model.h
 
     #define COUPLING_MODEL_CLASS
@@ -124,11 +124,11 @@ void Coupling::parallelize()
 void Coupling::init()
 {
 
-    for(int iModel=0; iModel < couplingModels_.size(); iModel++)
+    for(unsigned int iModel=0; iModel < couplingModels_.size(); iModel++)
     {
         couplingModels_[iModel].init();
         if(couplingModels_[iModel].verbose())
-            verbose_ = true;    
+            verbose_ = true;
 
     }
 
@@ -155,32 +155,31 @@ void Coupling::pull()
         if(!id_cont)
             (ParScaleBase::error()).throw_error_all(FLERR,"Could not get element property 'id' needed by coupling.");
 
-        int id_length_ = id_cont->size(); //the original length of the container. Important to detect change
-        int id_lengthDelta_ = 0;
-
+        int id_length_ = id_cont->size(); //the original length of the container. Needed to detect change later
+        int id_asynchronousCount_ = 0;
 
         couplingModel().pull_n_bodies(nlocal,nghost, nbody_all);
 
         double * tempIntraData_;
-        if(verbose_)
+        if(verbose_ )
         {
-            //Allocate mem since needed for print out 
+            //Allocate mem since needed for print out
             tempIntraData_   = create<double>(tempIntraData_, particleMesh().nGridPoints());
-            printf("\n[%d/%d]:***Coupling::pull()***\n", comm().me(),comm().nprocs());
-            printf("[%d/%d]:current atom count: %d (local), %d (global).\n", 
+            printf("\n[%d/%d]/ParScale:***Coupling::pull()***\n", comm().me(),comm().nprocs());
+            printf("[%d/%d]/ParScale:current atom count: %d (local), %d (global).\n",
                    comm().me(),comm().nprocs(),
                    cv.nbody(), cv.nbody_all());
-            printf("[%d/%d]:atom count requested by coupling: %d (local), %d (ghost), %d (global).\n", 
+            printf("[%d/%d]/ParScale:atom count requested by coupling: %d (local), %d (ghost), %d (global).\n",
                     comm().me(),comm().nprocs(),
                    nlocal, nghost, nbody_all);
 
-            printf("[%d/%d]:received access to container with length %d and ids \n", 
+            printf("[%d/%d]/ParScale:have access to cv container with length %d and ids \n",
                     comm().me(),comm().nprocs(),
                     id_cont->size()
                   );
             for(int iCont=0; iCont < (id_cont->size()); iCont++)
             {
-                printf("[%d/%d]:id_cont[%d]: %d\n", 
+                printf("[%d/%d]/ParScale:id_cont[%d]: %d\n",
                 comm().me(),comm().nprocs(),
                 iCont, id_cont->begin()[iCont]);
             }
@@ -188,7 +187,7 @@ void Coupling::pull()
 
         if( cv.nbody_all() != nbody_all )
         {
-            printf("[%d/%d]: cv.nbody_all(): %d,  nbody_all: %d \n", 
+            printf("[%d/%d]/ParScale: cv.nbody_all(): %d,  nbody_all: %d \n",
                     comm().me(),comm().nprocs(),
                     cv.nbody_all(),nbody_all
                   );
@@ -196,12 +195,11 @@ void Coupling::pull()
         }
 
         cv.grow_nbody(nlocal,nbody_all);
-        id_lengthDelta_ = nlocal - id_length_; //get number of asynchronous atoms. positive if calling program has more
+        id_asynchronousCount_ = nlocal - id_length_; //get number of asynchronous atoms. positive if calling program has more
         id_length_      = id_cont->size();
         int *_id;
         _id = create<int>(_id,id_length_);
         memcpy(_id,id_cont->begin(),id_length_*sizeof(int));
-        
 
         int ext_map_length     = 0;
         int *_ext_map = couplingModel().get_external_map(ext_map_length);
@@ -210,59 +208,36 @@ void Coupling::pull()
             (ParScaleBase::error()).throw_error_all(FLERR,"pointer to _ext_map not set!");
 
         //check current against external ids
-        if(id_lengthDelta_>0)
+        if(id_asynchronousCount_>0)
         {
-            int idsToBeDetected = id_lengthDelta_;
-            int iExt=0;
-            while( idsToBeDetected>0 && (iExt<ext_map_length) )
-            {
-                if( _ext_map[iExt] < nlocal ) //check if local ID is in range
-                {
-                    int extGlobalID = iExt + 1; //the global ID from the external map
-                    bool foundGlobal=false;
-                    for( int jLocal=0; jLocal<(nlocal-id_lengthDelta_); jLocal++ )//scan all old global ids for external global id
-                    {
-                        if( extGlobalID == _id[jLocal] )
-                        {
-                            foundGlobal = true;
-                            continue;
-                        }
-                    }
+            printf("n\n [%d/%d]/ParScale:id_asynchronousCount_>0! Comm must ensure this cannot happen! So, please check the source code...  cv.nbody(): %d, cv.nbody_all(): %d.\n",
+                   comm().me(),comm().nprocs(),
+                   cv.nbody(), cv.nbody_all());
 
-                    if(!foundGlobal) //did not find global id, so need to add at the end
-                    {
-                        _id[nlocal-1+idsToBeDetected] = extGlobalID; //inser global Id at the end
-                        idsToBeDetected--;
-                    }
-                    printf("[%d/%d]:couplingModel added extGlobalID %d into slot %d \n", 
-                           comm().me(),comm().nprocs(),
-                           extGlobalID, nlocal-1+idsToBeDetected
-                           );
-                }
-                iExt++;
-            }
+           (ParScaleBase::error()).throw_error_all(FLERR,
+                                 "id_asynchronousCount_>0! Comm must ensure this cannot happen");
         }
-        
+
 
         if(verbose_)
         {
-            printf("[%d/%d]:couplingModel attempts to pull %d (local), %d (ghost) and %d (global) bodies \n", 
+            printf("[%d/%d]/ParScale:couplingModel attempts to pull %d (local), %d (ghost) and %d (global) bodies \n",
                     comm().me(),comm().nprocs(),
                     nlocal, nghost, nbody_all
                   );
-            printf("[%d/%d]:received external map of length %d with values: \n", 
+            printf("[%d/%d]/ParScale:received external map of length %d with values: \n",
                    comm().me(),comm().nprocs(),
                    ext_map_length
                   );
             for(int iGlobal=0; iGlobal < ext_map_length; iGlobal++)
             {
-                printf("[%d/%d]:_ext_map[%d]: %d\n", 
+                printf("[%d/%d]/ParScale:_ext_map[%d]: %d\n",
                         comm().me(),comm().nprocs(),
                         iGlobal, _ext_map[iGlobal]
                       );
             }
-            
-            printf("[%d/%d]:created copy of id_container with length: %d\n", 
+
+            printf("[%d/%d]/ParScale:created copy of id_container with length: %d\n",
                     comm().me(),comm().nprocs(),
                     id_length_
                   );
@@ -271,10 +246,10 @@ void Coupling::pull()
         if(verbose_)
         for(int idLocal=0; idLocal < id_length_; idLocal++)
         {
-            particleData().setParticleIDPointer(0,idLocal);	
+            particleData().setParticleIDPointer(0,idLocal);
             particleData().returnIntraData(tempIntraData_);
 
-            printf("[%d/%d]: BEFORESORTING idLocal: %d/(nlocal: %d, nghosts: %d), globalID: %d, intraData[0]: %g \n", 
+            printf("[%d/%d]/ParScale: BEFORESORTING idLocal: %d/(nlocal: %d, nghosts: %d), globalID: %d, intraData[0]: %g \n",
                     comm().me(),comm().nprocs(),
                     idLocal, nlocal, nghost, _id[idLocal],tempIntraData_[0]
                   );
@@ -282,40 +257,49 @@ void Coupling::pull()
 
         // use to sort data and afterwards destroy copy
         cv.sortPropsByExtMap(
-                             _id, nlocal, 
+                             _id, nlocal,
                              id_length_,
                              _ext_map, ext_map_length,
                              verbose_, comm().me()
                             );
 
-        //Check IDs. 
+        //Check IDs.
         //Must ensure that (i) global ids are unique for nlocal
         if(verbose_)
-        for(int idLocal=0; idLocal < id_length_; idLocal++)
         {
-            particleData().setParticleIDPointer(0,idLocal);	
+          for(int idLocal=0; idLocal < id_length_; idLocal++)
+          {
+            particleData().setParticleIDPointer(0,idLocal);
             particleData().returnIntraData(tempIntraData_);
-
-            printf("[%d/%d]: AFTERSORTING idLocal: %d/(nlocal: %d, nghosts: %d), globalID: %d, intraData[0]: %g  \n", 
+            printf("[%d/%d]/ParScale: AFTERSORTING idLocal: %d/(id_length: %d, nlocal: %d, nghosts: %d), globalID: %d, intraData[0]: %g  \n",
                     comm().me(),comm().nprocs(),
-                    idLocal, nlocal, nghost, _id[idLocal],tempIntraData_[0]
+                    idLocal, id_length_, nlocal, nghost, 
+                    _id[idLocal], tempIntraData_[0]
                   );
-
-            delete [] tempIntraData_;
+          }
+          destroy(tempIntraData_);
         }
 
-        //Check external map
+        //Re-check external map
         for(int iLocal=0; iLocal < nlocal; iLocal++)
             if( _ext_map[_id[iLocal]-1]<0 )
                 (ParScaleBase::error()).throw_error_all(FLERR,"List of globals ids invalid! _ext_map < 0");
             else if(  _ext_map[_id[iLocal]-1] >= nlocal)
-                (ParScaleBase::error()).throw_error_all(FLERR,"List of globals ids invalid! _ext_map >= nlocal");
-        
-        //Finally pull the data        
+            {
+                printf("[%d/%d]/ParScale: AFTERSORTING Problem: %d/(nlocal: %d, nghosts: %d), globalID: %d, _ext_map[_id[iLocal]-1]: %d  \n",
+                    comm().me(),comm().nprocs(),
+                    iLocal, nlocal, nghost,
+                    _id[iLocal], _ext_map[_id[iLocal]-1]
+                  );
+                (ParScaleBase::error()).throw_error_all(FLERR,
+                                 "List of globals ids invalid! _ext_map >= nlocal");
+            }
+
+        //Finally pull the data
         particleData().pull();
 
         destroy(_id);
-        
+
     }
 
     if (strcmp(coupling().couplingModel().name(),"json") == 0)
@@ -338,7 +322,7 @@ void Coupling::push()
     {
         if(verbose_)
             printf("\n***Coupling::push()***\n");
-       
+
         //Since particles should be sorted, simply push all particle data
         particleData().push();
     }
@@ -353,7 +337,7 @@ void Coupling::push()
 bool Coupling::external_code_in_control() const
 {
     int ncontrol = 0;
-    for(int iModel=0; iModel < couplingModels_.size(); iModel++)
+    for(unsigned int iModel=0; iModel < couplingModels_.size(); iModel++)
     {
         if(couplingModels_[iModel].external_code_in_control())
             ncontrol++;
@@ -415,8 +399,8 @@ bool Coupling::fill_container_from_coupling(class ContainerBase &container) cons
 
 bool Coupling::dump_container_to_coupling(class ContainerBase &container) const
 {
- 
-   
+
+
     // currently restriction to one coupling model
     return couplingModels_[0].dump_container_to_coupling(container);
 }

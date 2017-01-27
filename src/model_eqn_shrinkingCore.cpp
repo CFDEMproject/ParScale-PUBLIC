@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -84,7 +84,7 @@ void ModelEqnShrinkingCore::eval(double t, double* udata, double* dudata, double
     particleData().returnchemistryDataPoint(particleDataID_, particleID, 0, kSurface_); //assumes here that NO Jacobian is known for kSurface!
 
     //Returns the time derivative of the DIMENSIONLESS core radius u!
-   	h          = 1;
+       h          = 1;
     int hFluid = 2; //index of fluid variable
 
     double Apart = rMAX*rMAX;      //4*pi missing on purpose
@@ -93,8 +93,8 @@ void ModelEqnShrinkingCore::eval(double t, double* udata, double* dudata, double
     const  double invCapacity = 1.0     //4*pi missing on purpose
                             /(
                                   ACore
-                                * rho_solid
-                                * rMAX      //normalization factor, 
+                                * rho_solid_
+                                * rMAX      //normalization factor,
                                            //since we return dimensionless change of rCore=u*rMAX
                              );
 
@@ -102,29 +102,29 @@ void ModelEqnShrinkingCore::eval(double t, double* udata, double* dudata, double
      dudata[hFluid] =0.0;
 
      if(BC[1]==NEUMANN)
-        dudata[h] = -( 
-                        environmentFlux 
+        dudata[h] = (
+                        environmentFlux //positive = heating
                        *Apart
-                     ) 
+                     )
                      * invCapacity;
-                     
+
     double resistance = 0.0; //multiplied by 4*pi!
     if( BC[1]==DIRICHLET || BC[1]==CONVECTIVE )
     {
          // A - Resistance due to pore diffusion
-         resistance += (1.0/rCore - 1.0/rMAX) 
+         resistance += (1.0/rCore - 1.0/rMAX)
                      /  diffu_eff_;
 
          // B - Resistance due to diffusion in the boundary layer
          if(BC[1]==CONVECTIVE)
-             resistance += 1.0 
+             resistance += 1.0
                         / (
                              max(1e-64, transfer_coeff->value() )
                             *Apart
                           );
-                          
+
          // C - Add chemistry
-         resistance += 1.0 
+         resistance += 1.0
                         / (
                              max(1e-64, -kSurface_)
                             *ACore
@@ -158,7 +158,7 @@ void ModelEqnShrinkingCore::returnJac(long int N, long int mu, long int ml,
     //set Jac coefficients at centre of sphere
     j=0;
     col_j = BAND_COL(J,j);
-    
+
     if(BC[1]==NEUMANN)
         BAND_COL_ELEM(col_j,j,j) = 0.0;
 
@@ -170,17 +170,17 @@ void ModelEqnShrinkingCore::returnJac(long int N, long int mu, long int ml,
     {
          if(modelChemistryContainer().nrChemistryEqns()!=0)
             ks = max( 1e-64, -kSurface_);
-          
+
          if(BC[1]==CONVECTIVE)
             kg = max( 1e-64, transfer_coeff->value() );
-            
+
          Nval =  u*u * diffu_eff_ * ks
               + (1.0 - u)*u*rMAX*kg*ks
               + kg * diffu_eff_;
-          
-         BAND_COL_ELEM(col_j,j,j) = environmentU 
+
+         BAND_COL_ELEM(col_j,j,j) = environmentU
                                   * kg * diffu_eff_ * ks
-                                  / (rMAX * rho_solid)
+                                  / (rMAX * rho_solid_)
                                   * (
                                          2.0 * u  * diffu_eff_ * ks
                                       + (1.0 + u) * rMAX * kg * ks
@@ -192,19 +192,19 @@ void ModelEqnShrinkingCore::returnJac(long int N, long int mu, long int ml,
            BAND_COL_ELEM(col_j,j,j),
            kg, ks
           );*/
-           
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 
 void ModelEqnShrinkingCore::computeParticleAverages()
 {
-    //This is the concentration AT THE REACTING CORE, i.e., 
+    //This is the concentration AT THE REACTING CORE, i.e.,
     //this concentration can be used to calculate the reaction rate
-    
+
     for(int particleID=0; particleID<particleData().nbody(); particleID++)
     {
-        particleData().setParticleIDPointer(particleDataID_,particleID);	
+        particleData().setParticleIDPointer(particleDataID_,particleID);
         particleData().returnIntraData(tempIntraData_);
 
         double rc = tempIntraData_[0]; //dim-less radius of reacting core
@@ -225,7 +225,7 @@ void ModelEqnShrinkingCore::computeParticleAverages()
                     / divBy;
 
 
-        particleData().saveIntraParticleAv(particleDataID_, particleID, tempAvData_);    
+        particleData().saveIntraParticleAv(particleDataID_, particleID, tempAvData_);
     }
 }
 
@@ -266,7 +266,7 @@ void ModelEqnShrinkingCore::updateProperties(int particleID)
         //set grid coefficients and BC condition
         rMAX = particleData().pRadius(particleID);
 
-        particleData().setParticleIDPointer(particleDataID_,particleID);	
+        particleData().setParticleIDPointer(particleDataID_,particleID);
         particleData().returnIntraData(tempIntraData_);
 
         BCvalue[1] = tempIntraData_[0]; //set environment variable, re-use intra-particle container for this purpose
@@ -279,23 +279,23 @@ void ModelEqnShrinkingCore::updateProperties(int particleID)
             if(eqnType_==HEAT)
             {
                 //get thermal conductivity from in.fil,calculate effective thermal conductivity
-                lambda_solid=thermal_solid_conductivity->value();
-                lambda_gas=thermal_gas_conductivity->value();
-                lambda_eff=(1.0-(phaseFraction->value()*phaseFraction->value()))*lambda_solid
-                      +(phaseFraction->value()*phaseFraction->value())*lambda_gas; //TODO: check this eqn.
+                lambda_solid_=thermal_solid_conductivity->value();
+                lambda_gas_=thermal_gas_conductivity->value();
+                lambda_eff_=(1.0-(phaseFraction->value()*phaseFraction->value()))*lambda_solid_
+                      +(phaseFraction->value()*phaseFraction->value())*lambda_gas_; //TODO: check this eqn.
 
                 //get heat capacity from in.fil,calculate effective heat capacity
-                c_p_solid=capacity_solid->value();
-                c_p_gas=capacity_gas->value();
-                c_p_eff=(1.0-phaseFraction->value())*c_p_solid
-                        +phaseFraction->value()*c_p_gas;
+                c_p_solid_=capacity_solid->value();
+                c_p_gas_=capacity_gas->value();
+                c_p_eff_=(1.0-phaseFraction->value())*c_p_solid_
+                        +phaseFraction->value()*c_p_gas_;
 
                 //get density from in.fil,calculate effective density
-                rho_gas=density_gas->value();
-                rho_eff=(1.0-phaseFraction->value())*rho_solid
-                        +phaseFraction->value()*rho_gas;
+                rho_gas_=density_gas->value();
+                rho_eff_=(1.0-phaseFraction->value())*rho_solid_
+                        +phaseFraction->value()*rho_gas_;
 
-                diffu_eff_=lambda_eff/(c_p_eff*rho_eff);
+                diffu_eff_=lambda_eff_/(c_p_eff_*rho_eff_);
             }
             else if(eqnType_==SPECIES)
             {
@@ -304,16 +304,16 @@ void ModelEqnShrinkingCore::updateProperties(int particleID)
 
             }
                 diffu_eff_ = diffusivity->value();
-            rho_solid  = density_solid->value();
+            rho_solid_  = density_solid->value();
         }
         else
         {
             if(eqnType_==HEAT)
             {
-                lambda_eff=thermal_solid_conductivity->value();
-		        c_p_eff=capacity_solid->value();
-                rho_eff=density_solid->value();
-                diffu_eff_=lambda_eff/(c_p_eff*rho_eff);
+                lambda_eff_=thermal_solid_conductivity->value();
+                c_p_eff_=capacity_solid->value();
+                rho_eff_=density_solid->value();
+                diffu_eff_=lambda_eff_/(c_p_eff_*rho_eff_);
 
             }
             else if(eqnType_==SPECIES)
@@ -322,18 +322,18 @@ void ModelEqnShrinkingCore::updateProperties(int particleID)
                     error().throw_error_one(FLERR,"ERROR: You must specify a diffusivity! \n");
 
                 diffu_eff_ = diffusivity->value();
-                rho_solid  = density_solid->value();
-	         }
+                rho_solid_  = density_solid->value();
+             }
         }
 
         //set boundary properties
         if(BC[1]==CONVECTIVE)
         {
             if(transfer_coeff!=NULL)
-		    {
+            {
                 environmentTransCoeff=transfer_coeff->value();
-		    }
-		    else
+            }
+            else
             {
                 printf("WARNING: you have not specified a transfer coefficient. Assuming 0.\n");
                 environmentTransCoeff=0.;
@@ -347,11 +347,9 @@ void ModelEqnShrinkingCore::updateProperties(int particleID)
         if(BC[1]==NEUMANN)
         {
             environmentFlux=environmentU;
-
-            if(environmentFlux=0)
-            {
+            if(environmentFlux == 0.0)
+              if(verbose_)
                 printf("WARNING: you have not specified a flux. Assuming 0.\n");
-            }
         }
 
         //printf("using diffu_eff_: %g, environmentTransCoeff: %g, biot_num: %g.\n",
@@ -359,4 +357,3 @@ void ModelEqnShrinkingCore::updateProperties(int particleID)
     }
     return;
 }
-

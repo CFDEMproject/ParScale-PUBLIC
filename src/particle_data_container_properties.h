@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
      Copyright (C): 2012 - 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -32,12 +32,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #ifndef PSC_PARTICLE_DATA_CONTAINER_PROPERTIES_H
@@ -113,7 +113,7 @@ namespace PASCAL_NS
         COUPLING_TYPE_PULL,
         COUPLING_TYPE_PUSH,
         COUPLING_TYPE_PUSH_MIN_MAX,            //just pushes the first and last value in the array
-        COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET, //just pushes the first and last value in the array, 
+        COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET, //just pushes the first and last value in the array,
                                                //pulls 2 reset values (one for fluid, one for mean value)
         COUPLING_TYPE_PULL_PUSH};
 
@@ -191,49 +191,49 @@ namespace PASCAL_NS
           inline bool isTranslationInvariant();
           inline bool isRotationInvariant();
           inline bool needsPush() const
-          { 
-            if ( 
-                    COUPLING_TYPE_PUSH         == couplingType_ 
-                 || COUPLING_TYPE_PULL_PUSH    == couplingType_ 
-                 || COUPLING_TYPE_PUSH_MIN_MAX == couplingType_ 
-                 || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
+          {
+            if (
+                    COUPLING_TYPE_PUSH         == couplingType_
+                 || COUPLING_TYPE_PULL_PUSH    == couplingType_
+                 || COUPLING_TYPE_PUSH_MIN_MAX == couplingType_
+                 || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_
                )
                 return true;
             return false;
           }
 
           inline bool pushMax() const
-          { 
-            if (   COUPLING_TYPE_PUSH_MIN_MAX == couplingType_ 
-                || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
+          {
+            if (   COUPLING_TYPE_PUSH_MIN_MAX == couplingType_
+                || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_
                )
                 return true;
             return false;
           }
 
           inline bool pushMin() const
-          { 
-            if (   COUPLING_TYPE_PUSH_MIN_MAX            == couplingType_ 
-                || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
+          {
+            if (   COUPLING_TYPE_PUSH_MIN_MAX            == couplingType_
+                || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_
                )
                 return true;
             return false;
           }
-          
+
           inline bool needsPull() const
-          { 
-            if (   COUPLING_TYPE_PULL==couplingType_ 
+          {
+            if (   COUPLING_TYPE_PULL==couplingType_
                 || COUPLING_TYPE_PULL_PUSH==couplingType_
-                || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
+                || COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_
                )
                 return true;
             return false;
           }
 
           inline bool pullReset() const
-          { 
-            if (   
-                   COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_ 
+          {
+            if (
+                   COUPLING_TYPE_PUSH_MIN_MAX_PULL_RESET == couplingType_
                )
                 return true;
             return false;
@@ -241,15 +241,15 @@ namespace PASCAL_NS
 
 
           inline bool needsRead() const
-          { 
+          {
             return do_read_;
           }
-    
+
           inline bool needsOutput() const
-          { 
+          {
             return do_output_;
           }
-          
+
           inline int scalePower()
           {  return scalePower_; }
 

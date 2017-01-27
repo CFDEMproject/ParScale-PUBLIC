@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
      Copyright (C): 2012 - 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -32,12 +32,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #ifndef LMP_CONTAINER_GENERAL_I_H
@@ -249,7 +249,7 @@ License
       // this statement also ensures that properties that are pulled via pull() upon init()
       // do not get overwritten by read()
       // also ensures that container are over-written by reads of successive "run" commands
-    
+
       if(verbose_)
         printf("...reading container with id '%s': isFilled %s, decidePackUnpack %s\n",
                 this->containerProperties_.id(),
@@ -274,7 +274,7 @@ License
 
       // flag that container is filled
       isFilled_ = true;
-     
+
       // flag that container filled from file, i.e. has to be bcasted before using
       containerProperties_.needBCast();
   }
@@ -301,7 +301,7 @@ License
 
 //      if( !isFilled_ ) //TODO: print WARNING just in case external_code_in_control() s
 //        printf("\nWARNING: ContainerGeneral::pull could not fill from coupling.");
-      
+
   }
 
   /* ----------------------------------------------------------------------
@@ -335,7 +335,7 @@ License
 //      if(!this->containerProperties_.decidePackUnpackOperation(op))
 //            return;
       isDumped_ = coupling_base->dump_container_to_coupling(static_cast<ContainerBase&>(*this));
-        
+
       return;
 
   }

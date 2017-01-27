@@ -43,13 +43,19 @@ Also, it is useful to have a HDF5 viewer installed. Visit [this homepage](http:/
 ### Qt
 Be sure you have the Qt library installed:
 
-> Visit [QT Download Page](http://www.sysads.co.uk/2014/05/install-qt-5-3-ubuntu-14-04/) 
+> Visit [QT Download Page](http://download.qt.io/official_releases/qt/5.8/5.8.0/) 
 
-> Type (e.g. for 64 bit opperating system) `wget http://download.qt-project.org/official_releases/qt/5.3/5.3.0/qt-opensource-linux-x64-5.3.0.run`
+> Type (e.g. for 64 bit opperating system) `wget http://download.qt.io/official_releases/qt/5.8/5.8.0/qt-opensource-linux-x64-5.8.0.run`
 
-> Type `chmod +x qt-opensource-linux-x64-5.3.0.run`
+> Type `chmod +x qt-opensource-*.run`
 
-> Type `./qt-opensource-linux-x64-5.3.0.run`
+> Type `./qt-opensource-*.run`
+
+WARNING: if you use a QT version 5.6 >, you may require C++11 support. To activate this support when compiling, the user may set the environment variable "PASCAL_C11_STD" appropriately. For example, adding 
+
+> export PASCAL_C11_STD=-std=c++11
+
+to the .bashrc file will enable the C++11 support when compiling with gcc/mpic++.
 
 ### Octave & JSONLAB
 We recommend using octave version 3.8.x or later for correct display and printing of result graphs.
@@ -71,7 +77,7 @@ Be sure you have correctly set up Octave (including `JSONLAB`) for post processi
 
 ### Environmental Variables
 
-Be sure you have correctly set the variables ParScale requires for compilation and running, i.e., in your .bashrc you should have
+Be sure you have correctly set the variables ParScale requires for compilation and running, i.e., in your .bashrc you should have (note, the setting for PASCAL_C11_STD may depend on your QT version, since some require C++11 coding standards)
 
 >export PASCAL_LIGGGHTS_SRC_DIR=$HOME/LIGGGHTS/LIGGGHTS-TUG/src/
 
@@ -79,13 +85,9 @@ Be sure you have correctly set the variables ParScale requires for compilation a
 
 >export PASCAL_SRC_DIR=$HOME/LIGGGHTS/ParScale/src
 
->export PASCAL_INST_DIR=$HOME/LIGGGHTS/ParScale/platforms/linux64
-
->export PASCAL_THIRDPARTY_DIR=$HOME/LIGGGHTS/ParScale/thirdParty/
-
->export PASCAL_SUNDIALS_DIR=$PASCAL_THIRDPARTY_DIR/sundials-2.5.0
-
 >export PASCAL_QT5_DIR=$HOME/utilities/Qt/5.3/gcc_64
+
+>export PASCAL_C11_STD=-std=c++11
 
 >export PASCAL_LIB_NAME=pasc_fedora_fpic
 
@@ -96,6 +98,7 @@ The user may also want to use a bashrc file to define some environmental variabl
 
 The user can also set 'PASCAL_EXTRA_INCLUDES' and 'PASCAL_EXTRA_LIBS' in the .bashrc file to add include path and libraries needed to compile ParScale (for example, this is useful if the user is unable to install the boost libraries as root). Please also see the instructions in the file '$PASCAL_SRC_DIR/../etc/bashrc'. Note that the 'PASCAL_EXTRA_INCLUDES' and 'PASCAL_EXTRA_LIBS' variables are accessed AS IS in the make scripts, so the user MUST INCLUDE the correct symbols in the variable definition. For example, a valid setting in the .bashrc file is
 
+> export PASCAL_EXTRA_INCLUDES="-I$PASCAL_QT5_DIR/include/qt5"
 > export PASCAL_EXTRA_LIBS="-L$HOME/lib"
 
 The user should run the $PASCAL_SRC_DIR/../etc/parScaleSystemTest.sh and check that all path are set correctly.

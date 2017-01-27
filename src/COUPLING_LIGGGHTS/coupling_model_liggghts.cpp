@@ -70,10 +70,10 @@ CouplingModel(ptr,_name)
       if(verbose_)
         output().write_screen_all("CouplingModelLiggghts:: pointer to LIGGGHTS/LAMMPS SET!");
 
-    dumpName    = new char[30];
-    type        = new char[30];
-    pullName    = new char[90];
-    pullName2   = new char[90];
+    dumpName_    = new char[30];
+    type_        = new char[30];
+    pullName_    = new char[90];
+    pullName2_   = new char[90];
 }
 
 /* ----------------------------------------------------------------------
@@ -81,10 +81,10 @@ CouplingModel(ptr,_name)
 ------------------------------------------------------------------------- */
 CouplingModelLiggghts::~CouplingModelLiggghts()
 {
-    delete [] dumpName;
-    delete [] type;
-    delete [] pullName;
-    delete [] pullName2;
+    delete [] dumpName_;
+    delete [] type_;
+    delete [] pullName_;
+    delete [] pullName2_;
 
 }
 
@@ -95,7 +95,7 @@ void CouplingModelLiggghts::init()
 {
     fix_coupling_ = static_cast<LAMMPS_NS::FixParScaleCouple*>(lmp_->modify->find_fix_style_strict("couple/pascal",0));
     if(fix_coupling_)
-        output().write_screen_all("CouplingModelLiggghts has found fix of type 'couple/pascal'. Calling fix-functions now...");
+        output().write_screen_all("CouplingModelLiggghts has found fix of type_ 'couple/pascal'. Calling fix-functions now...");
     else
         error().throw_error_all(FLERR,"Pointer to LIGGGHTS fix 'couple/pascal' could not be set. Will abort.");
 
@@ -171,7 +171,7 @@ void CouplingModelLiggghts::pull_proc_info(int *_procgrid,int *_myloc, int (&_pr
 }
 
 // - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - - 
-void CouplingModelLiggghts::pull_timeStepping_info(double &_deltaT, int &_neighAgo)
+void CouplingModelLiggghts::pull_timeStepping_info(double &_deltaT, int &_neighAgo, int &_timeStepFromRun)
 {
     //Pull-out values via LMP C-style library functions
     _deltaT     = *((double *) lammps_extract_global(lmp_,"dt"));
@@ -180,6 +180,10 @@ void CouplingModelLiggghts::pull_timeStepping_info(double &_deltaT, int &_neighA
            sizeof(int)
           ); //use memcopy in order to have access to current value in caller program!
     
+    bigint ntimestep = *((bigint *) lammps_extract_global(lmp_,"ntimestep"));
+    bigint firststep = *((bigint *) lammps_extract_global(lmp_,"firststep"));
+    _timeStepFromRun = int(ntimestep - firststep);
+           
     if(verbose_)
     {
         char msgstr[500];
@@ -190,7 +194,6 @@ void CouplingModelLiggghts::pull_timeStepping_info(double &_deltaT, int &_neighA
 
 }
 // - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - - 
-
 int* CouplingModelLiggghts::get_external_map(int &length)
 {
     if(fix_coupling_==NULL)
@@ -205,8 +208,6 @@ int* CouplingModelLiggghts::get_external_map(int &length)
 ------------------------------------------------------------------------- */
 bool CouplingModelLiggghts::fill_container_from_coupling(class ContainerBase &container) const
 {
- 
-
     const ParticleDataContainerProperties& containerProps = container.prop();
 
     if(verbose_)
@@ -256,10 +257,10 @@ bool CouplingModelLiggghts::fill_container_from_coupling(class ContainerBase &co
                comm().me(), comm().nprocs(),
                containerProps.id(), container.isDoubleData(), container.isIntData());
               
-        sprintf(type,     "%s","scalar-atom");
+        sprintf(type_,     "%s","scalar-atom");
 
 
-        void * ptr = fix_coupling_->find_push_property(containerProps.id(),type,len1,len2);
+        void * ptr = fix_coupling_->find_push_property(containerProps.id(),type_,len1,len2);
         if(ptr==NULL)
         {
              printf("***ERROR: scalar property '%s' causes a problem*** \n", containerProps.id());
@@ -313,39 +314,39 @@ bool CouplingModelLiggghts::fill_container_from_coupling(class ContainerBase &co
         // create custom strings
         if( containerProps.pullReset() )
         {
-            sprintf(type,     "%s","scalar-atom");
-            sprintf(pullName, "%sReset", containerProps.id());
-            sprintf(pullName2,"%sFluid", containerProps.id());
+            sprintf(type_,     "%s","scalar-atom");
+            sprintf(pullName_, "%sReset", containerProps.id());
+            sprintf(pullName2_,"%sFluid", containerProps.id());
         }
         else
         {
-            sprintf(type,     "%s","vector-atom");   
-            sprintf(pullName, "%s", containerProps.id());
+            sprintf(type_,     "%s","vector-atom");   
+            sprintf(pullName_, "%s", containerProps.id());
         }
 
 
         if(verbose_)
         printf("[%d/%d]:...attempting to dump a min value of a scalar container with id '%s', double: %d, int: %d. \n ...pullName(s) are %s/%s. \n",
                comm().me(), comm().nprocs(),
-               containerProps.id(), container.isDoubleData(), container.isIntData(),  pullName,  pullName2);
+               containerProps.id(), container.isDoubleData(), container.isIntData(),  pullName_,  pullName2_);
 
         void * ptr;
         void * ptr2;
-        ptr = fix_coupling_->find_pull_property(pullName,type,len1,len2);        
+        ptr = fix_coupling_->find_pull_property(pullName_,type_,len1,len2);        
 
         if( containerProps.pullReset() )
         {
-            ptr2 = fix_coupling_->find_pull_property(pullName2,type,len1,len2);        
+            ptr2 = fix_coupling_->find_pull_property(pullName2_,type_,len1,len2);        
 
             if( verbose_ && ptr==NULL )
                printf( "***WARNING: property '%s' cannot pull RESET scalar value  (name: %s) for reset \n", 
                        containerProps.id(), 
-                       pullName
+                       pullName_
                      );
             if( verbose_ && ptr2==NULL )
                printf( "***WARNING: property '%s' cannot pull FLUID scalar value  (name: %s) for reset \n", 
                        containerProps.id(), 
-                       pullName2
+                       pullName2_
                      );
 
             if ( ptr==NULL && ptr2==NULL ) //if cannot find both, abort
@@ -491,20 +492,21 @@ bool CouplingModelLiggghts::dump_container_to_coupling(class ContainerBase &cont
     int len1,len2;
     if(containerProps.pushMin())
     {
-        sprintf(type,     "%s","scalar-atom");
+        sprintf(type_,     "%s","scalar-atom");
 
         void * ptr;
         int dataLocation = 0;
         if( strcmp(containerProps.id(),"heat") == 0)
-              sprintf(dumpName,"%sMin", "Temp");
+              sprintf(dumpName_,"%sMin", "Temp");
         else
-              sprintf(dumpName,"%sMin", containerProps.id());
+              sprintf(dumpName_,"%sMin", containerProps.id());
 
         if(verbose_)
-        printf("[%d/%d]:...attempting to dump a min value of a scalar container with id '%s', double: %d, int: %d. \n ...dumpName is %s. \n",
+        printf("[%d/%d]:...attempting to dump a min value of a scalar container with id '%s', double: %d, int: %d. \n ...dumpName_ is %s. \n",
                comm().me(), comm().nprocs(),
-               containerProps.id(), container.isDoubleData(), container.isIntData(),  dumpName);
-        ptr = fix_coupling_->find_pull_property(dumpName,type,len1,len2);     
+               containerProps.id(), container.isDoubleData(), container.isIntData(),  dumpName_);
+               
+        ptr = fix_coupling_->find_pull_property(dumpName_,type_,len1,len2);     
 
         if(ptr==NULL)
             error().throw_error_one(FLERR,"could not find LIGGGHTS scalar pull property.");
@@ -548,23 +550,29 @@ bool CouplingModelLiggghts::dump_container_to_coupling(class ContainerBase &cont
     if(containerProps.pushMax())
     {
 
-        sprintf(type,     "%s","scalar-atom");
+        sprintf(type_,     "%s","scalar-atom");
         void * ptr;
         int dataLocation = container.lenVecUsed()-2;
 
         if( strcmp(containerProps.id(),"heat") == 0)
-           sprintf(dumpName,"%s", "Temp");
+           sprintf(dumpName_,"%s", "Temp");
         else
-           sprintf(dumpName,"%sMax", containerProps.id());
+           sprintf(dumpName_,"%sMax", containerProps.id());
 
         if(verbose_)
-        printf("[%d/%d]:...attempting to dump a max value of a scalar container with id '%s', double: %d, int: %d. \n...dumpName is %s. \n",
+        printf("[%d/%d]:...attempting to dump a max value of a scalar container with id '%s', double: %d, int: %d. \n...dumpName_ is %s. \n",
                comm().me(), comm().nprocs(),
-             containerProps.id(), container.isDoubleData(), container.isIntData(),  dumpName);
-        ptr = fix_coupling_->find_pull_property(dumpName,type,len1,len2);   
+             containerProps.id(), container.isDoubleData(), container.isIntData(),  dumpName_);
+             
+        ptr = fix_coupling_->find_pull_property(dumpName_,type_,len1,len2);   
 
         if(ptr==NULL)
-            error().throw_error_one(FLERR,"could not find LIGGGHTS scalar pull property.");
+        {
+            printf("[%d/%d]:...Problem occurded during I was attempting to dump a max value of a scalar container with id '%s' and name: %s. \n",
+               comm().me(), comm().nprocs(),
+               containerProps.id(), dumpName_);
+            error().throw_error_one(FLERR,"could not find LIGGGHTS scalar pull property. Please ensure the above container is added to the pull list of LIGGGHTS, and that a fix property/atom exists with that name.");
+        }
 
         if(container.isDoubleData())
           for(int itemI=0;itemI<particleData().nbody(); itemI++)
@@ -612,10 +620,10 @@ bool CouplingModelLiggghts::dump_container_to_coupling(class ContainerBase &cont
                comm().me(), comm().nprocs(),
                containerProps.id(), container.isDoubleData(), container.isIntData());
               
-        sprintf(type,     "%s","scalar-atom");
+        sprintf(type_,     "%s","scalar-atom");
         void * ptr;
 
-        ptr = fix_coupling_->find_pull_property(containerProps.id(),type,len1,len2);
+        ptr = fix_coupling_->find_pull_property(containerProps.id(),type_,len1,len2);
         if(ptr==NULL)
         {   
             printf("[%d/%d]: problem with containerProps.id(): %s. \n",
@@ -669,8 +677,8 @@ bool CouplingModelLiggghts::dump_container_to_coupling(class ContainerBase &cont
               comm().me(), comm().nprocs(),
               containerProps.id(), container.isDoubleData(), container.isIntData());
               
-        sprintf(type,     "%s","vector-atom");
-        void * ptr = fix_coupling_->find_pull_property(containerProps.id(),type,len1,len2);
+        sprintf(type_,     "%s","vector-atom");
+        void * ptr = fix_coupling_->find_pull_property(containerProps.id(),type_,len1,len2);
         if(ptr==NULL)
         {
             printf("***ERROR: scalar property '%s' causes a problem*** \n", containerProps.id());

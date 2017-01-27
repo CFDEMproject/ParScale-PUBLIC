@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,19 +28,19 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------------------
 Description
-	This class is the base class for all properties models (e.g., for heat conductivity,
-	diffusion coefficients, particle properties like phaseFraction, or exchange properties
-	like heat transfer coefficients).
+    This class is the base class for all properties models (e.g., for heat conductivity,
+    diffusion coefficients, particle properties like phaseFraction, or exchange properties
+    like heat transfer coefficients).
 -----------------------------------------------------------------------------------*/
 
 #ifndef PASC_MODEL_PROPERTIES_H
@@ -61,21 +61,21 @@ class ModelProperties : public ModelBase
     public:
 
       ModelProperties(ParScale *ptr, const char *name);
-	  
+
       //Access functions
       double          value(){return value_;};
       vector<double>  parameters() { return parameters_; };
 
       virtual void init(int narg, char const* const* arg);
-	  
+
     private:
-      
+
       //value in case the property is a constant
       double          value_;
       vector<double>  parameters_;
-	  vector<ModelBase*> models_;
-	
-};	
+      vector<ModelBase*> models_;
+
+};
 
 } //end PASCAL_NS
 

@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #include "chemistry_grainmodel.h"
@@ -45,15 +45,15 @@ using namespace PASCAL_NS;
    Constructor / Destructor
 ------------------------------------------------------------------------- */
 
-ChemistryGrainModel::ChemistryGrainModel(ParScale *ptr) 
-: 
+ChemistryGrainModel::ChemistryGrainModel(ParScale *ptr)
+:
    ParScaleBaseAccessible(ptr),
    cSolidInit_(1.0)
 {
     active_     = false;
     solidID_    = 0;
     psi0_       = -1;
-    alpha_      = -1; 
+    alpha_      = -1;
 }
 
 
@@ -70,9 +70,9 @@ void ChemistryGrainModel::init()
     if(global_properties_["chemistry_grainmodel"].isNull())
         error().throw_error_one(FLERR,"ERROR: could not read verbose settings for class. \n",
                                  "chemistry_grainmodel");
-    verbose_   = global_properties_["chemistry_grainmodel"].toBool();    
+    verbose_   = global_properties_["chemistry_grainmodel"].toBool();
 
-   
+
     //Set the model type and corresponding parameters
     input().openJsonFile("settings", "chemistry_grainmodel", "modelParameters", grainmodel_properties_);
     if(grainmodel_properties_["type"].isNull())
@@ -90,9 +90,9 @@ void ChemistryGrainModel::init()
     if(  grainmodel_properties_["solidID"].isNull()
       && strcmp(qPrintable(grainmodel_properties_["type"].toString()),"none")
       )
-        error().throw_error_one(FLERR,"ERROR: could not read solidID from settings/chemistry_grainmodel.json. \n");    
+        error().throw_error_one(FLERR,"ERROR: could not read solidID from settings/chemistry_grainmodel.json. \n");
     solidID_     = grainmodel_properties_["solidID"].toInt();
-    
+
     //Model Types & Params
     psi0_  = -1;
     alpha_ = -1;
@@ -137,10 +137,10 @@ void ChemistryGrainModel::printStatus() const
         printf("  cSolidInit: %g \n", cSolidInit_);
         printf("  solidID   : %d \n", solidID_);
         if(strcmp(qPrintable(grainmodel_properties_["type"].toString()),"powerLaw") == 0 )
-            printf("  alpha     : %g\n", 
+            printf("  alpha     : %g\n",
                  alpha_);
         if(strcmp(qPrintable(grainmodel_properties_["type"].toString()),"randomPore") == 0 )
-            printf("  psi0      : %g\n", 
+            printf("  psi0      : %g\n",
                     psi0_);
         printf("\n *** ChemistryGrainModel - Status ***\n\n");
 }

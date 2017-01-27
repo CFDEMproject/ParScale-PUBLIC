@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #include "error.h"
@@ -78,19 +78,19 @@ void Driver::run(double _time,bool _do_init)
     double dt;
 
     if(_do_init)
-    {   
+    {
         // init will read all properties from file
         // init also pulls data from LIGGGHTS via Coupling::read()
         // which is local on each processor, thus no need to bcast
         char msgstr[500];
         sprintf(msgstr,": initalizig ParScale... \n");
         output().write_screen_all(msgstr);
-        
+
         pascal_ptr()->init();
-        
+
         sprintf(msgstr,": ParScale initalized! \n");
         output().write_screen_all(msgstr);
-        
+
         if(!particleData().runtimeContainersExist())
             error().throw_error_one(FLERR,"internal error: particleData is not allocated. Cannot proceed. \n");
 
@@ -174,7 +174,7 @@ void Driver::run_one_timestep()
         //Begin Section - 2 Evaluate Equations
         modelEqnContainer().begin_of_step();
 
-        //Middle Section     
+        //Middle Section
         modelContainer().pre_middle_of_step();
         modelEqnContainer().pre_middle_of_step();
 
@@ -193,5 +193,5 @@ void Driver::run_one_timestep()
     modelEqnContainer().computeParticleProps();
 
     coupling().push();
-    
+
 }

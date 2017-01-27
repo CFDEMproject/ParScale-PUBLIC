@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #ifndef PASC_COUPLING_MODEL_H
@@ -68,7 +68,7 @@ class CouplingModel : public ParScaleBase, CouplingBase, ParScaleBaseInterface
       const char* scope()     const {return scope_;}
 
       void  setPushPull()      const;
-            
+
       std::vector<int>* exchangeEventsLocalId() const
       {
             return exchangeEventsLocalId_;
@@ -88,8 +88,8 @@ class CouplingModel : public ParScaleBase, CouplingBase, ParScaleBaseInterface
 
       virtual void pull_box(double *_boxlo,double *_boxhi,double *_sublo,double *_subhi) {}
       virtual void pull_proc_info(int *_procgrid,int *_myloc,int (&_procneigh)[3][2]) {}
-      virtual void pull_timeStepping_info(double &deltaT, int &neighAgo) {} 
-      virtual int* get_external_map(int &length) {};
+      virtual void pull_timeStepping_info(double &deltaT, int &neighAgo, int &timeStepFromRun) {}
+      virtual int* get_external_map(int &length) {return NULL;};
 
     private:
 

@@ -2,7 +2,7 @@
     "properties":
 	{
   		"model" :  "const",
-	   	"const_value" :  0.0
+	   	"const_value" :  100
     }
 	
 }

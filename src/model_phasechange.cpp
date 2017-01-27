@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -53,12 +53,12 @@ tempIntraDataHeat_(NULL),
 tempIntraDataSpecies_(NULL)
 {
     create<double>(tempIntraDataHeat_,    particleMesh().nGridPoints() );
-    create<double>(tempIntraDataSpecies_, particleMesh().nGridPoints() ); 
+    create<double>(tempIntraDataSpecies_, particleMesh().nGridPoints() );
 }
 // *************************************************************************************
 ModelPhaseChange::~ModelPhaseChange()
 {
-	destroy<double>(tempIntraDataHeat_);
+    destroy<double>(tempIntraDataHeat_);
     destroy<double>(tempIntraDataSpecies_);
 }
 
@@ -88,7 +88,7 @@ void ModelPhaseChange::readPhaseChangeBasicsJSON()
         error().throw_error_one(FLERR,"ERROR: phaseNames not found in file, or number of phaseNames is not exactly 2. \n");
     if(mySpecies_.size()!=2)
         error().throw_error_one(FLERR,"ERROR: speciesNames not found in file, or number of speciesNames is not exactly 2. \n");
-    
+
 }
 
 // *************************************************************************************
@@ -126,10 +126,10 @@ void ModelPhaseChange::setPhaseChangeBasics()
         error().throw_error_one(FLERR,"ERROR: speciesModelEqnID_.size()!=2. \n");
 
     printf("ModelPhaseChange::readPhaseChangeBasicsJSON successfully identified %d speciesParticleDataIDs: %d/%d, speciesModelEqnlID: %d/%d and %d phaseIDs: %d/%d. \n \n",
-           speciesParticleDataID_.size(), 
+           (int)speciesParticleDataID_.size(),
            speciesParticleDataID_[0], speciesParticleDataID_[1],
            speciesModelEqnID_[0], speciesModelEqnID_[1],
-           phaseID_.size(),phaseID_[0],phaseID_[1]
+           (int)phaseID_.size(),phaseID_[0],phaseID_[1]
           );
 
     if(modelEqnContainer().nrHeatEqns()>0) //if heat equation, perform non-isothermal calculation
@@ -148,6 +148,6 @@ void ModelPhaseChange::postParticleDataBuild()
 // *************************************************************************************
 void ModelPhaseChange::begin_of_step()
 {
-    if(!isSet_) 
+    if(!isSet_)
         error().throw_error_one(FLERR,"ERROR: cannot do 'begin_of_step()' since ModelPhaseChange is not set. \n");
 }

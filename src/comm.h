@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #ifndef PASC_COMM_H
@@ -76,7 +76,7 @@ class Comm : public ParScaleBaseAccessible, public ParScaleBaseInterface
       //TODO route this to CommModel
       void exchange();
 
-      void wait() const 
+      void wait() const
       {
           MPI_Barrier( world_ ) ;
       };
@@ -97,7 +97,7 @@ class Comm : public ParScaleBaseAccessible, public ParScaleBaseInterface
 
       int pushExchangeBcast(int,            class OperationProperties &op);
       int popExchangeBcast (int,double *buf,class OperationProperties &op);
-      
+
       void grow_send(int n, int flag);
       void grow_recv(int n);
 
@@ -120,13 +120,14 @@ class Comm : public ParScaleBaseAccessible, public ParScaleBaseInterface
       int myloc_[3];                     // which proc I am in each dim
       int procneigh_[3][2];              // my 6 neighboring procs, 0/1 = left/right
       int neighAgoCaller_;               // number of steps the caller programm did re-neighbor/exchange
-
+      int timeStepFromRun_;              // number of steps from the last call to the caller's run command
+      
       // communication buffers
 
       double *buf_send_;                 // send buffer for all comm
       double *buf_recv_;                 // recv buffer for all comm
       int maxsend_,maxrecv_;              // current size of send/recv buffer
-     
+
       std::vector<int> * exchangeEventsLocalId_;
       std::vector<int> * exchangeEventsReceivingProcess_;
       int sizeExchangeEvents_;

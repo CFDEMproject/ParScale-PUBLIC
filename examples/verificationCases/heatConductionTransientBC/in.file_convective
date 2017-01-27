@@ -19,9 +19,9 @@ model propertiesThermo heatDensity_liquid
 model propertiesThermo heatTransferCoeff
 
 #Equations
-modelEqn 1DSpherical  heat                 BC0 1  BC1 2 #solveConvectiveFlux #writeDebugContainers
-modelEqn 1DSpherical  species       gas    BC0 1  BC1 2 inactive #solveConvectiveFlux #writeDebugContainers  #inactive #no need to specify any properties if inactive
-modelEqn 1DSpherical  liquidSpecies liquid BC0 1  BC1 1 inactive #updatePhaseFraction #writeDebugContainers #solveConvectiveFlux #averagePhaseFraction #verbose  #inactive #no need to specify any properties if inactive
+modelEqn 1DSpherical  heat                 BC0 1  BC1 2 writeVolAvgProp #solveConvectiveFlux #writeDebugContainers
+modelEqn 1DSpherical  species       gas    BC0 1  BC1 2 inactive writeVolAvgProp #solveConvectiveFlux #writeDebugContainers  #inactive #no need to specify any properties if inactive
+modelEqn 1DSpherical  liquidSpecies liquid BC0 1  BC1 1 inactive #writeVolAvgProp #updatePhaseFraction #writeDebugContainers #solveConvectiveFlux #averagePhaseFraction #verbose  #inactive #no need to specify any properties if inactive
 
 control outputTimeStep 0.05
 control timeStep 0.001

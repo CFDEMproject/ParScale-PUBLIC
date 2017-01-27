@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #include "particle_mesh.h"
@@ -82,10 +82,10 @@ ParticleData::ParticleData(ParScale *ptr) :
     eqnIdFirstLiquid = -1;
 
     referencePressure = 1e5;
-    
+
     haveConvectiveFluxGasPhase    = false;
     haveConvectiveFluxLiquidPhase = false;
-      
+
     writeDebugGasPhase    = false;
     writeDebugLiquidPhase = false;
 
@@ -182,7 +182,7 @@ void ParticleData::push()
     OperationProperties op(OPERATION_PUSH,false,false,false);
     if(verbose_)
         output().write_screen_all("ParticleData attempts to push ...");
-        
+
     data().push(op);
 }
 
@@ -266,28 +266,28 @@ void ParticleData::countBodiesOnMachine() const
 {
 
     char msgstr[500];
-    sprintf(msgstr,"Counting bodies on the machine. using communicator: %d, MPI_IN_PLACE: %d. \n", 
-            comm().nprocs(), MPI_IN_PLACE
+    sprintf(msgstr,"Counting bodies on the machine. using communicator: %d. \n",
+            comm().nprocs()
            );
     if(verbose_)
        output().write_screen_all(msgstr);
-    
+
     //Compute global particle counts
     if(nBodyPerProcess_)
         destroy<int>(nBodyPerProcess_);
     create<int>(nBodyPerProcess_,comm().nprocs());
     nBodyInProcessesBelowMe_ = 0;
-    
+
     if(comm().nprocs()>1)
     {
     for(int iProc=0; iProc<comm().nprocs(); iProc++)
-    { 
+    {
         int currNBody=0;
         if(iProc==comm().me())
             currNBody = nbody();
-            
+
 //        MPI_Sum_Scalar(currNBody,comm().world()); //do an allreduce TODO-DEFECTIVE
-        
+
         nBodyPerProcess_[iProc] = currNBody;
         if( iProc < comm().me() )
             nBodyInProcessesBelowMe_ += currNBody;
@@ -298,7 +298,7 @@ void ParticleData::countBodiesOnMachine() const
 
    if(verbose_)
        printf("**me: %d /%d : nBodyPerProcess computed to be: %d, bodies below me: %d \n",
-              comm().me(), comm().nprocs(), 
+              comm().me(), comm().nprocs(),
               nBodyPerProcess_[comm().me()], nBodyInProcessesBelowMe_
               );
 
@@ -312,7 +312,7 @@ void ParticleData::resetIds() const
 {
     if(verbose_)
        printf("Resetting ids for process %d. \n",comm().me());
-    
+
     for(int iP=0;iP < nbody(); iP++)
     {
         id_.begin()[iP] = iP+nBodyInProcessesBelowMe_+1; //by default, IDs start with 1
@@ -324,7 +324,7 @@ void ParticleData::resetIds() const
 ------------------------------------------------------------------------- */
 void ParticleData::scanPhaseInformation() const
 {
-    printf("ParticleData: scanning %d ModelEqns in modelEqnContainer() for phase information. \n", 
+    printf("ParticleData: scanning %d ModelEqns in modelEqnContainer() for phase information. \n",
            modelEqnContainer().nrEqns());
 
     int myPhase;
@@ -340,22 +340,22 @@ void ParticleData::scanPhaseInformation() const
 
         if(solveConvective && myPhase==GAS && eqn_type == 1)
             haveConvectiveFluxGasPhase = true;
-            
+
         if(solveConvective && myPhase==LIQUID && eqn_type == 1)
         {
             haveConvectiveFluxLiquidPhase = true;
             if(eqnIdFirstLiquid<0)
                 eqnIdFirstLiquid = iEqn;
         }
-        
+
         if(writeDebug && myPhase==GAS && eqn_type == 1)
             writeDebugGasPhase    = true;
-            
+
         if(writeDebug && myPhase==LIQUID && eqn_type == 1)
             writeDebugLiquidPhase = true;
 
         printf("Yor are looking at a %i model eqn, if species is in phase %i!\n", eqn_type, myPhase);
-        
+
         //count phase fractions to be added
         if(eqn_type == 1)
         {
@@ -387,9 +387,8 @@ void ParticleData::addRunTimeContainers() const
     //Scan all the phase information
     scanPhaseInformation();
 
-    int  nString(0);
     char outputSettingDebug [50];
-        
+
     printf("ParticleData: will allocate memory for %d ModelEqns in modelEqnContainer(). \n", modelEqnContainer().nrEqns());
     for(int iEqn=0; iEqn < modelEqnContainer().nrEqns(); iEqn++)
     {
@@ -401,35 +400,36 @@ void ParticleData::addRunTimeContainers() const
         char avName [50],fluxName [50],transCoeffName [50], chemName [50], chemJacobiName [50];
 
         if(modelEqnContainer().modelEqn(iEqn)->averagePhaseFraction)
-            nString = sprintf(avName,         "%sPhaseAv", modelEqnContainer().modelEqn(iEqn)->name());
+            sprintf(avName,         "%sPhaseAv", modelEqnContainer().modelEqn(iEqn)->name());
         else
-            nString = sprintf(avName,         "%sAv", modelEqnContainer().modelEqn(iEqn)->name());
-        nString = sprintf(fluxName,       "%sFlux", modelEqnContainer().modelEqn(iEqn)->name());
-        nString = sprintf(transCoeffName, "%sTransCoeff", modelEqnContainer().modelEqn(iEqn)->name());
-        nString = sprintf(chemName,       "%sChem",  modelEqnContainer().modelEqn(iEqn)->name());
-        nString = sprintf(chemJacobiName, "%sChemJac", modelEqnContainer().modelEqn(iEqn)->name());
+            sprintf(avName,         "%sAv", modelEqnContainer().modelEqn(iEqn)->name());
+            
+        sprintf(fluxName,       "%sFlux", modelEqnContainer().modelEqn(iEqn)->name());
+        sprintf(transCoeffName, "%sTransCoeff", modelEqnContainer().modelEqn(iEqn)->name());
+        sprintf(chemName,       "%sChem",  modelEqnContainer().modelEqn(iEqn)->name());
+        sprintf(chemJacobiName, "%sChemJac", modelEqnContainer().modelEqn(iEqn)->name());
 
         char readSetting [50], outputSetting [50], outputSettingDebug [50];
         char couplingSettingIntra [50], couplingSettingAv [50], couplingSettingFlux [50], couplingSettingCoeff [50];
-        nString = sprintf(outputSetting,         "output_yes");
-        
-        nString = sprintf(outputSettingDebug,    "output_no");
+        sprintf(outputSetting,         "output_yes");
+
+        sprintf(outputSettingDebug,    "output_no");
         if(modelEqnContainer().modelEqn(iEqn)->writeDebugContainers)
-            nString = sprintf(outputSettingDebug,    "output_yes");
-        
-        nString = sprintf(readSetting,           "read_yes");
-        nString = sprintf(couplingSettingIntra,  "coupling_push_min_max_pull_reset");
-        nString = sprintf(couplingSettingAv,     "coupling_push");
-        nString = sprintf(couplingSettingFlux,   "coupling_pull_push");
-        nString = sprintf(couplingSettingCoeff,  "coupling_pull");
+            sprintf(outputSettingDebug,    "output_yes");
+
+        sprintf(readSetting,           "read_yes");
+        sprintf(couplingSettingIntra,  "coupling_push_min_max_pull_reset");
+        sprintf(couplingSettingAv,     "coupling_push");
+        sprintf(couplingSettingFlux,   "coupling_pull_push");
+        sprintf(couplingSettingCoeff,  "coupling_pull");
         if(!modelEqnContainer().modelEqn(iEqn)->solveMe)
         {
-              nString = sprintf(outputSetting, "output_no");
-              nString = sprintf(readSetting,   "read_yes");
-              nString = sprintf(couplingSettingIntra,  "coupling_none");
-              nString = sprintf(couplingSettingAv,     "coupling_none");
-              nString = sprintf(couplingSettingFlux,   "coupling_none");
-              nString = sprintf(couplingSettingCoeff,  "coupling_none");
+              sprintf(outputSetting, "output_no");
+              sprintf(readSetting,   "read_yes");
+              sprintf(couplingSettingIntra,  "coupling_none");
+              sprintf(couplingSettingAv,     "coupling_none");
+              sprintf(couplingSettingFlux,   "coupling_none");
+              sprintf(couplingSettingCoeff,  "coupling_none");
         }
 
 
@@ -504,10 +504,10 @@ void ParticleData::addRunTimeContainers() const
     {
         phaseList.push_back(GAS);
 
-        nString = sprintf(outputSettingDebug,    "output_no");
+        sprintf(outputSettingDebug,    "output_no");
         if(writeDebugGasPhase)
-            nString = sprintf(outputSettingDebug,    "output_yes");
-    
+            sprintf(outputSettingDebug,    "output_yes");
+
         printf("creating phase fraction mem for gas species equation now \n");
         intraPhaseFractionMem_.push_back
         (
@@ -551,8 +551,8 @@ void ParticleData::addRunTimeContainers() const
                 "read_no", outputSettingDebug
             )
         );
-        
-        if(haveConvectiveFluxGasPhase || haveConvectiveFluxLiquidPhase) 
+
+        if(haveConvectiveFluxGasPhase || haveConvectiveFluxLiquidPhase)
         intraConvectiveFluxMem_.push_back
         (
             particle_data_tracker_.addElementProperty< ContainerCvode<double,1,N_INTRA_GRIDPOINTS_DEF> >
@@ -567,9 +567,9 @@ void ParticleData::addRunTimeContainers() const
     if(haveLiquidPhase)
     {
         phaseList.push_back(LIQUID);
-        nString = sprintf(outputSettingDebug,    "output_no");
+        sprintf(outputSettingDebug,    "output_no");
         if(writeDebugLiquidPhase)
-            nString = sprintf(outputSettingDebug,    "output_yes");
+            sprintf(outputSettingDebug,    "output_yes");
 
         printf("creating phase fraction mem for liquid species equation now. \n");
         intraPhaseFractionMem_.push_back
@@ -614,7 +614,7 @@ void ParticleData::addRunTimeContainers() const
                 "read_no", outputSettingDebug
             )
         );
-        
+
         if( haveConvectiveFluxGasPhase || haveConvectiveFluxLiquidPhase )
         intraConvectiveFluxMem_.push_back
         (
@@ -629,10 +629,10 @@ void ParticleData::addRunTimeContainers() const
     }
     if(numberOfPhases>1) //only needed if there are at least 2 phases
     {
-        nString = sprintf(outputSettingDebug,    "output_no");
+        sprintf(outputSettingDebug,    "output_no");
         if(writeDebugLiquidPhase || writeDebugGasPhase)
-            nString = sprintf(outputSettingDebug,    "output_yes");
-            
+            sprintf(outputSettingDebug,    "output_yes");
+
       //push back the solid phase
       intraPhaseChangeRateMem_.push_back
       (
@@ -713,15 +713,15 @@ void ParticleData::addRunTimeContainers() const
         intraPhaseFractionMem_[iPhase]->setLenVecUsed(modelEqnContainer().modelEqn(0)->nGridPointsUsed() );
         if(intraPhaseFractionMem_[iPhase]->isFull())
             error().throw_error_one(FLERR, "You overfilled the 'intraPhaseFractionMem_' container. Increase the value for N_INTRA_GRIDPOINTS_DEF");
-            
+
         if( haveConvectiveFluxGasPhase || haveConvectiveFluxLiquidPhase )
         {
           intraConvectiveFluxMem_[iPhase]->setLenVecUsed(modelEqnContainer().modelEqn(0)->nGridPointsUsed() );
-            
+
           if(intraConvectiveFluxMem_[iPhase]->isFull())
             error().throw_error_one(FLERR, "You overfilled the 'intraConvectiveFluxMem_' container. Increase the value for N_INTRA_GRIDPOINTS_DEF");
         }
-        
+
     }
     for(uint iPhase = 0; iPhase < intraPhaseChangeRateMem_.size(); iPhase++)
     {
@@ -730,7 +730,7 @@ void ParticleData::addRunTimeContainers() const
             error().throw_error_one(FLERR, "You overfilled the 'intraPhaseChangeRateMem_' container. Increase the value for N_INTRA_GRIDPOINTS_DEF");
     }
     for(uint iPhase = 0; iPhase < intraPhaseChangeRateMemJacobi_.size(); iPhase++)
-    {            
+    {
         intraPhaseChangeRateMemJacobi_[iPhase]->setLenVecUsed(modelEqnContainer().modelEqn(0)->nGridPointsUsed() );
         if(intraPhaseChangeRateMemJacobi_[iPhase]->isFull())
             error().throw_error_one(FLERR, "You overfilled the 'intraPhaseFractionMemJacobi_' container. Increase the value for N_INTRA_GRIDPOINTS_DEF");
@@ -742,7 +742,7 @@ void ParticleData::addRunTimeContainers() const
             error().throw_error_one(FLERR, "You overfilled the 'intraPhaseChangeRateVolumetric_' container. Increase the value for N_INTRA_GRIDPOINTS_DEF");
     }
 
-    tmpSourceVariable_ = create<double>(tmpSourceVariable_, 
+    tmpSourceVariable_ = create<double>(tmpSourceVariable_,
                                         modelEqnContainer().modelEqn(0)->nGridPointsUsed()
                                        );
 
@@ -757,19 +757,19 @@ void ParticleData::addRunTimeContainers() const
 ------------------------------------------------------------------------- */
 void ParticleData::setParticleIDPointer(int particleDataID_, int particleID)
 {
-	current_particleDataID_ = particleDataID_;
-	current_particleID_     = particleID;
+    current_particleDataID_ = particleDataID_;
+    current_particleID_     = particleID;
 
-	if(!runtimeContainersExist_)
+    if(!runtimeContainersExist_)
         error().throw_error_one(FLERR,"Internal error: requesting intra particle data but containers not existing");
 
     ptr3 = (double***)  intraPartMem_[particleDataID_]->begin_slow_dirty();   //ptr to vectorial per-particle data
     datapointer_[particleDataID_] = &ptr3[particleID][0][0]; //TODO: put into separate function
-//	printf("pointer for particleDataID %i and particle ID %i with length %d set\n ",
-//	         particleDataID_,
-//	         particleID,
-//	         intraPartMem_[particleDataID_]->lenVecUsed()
-//	      );
+//    printf("pointer for particleDataID %i and particle ID %i with length %d set\n ",
+//             particleDataID_,
+//             particleID,
+//             intraPartMem_[particleDataID_]->lenVecUsed()
+//          );
 }
 
 /* ----------------------------------------------------------------------
@@ -777,20 +777,20 @@ void ParticleData::setParticleIDPointer(int particleDataID_, int particleID)
 ------------------------------------------------------------------------- */
 void ParticleData::setParticleIDPointerPhaseFraction(int _particleID)
 {
-	if(!runtimeContainersExist_)
+    if(!runtimeContainersExist_)
         error().throw_error_one(FLERR,"Internal error: requesting intra particle data but containers not existing");
-    
+
     int phaseId=0;
     if(haveGasPhase)
     {
         ptr3GasPhase_ = (double***)  intraPhaseFractionMem_[phaseId]->begin_slow_dirty();     //ptr to vectorial per-particle data
-        datapointerPhaseFraction_[phaseId] = &ptr3GasPhase_[_particleID][0][0]; 
+        datapointerPhaseFraction_[phaseId] = &ptr3GasPhase_[_particleID][0][0];
         phaseId++;
     }
     if(haveLiquidPhase)
     {
         ptr3LiquidPhase_ = (double***)  intraPhaseFractionMem_[phaseId]->begin_slow_dirty();  //ptr to vectorial per-particle data
-        datapointerPhaseFraction_[phaseId] = &ptr3LiquidPhase_[_particleID][0][0]; 
+        datapointerPhaseFraction_[phaseId] = &ptr3LiquidPhase_[_particleID][0][0];
         phaseId++;
     }
 }
@@ -863,32 +863,32 @@ double ParticleData::retrievePhaseFractionData(int _dataID, int _particleID, int
 void ParticleData::returnchemistryDataPoint(int _particleDataID, int particleID, int _gridPoint, double & data)
 {
     current_particleDataID_ = _particleDataID;
-	current_particleID_     = particleID;
+    current_particleID_     = particleID;
 
-	if(!runtimeContainersExist_)
+    if(!runtimeContainersExist_)
         error().throw_error_one(FLERR,"Internal error: requesting intra particle data, but containers not existing");
 
     ptr3 = (double***)  chemistryMem_[current_particleDataID_]->begin_slow_dirty();   //ptr to vectorial per-particle data
     datapointer_[current_particleDataID_] = &ptr3[current_particleID_][0][0]; //TODO: put into separate function
     data = ptr3[current_particleID_][0][_gridPoint]; //get data
-    
+
     return;
 }
-	
+
 
 /* ---------------------------------------------------------------------- */
 void ParticleData::returnchemistryJacDataPoint(int _particleDataID, int particleID, int _gridPoint, double & data)
 {
     current_particleDataID_ = _particleDataID;
-	current_particleID_     = particleID;
+    current_particleID_     = particleID;
 
-	if(!runtimeContainersExist_)
+    if(!runtimeContainersExist_)
         error().throw_error_one(FLERR,"Internal error: requesting intra particle data, but containers not existing");
 
     ptr3Jac = (double***)  chemistryMemJacobi_[current_particleDataID_]->begin_slow_dirty();   //ptr to vectorial per-particle data
     datapointerJac_[current_particleDataID_] = &ptr3Jac[current_particleID_][0][0]; //TODO: put into separate function
     data = ptr3Jac[current_particleID_][0][_gridPoint]; //get data
-    
+
     return;
 }
 
@@ -896,11 +896,11 @@ void ParticleData::returnchemistryJacDataPoint(int _particleDataID, int particle
 void ParticleData::returnIntraData(double * data)
 {
 
-	for(int j=0;j < intraPartMem_[current_particleDataID_]->lenVecUsed();j++) //Must only loop over used IDs!
+    for(int j=0;j < intraPartMem_[current_particleDataID_]->lenVecUsed();j++) //Must only loop over used IDs!
     {
         data[j] = ptr3[current_particleID_][0][j]; //get data
     }
-	return;
+    return;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -909,7 +909,7 @@ void ParticleData::returnPhaseFractionData(double * phaseFracGas, double * phase
 
     for(int j=0;j < intraPartMem_[0]->lenVecUsed();j++) //Must only loop over used IDs!
     {
-       if(haveGasPhase) 
+       if(haveGasPhase)
            phaseFracGas[j] = ptr3GasPhase_[current_particleID_][0][j]; //get data
        else
            phaseFracGas[j] = 0;
@@ -920,17 +920,17 @@ void ParticleData::returnPhaseFractionData(double * phaseFracGas, double * phase
            phaseFracLiq[j] = 0;
     }
 
-	return;
+    return;
 }
 
 /* ---------------------------------------------------------------------- */
 void ParticleData::returnPhaseFractionDataGridpoint(double &phaseFracGas, double &phaseFracLiq, int grid_point)
 {
-    if(haveGasPhase) 
+    if(haveGasPhase)
            phaseFracGas = ptr3GasPhase_[current_particleID_][0][grid_point]; //get data
        else
            phaseFracGas = 0;
-    
+
     if(haveLiquidPhase)
            phaseFracLiq = ptr3LiquidPhase_[current_particleID_][0][grid_point]; //get data
        else
@@ -942,41 +942,41 @@ void ParticleData::returnPhaseFractionDataGridpoint(double &phaseFracGas, double
 void ParticleData::returnPhaseChangeRateDataPoint(int _phaseId, int particleID, int _gridPoint, double & data)
 {
     //input: phaseId is enueration refering to the phase (e.g., SOLID=0, GAS=1, LIQUID=2 )
-	if(!runtimeContainersExist_)
+    if(!runtimeContainersExist_)
         error().throw_error_one(FLERR,"Internal error: requesting intraPhaseChangeRate data, but containers not existing");
     if(phaseIDMap[_phaseId]<0)
         error().throw_error_one(FLERR,"ParticleData: phaseIDMap not set for the requested phase");
 
     double *** aTempPtr = (double***)  intraPhaseChangeRateMem_[phaseIDMap[_phaseId]]->begin_slow_dirty();   //ptr to vectorial per-particle data
     data = aTempPtr[particleID][0][_gridPoint]; //get data
-    
+
     return;
 }
 
 /* ---------------------------------------------------------------------- */
 void ParticleData::returnPhaseChangeRateJacDataPoint(int _phaseId, int particleID, int _gridPoint, double & data)
 {
-	if(!runtimeContainersExist_)
+    if(!runtimeContainersExist_)
         error().throw_error_one(FLERR,"Internal error: requesting intraPhaseChangeRateJac data, but containers not existing");
     if(phaseIDMap[_phaseId]<0)
         error().throw_error_one(FLERR,"ParticleData: phaseIDMap not set for the requested phase");
 
     double *** aTempPtr = (double***)  intraPhaseChangeRateMemJacobi_[phaseIDMap[_phaseId]]->begin_slow_dirty();   //ptr to vectorial per-particle data
     data = aTempPtr[particleID][0][_gridPoint]; //get data
-    
+
     return;
-}	
+}
 
 
 /* ---------------------------------------------------------------------- */
 void ParticleData::returnPhaseChangeRateJacLastSlotDataPoint(int particleID, int _gridPoint, double & data)
 {
-	if(!runtimeContainersExist_)
+    if(!runtimeContainersExist_)
         error().throw_error_one(FLERR,"Internal error: requesting intraPhaseChangeRateJac data, but containers not existing");
 
     double *** aTempPtr = (double***)  intraPhaseChangeRateMemJacobi_[intraPhaseChangeRateMemJacobi_.size()-1]->begin_slow_dirty();   //ptr to last lost
     data = aTempPtr[particleID][0][_gridPoint]; //get data
-    
+
     return;
 }
 
@@ -984,7 +984,7 @@ void ParticleData::returnPhaseChangeRateJacLastSlotDataPoint(int particleID, int
 void ParticleData::returnIntraFlux(int particleID, double &flux)
 {
     flux = intraPartFlux_[current_particleDataID_]->get(particleID);
-	return;
+    return;
 }
 
 
@@ -992,7 +992,7 @@ void ParticleData::returnIntraFlux(int particleID, double &flux)
 void ParticleData::returnIntraTransCoeff(int particleID, double &transCoeff)
 {
     transCoeff = intraPartTransCoeff_[current_particleDataID_]->get(particleID);
-	return;
+    return;
 }
 
 /* ----------------------------------------------------------------------
@@ -1023,7 +1023,7 @@ void ParticleData::saveChemistryParticleData(int _particleDataID, int particleID
     //ave intra-particle data
     double *** aPtr3 = (double***) chemistryMem_[_particleDataID]->begin_slow_dirty();   //ptr to vectorial per-particle data
     aPtr3[particleID][0][gridPoint] += data;      //save data
-    
+
     return;
 }
 
@@ -1057,7 +1057,7 @@ void ParticleData::savePhaseFractionData(int particleID, double * dataGas, doubl
 }
 
 /* ----------------------------------------------------------------------
-   Update time derivates of  phase fraction 
+   Update time derivates of  phase fraction
 ------------------------------------------------------------------------- */
 void ParticleData::phaseFractionChangeRateStart(int particleID, double * dataGas, double * dataLiquid)
 {
@@ -1098,7 +1098,7 @@ void ParticleData::phaseFractionChangeRateEnd(int particleID, double * dataGas, 
         for(int j=0;j < intraPhaseChangeRateVolumetric_[phaseId]->lenVecUsed();j++)
         {
             ptr3GasPhase_[particleID][0][j] += dataGas[j]; //add new
-            ptr3GasPhase_[particleID][0][j] /= deltaT; 
+            ptr3GasPhase_[particleID][0][j] /= deltaT;
         }
 
         phaseId++;
@@ -1109,7 +1109,7 @@ void ParticleData::phaseFractionChangeRateEnd(int particleID, double * dataGas, 
         for(int j=0;j < intraPhaseChangeRateVolumetric_[phaseId]->lenVecUsed();j++)
         {
             ptr3LiquidPhase_[particleID][0][j] += dataLiquid[j]; //add new
-            ptr3LiquidPhase_[particleID][0][j] /= deltaT; 
+            ptr3LiquidPhase_[particleID][0][j] /= deltaT;
         }
 
         phaseId++;
@@ -1127,7 +1127,7 @@ void ParticleData::savePhaseChangeParticleData(int _phaseID, int particleID, dou
     //ave intra-particle data
     double *** aPtr3 = (double***) intraPhaseChangeRateMem_[phaseIDMap[_phaseID]]->begin_slow_dirty();   //ptr to vectorial per-particle data
     aPtr3[particleID][0][gridPoint] += data;      //save data
-    
+
     return;
 }
 
@@ -1140,7 +1140,7 @@ void ParticleData::savePhaseChangeParticleDataJac(int _phaseID, int particleID, 
     //ave intra-particle data
     double *** aPtr3 = (double***) intraPhaseChangeRateMemJacobi_[phaseIDMap[_phaseID]]->begin_slow_dirty();   //ptr to vectorial per-particle data
     aPtr3[particleID][0][gridPoint] += data;      //save data
-    
+
     return;
 }
 
@@ -1154,7 +1154,7 @@ void ParticleData::savePhaseChangeParticleDataJacLastSlot(int particleID, double
     //ave intra-particle data
     double *** aPtr3 = (double***) intraPhaseChangeRateMemJacobi_[intraPhaseChangeRateMemJacobi_.size()-1]->begin_slow_dirty();   //ptr to vectorial per-particle data
     aPtr3[particleID][0][gridPoint] += data;      //save data
-    
+
     return;
 }
 
@@ -1167,7 +1167,7 @@ void ParticleData::saveChemistryJacParticleData(int _particleDataID, int particl
     //ave intra-particle data
     double *** aPtr3 = (double***) chemistryMemJacobi_[_particleDataID]->begin_slow_dirty();   //ptr to vectorial per-particle data
     aPtr3[particleID][0][gridPoint] += data;      //save data
-    
+
     return;
 }
 
@@ -1208,7 +1208,7 @@ void ParticleData::resetPhaseChangeSourceTerms()
     if(!runtimeContainersExist_)    return;
     for (uint m = 0; m < intraPhaseChangeRateMem_.size() ;m++) //particle Data ID
     {
-        //printf("cleaning for %i model eqn \n", m); 
+        //printf("cleaning for %i model eqn \n", m);
         double *** aPtr3    = (double***) intraPhaseChangeRateMem_[m]->begin_slow_dirty();
 
         for (int i=0;i < nbody();i++)  //particle ID
@@ -1218,8 +1218,8 @@ void ParticleData::resetPhaseChangeSourceTerms()
 
     for (uint m = 0; m < intraPhaseChangeRateMemJacobi_.size() ;m++) //particle Data ID
     {
-        //printf("cleaning for %i model eqn \n", m); 
-        double *** bPtr3    = (double***) intraPhaseChangeRateMemJacobi_[m]->begin_slow_dirty();              
+        //printf("cleaning for %i model eqn \n", m);
+        double *** bPtr3    = (double***) intraPhaseChangeRateMemJacobi_[m]->begin_slow_dirty();
 
         for (int i=0;i < nbody();i++)  //particle ID
             for(int j=0;j < intraPhaseChangeRateMemJacobi_[m]->lenVecUsed();j++)
@@ -1228,7 +1228,7 @@ void ParticleData::resetPhaseChangeSourceTerms()
 
     for (uint m = 0; m < intraPhaseChangeRateVolumetric_.size() ;m++) //particle Data ID
     {
-        //printf("cleaning for %i model eqn \n", m); 
+        //printf("cleaning for %i model eqn \n", m);
         double *** aPtr3    = (double***) intraPhaseChangeRateVolumetric_[m]->begin_slow_dirty();
 
         for (int i=0;i < nbody();i++)  //particle ID
@@ -1253,13 +1253,13 @@ void ParticleData::resetChemicalSourceTerms()
 
     for (int m=0; m<modelEqnContainer().nrEqns(); m++) // no need to pull out particle Data ID, since we do not care about order
     {
-        //printf("cleaning for %i model eqn \n", m); 
-        double *** aPtr3    = (double***)   chemistryMem_[m]->begin_slow_dirty();           
-        double *** aPtrJac3 = (double***)   chemistryMemJacobi_[m]->begin_slow_dirty();   
+        //printf("cleaning for %i model eqn \n", m);
+        double *** aPtr3    = (double***)   chemistryMem_[m]->begin_slow_dirty();
+        double *** aPtrJac3 = (double***)   chemistryMemJacobi_[m]->begin_slow_dirty();
 
         for (int i=0;i < nbody();i++)  //particle ID
         {
-            //printf("cleaning for %i particle \n", i); 
+            //printf("cleaning for %i particle \n", i);
             for(int j=0;j < chemistryMem_[m]->lenVecUsed();j++)
             {
                    aPtr3[i][0][j]    = 0; //reset to zero
@@ -1289,7 +1289,7 @@ void ParticleData::generatePhaseIDMap() const
     {
         //search phase list and enter id of each phase
         for(uint iPhaseList=0; iPhaseList<phaseList.size(); iPhaseList++)
-            if( phaseList[iPhaseList]==iPhase ) 
+            if( phaseList[iPhaseList]==iPhase )
             {
                 if(phaseIDMap[iPhase] != -1) //was set before, not possible
                     error().throw_error_one(FLERR,"ParticleData: Cannot generatePhaseIDMap since a phase was inserted twice.");
@@ -1312,20 +1312,20 @@ void ParticleData::computeConvection()
     for(uint iPhase = 0; iPhase < intraPhaseFractionMem_.size(); iPhase++) //Only save phase fraction for fluid phases!
     {
         int containerPhase = phaseList[iPhase];
-        
+
         //loop over phase change models to identify involved species, in order to compute evaporation rate
         int speciesModelEqnlID=-1;
         const  vector<int>* phaseID;
         const  vector<int>* specModelEqn;
         for(int iPhaseChangeModel=0;iPhaseChangeModel<modelPhaseChangeContainer().nrPhaseChangeEqns(); iPhaseChangeModel++)
         {
-            double pDot    = 0.0;
-            double pDotJac = 0.0;
+            //double pDot    = 0.0;
+            //double pDotJac = 0.0;
             phaseID = modelPhaseChangeContainer().modelPhaseChangeEqn(iPhaseChangeModel)->phaseID();
             specModelEqn = modelPhaseChangeContainer().modelPhaseChangeEqn(iPhaseChangeModel)->speciesModelEqnlID();
 
             //Check dense phase
-            if( (*phaseID)[0]==containerPhase ) 
+            if( (*phaseID)[0]==containerPhase )
             {
               speciesModelEqnlID    = (*specModelEqn)[0];
               continue;
@@ -1354,7 +1354,7 @@ void ParticleData::normalizeInternalFields(int _particleID, double _factor)
         {
             if( !modelEqnContainer().modelEqn(iEqn)->normalizeDuringGrowth )
                 continue;
-                
+
             double*** aPtr = (double***)  intraPartMem_[iEqn]->begin_slow_dirty();
             for(int i=0; i<modelEqnContainer().modelEqn(iEqn)->nGridPointsUsed()-1; i++)
             {

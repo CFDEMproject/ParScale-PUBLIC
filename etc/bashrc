@@ -1,0 +1,79 @@
+#----------------------------------*-sh-*--------------------------------------
+# ParScale
+# Christoph Goniva, DCS Computing GmbH
+# March 2015
+#------------------------------------------------------------------------------
+#
+# Script
+#     etc/bashrc
+#
+# Description
+#     Startup file for ParScale exporting environment variables
+#     Sourced  ~/.bashrc
+#
+#- adapt this and add to ./bashrc 
+#- you can test the correctness using parScaleSystemTest.sh
+##================================================#
+##- source ParScale env vars
+# env vars for ParScale (adapt lines to your sys!)
+#export PASCAL_EXTRA_INCLUDES="-I$HOME/includes" #optional: user can add dirs that will be searched during compilation, e.g., for boost
+#export PASCAL_EXTRA_LIBS="-L$HOME/lib" #optional: user can add dirs and names of libs that will be considered during linking, e.g., for boost
+#export PASCAL_LIGGGHTS_SRC_DIR=$CFDEM_LIGGGHTS_SRC_DIR
+#export PASCAL_SRC_DIR=$HOME/LIGGGHTS/PaScal/src
+#export PASCAL_HDF5_DIR=$C3PO_HDF5_DIR
+#export PASCAL_QT5_DIR=$C3PO_QT5_DIR
+#export PASCAL_LIB_NAME=pasc_fedora_fpic
+#. $PASCAL_SRC_DIR/../etc/bashrc
+#================================================#
+#------------------------------------------------------------------------------
+
+#-define relative paths
+
+#- path to examples
+export PASCAL_EXAMPLE_DIR=$PASCAL_SRC_DIR/../examples
+
+#- path to doc
+export PASCAL_DOC_DIR=$PASCAL_SRC_DIR/../doc
+
+#- path to etc
+export PASCAL_ETC_DIR=$PASCAL_SRC_DIR/../etc
+
+#- path to binaries
+export PASCAL_INST_DIR=$PASCAL_SRC_DIR/../platforms/linux64
+
+#- path to third party
+export PASCAL_THIRDPARTY_DIR=$PASCAL_SRC_DIR/../thirdParty
+
+#- path to sundials package
+export PASCAL_SUNDIALS_DIR=$PASCAL_THIRDPARTY_DIR/sundials-2.5.0
+
+#------------------------------------------------------------------------------
+
+#- shortcut to etc path
+alias parScaleEtc='cd $PASCAL_ETC_DIR'
+
+#- shortcut to src path
+alias parScaleSrc='cd $PASCAL_SRC_DIR'
+
+#- shortcut to examples
+alias parScaleEx='cd $PASCAL_EXAMPLE_DIR'
+
+#- shortcut to documentation path
+alias parScaleDoc='cd $PASCAL_DOC_DIR'
+
+#- shortcut to system test
+alias parScaleSysTest='bash $PASCAL_ETC_DIR/parScaleSystemTest.sh'
+
+#- shortcut to clean parScale
+alias parScaleClean='bash $PASCAL_SRC_DIR/clean.sh'
+
+#- shortcut to compile parScale
+alias parScaleComp='bash $PASCAL_SRC_DIR/refresh'
+
+#- shortcut to compile parScale as library
+alias parScaleCompLib='bash $PASCAL_SRC_DIR/refreshLibrary.sh'
+
+#------------------------------------------------------------------------------
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PASCAL_QT5_DIR/lib:$PASCAL_THIRDPARTY_DIR/chemkinReader/src/:$PASCAL_HDF5_DIR/lib
+

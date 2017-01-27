@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #ifndef PASC_BASE_INTERFACE_VECTOR_H
@@ -77,8 +77,8 @@ class ParScaleBaseInterfaceVector
 
         // order of execution defined in pascal.cpp Constructor
 
-        
-#ifdef VERBOSE 
+
+#ifdef VERBOSE
         printf("**allocating ... \n");
 #endif
         for (unsigned i=0; i < list_.size(); i++)
@@ -96,34 +96,34 @@ class ParScaleBaseInterfaceVector
 
         // restart data from previous run if applicable
         // performed on proc 0
-#ifdef VERBOSE 
+#ifdef VERBOSE
         printf("**getting restart data ... \n");
 #endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->restart();
 
         // bcast all properties/settings so all MPI procs have it
-#ifdef VERBOSE 
+#ifdef VERBOSE
         printf("**bcasting ... \n");
 #endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->bcast();
 
         // parallellize - each proc just keeps data he needs
-#ifdef VERBOSE 
+#ifdef VERBOSE
         printf("**parallelizing ... \n");
 #endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->parallelize();
 
         // do model/class specific init after everything is bcasted
-#ifdef VERBOSE 
+#ifdef VERBOSE
         printf("**initializing ... \n");
 #endif
         for (unsigned i=0; i < list_.size(); i++)
             list_[i]->init();
-            
-#ifdef VERBOSE 
+
+#ifdef VERBOSE
         printf("** done! \n");
 #endif
     }
@@ -165,4 +165,3 @@ class ParScaleBaseInterfaceVector
 } //end PASCAL_NS
 
 #endif
-

@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -68,7 +68,7 @@ class ModelEqn1DSpherical : public ModelEqn
       void init(int narg, char const* const* arg, int eqnType, int modelEqnID);
 
       virtual void begin_of_step();
-      
+
       virtual void eval(double t, double* udata, double* dudata, double* p);
 
       virtual void returnJac(long int N, long int mu, long int ml,
@@ -88,29 +88,23 @@ class ModelEqn1DSpherical : public ModelEqn
                 (this->*phaseFluxLiquid)();
         }
 
-	    //TODO: set coeff correct related to spherical
-        double dx;									//dx: distance between grid points
-		double coeff_2nd_dev, coeff_1st_dev;		//coefficients of first end second derivatives
-        double currentRadius;						//actual radial position depending on h,MX
-        int h; 						                //index of spatial position 1 ... MX
-        int j; 						                //Jacobian matrix index 0...MX-1
-        realtype *col_j;							//jth collum of jacobian matrix
+        //TODO: set coeff correct related to spherical
+        double dx_;                                    //dx: distance between grid points
+        double coeff_2nd_dev_, coeff_1st_dev_;        //coefficients of first end second derivatives
+        double currentRadius_;                        //actual radial position depending on h,MX
+        int h;                                         //index of spatial position 1 ... MX
+        int j;                                         //Jacobian matrix index 0...MX-1
+        realtype *col_j;                            //jth collum of jacobian matrix
 
-        double biot_num;    						//Biot Number
+        double biot_num_;                            //Biot Number
 
-        double lambda_solid;                        //thermoconductivity solid,gas,effective
-        double lambda_gas;
-        double lambda_eff;
+        double lambda_eff_;                         //Effective conductivity
 
-        double c_p_solid;                           //heat capacity solid,gas,effective
-        double c_p_gas;
-        double c_p_eff;
+        double c_p_eff_;                            //Effective capacity
 
-        double rho_solid;                           //density solid,gas,effective
-        double rho_gas;
-        double rho_eff;
+        double rho_eff_;                            //Effective density    
 
-        double tortuosity_;                         //Tortousity 
+        double tortuosity_;                         //Tortousity
         double diffusivity_;                        //Binary Diffusivity
         double pore_radius_;                        //constant pore radius seen by species
         double molar_mass_;                         //constant molar_mass of spieces
@@ -125,6 +119,7 @@ class ModelEqn1DSpherical : public ModelEqn
         double * tempPhaseFractSolid_;
 
     private:
+        mutable int current_modelEqn_ID_;
         bool debug_;
         bool boundZero_; //TODO: read from json in order to swith on/off bounding
 
@@ -143,4 +138,3 @@ class ModelEqn1DSpherical : public ModelEqn
 #endif
 
 #endif
-

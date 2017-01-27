@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,19 +28,19 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
-/* Model chemistry single reaction 
+/* Model chemistry single reaction
 User must explicitly specify all reactaion parameters
 Always a
     - irreversible
-    - non-elementary 
+    - non-elementary
 reaction!
 
 \*-----------------------------------------------------------------------------------*/
@@ -50,7 +50,7 @@ reaction!
 ModelChemistryStyle(SingleReaction, ModelChemistrySingleReaction)
 
 #else
- 
+
 #ifndef PASC_CHEM_SIMPLE_H
 #define PASC_CHEM_SIMPLE_H
 
@@ -80,12 +80,13 @@ class ModelChemistrySingleReaction : public ModelChemistry
     ParScale *ptr_;
 
     QJsonObject single_reaction_file_;
-    
+
     ChemistryReactionSingle* reaction_;
     ChemistryGrainModel*     grainModel_;
 
     //needed for calculating of reaction rate, to be read in by chemistry_reader TODO: link to parser/chemkin reader
     bool                  isIsoThermal_;              //specify if a homogeneous temperature is assumed
+    bool                  growthActive_;              //specify whether molekul growth is active or not
     double                temperature_;               //specify a homogeneous temperature FOR ALL PARTICLES
     vector<std::string>   species_names_;             //name of all species in the reaction
     vector<double>        species_stoich_;            //stoichometry of all species in the reaction
@@ -94,15 +95,15 @@ class ModelChemistrySingleReaction : public ModelChemistry
 
     double cMinimum_;                           //minimum concentration for 0-order reaction below which reaction rate will be linear
     double arrhenius_A_;                        //pre-exponential factor
-    double arrhenius_beta_;                     //exponential feactor 
-    double arrhenius_E_A_;                      //activation energy 
-    
+    double arrhenius_beta_;                     //exponential feactor
+    double arrhenius_E_A_;                      //activation energy
+
     double growthMolesFormed_;                  //to indicate amount of moles that are formed/consumed by the reaction
     double growthProductMolarWeight_;           //molar weight [kg/kMol] of product formed/consumed for growth
     double growthProductDensity_;               //density [kg/m³] of product formed/consumed for growth
 
 
-    
+
     //needed for calculating of chemical source term
     double         deltaH_r;                    //heat of reaction
     vector<int>    original_IDs_reactant_;      //orginal ids of the reactants in the particle mem
@@ -118,4 +119,3 @@ class ModelChemistrySingleReaction : public ModelChemistry
 #endif
 
 #endif
-

@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 #ifndef PASC_SIMULATION_STATE_H
@@ -56,11 +56,11 @@ class SimulationState : public ParScaleBase
 
 
       void setOutputTimeStep(double _dt)
-      { 
-         deltaT_writeContainers_ = _dt; 
+      {
+         deltaT_writeContainers_ = _dt;
          time_writeContainers_   = time_ + _dt ;
       }
- 
+
 
       void progress_time(double _dt)
       { time_ += _dt; time_step_++; }
@@ -75,14 +75,14 @@ class SimulationState : public ParScaleBase
       { return time_step_; }
 
       inline bool writeContainers()
-      { 
+      {
         if(time_ >= time_writeContainers_)
         {
             time_writeContainers_ += deltaT_writeContainers_;
             return true;
         }
-        
-        return false; 
+
+        return false;
       }
 
 
@@ -91,7 +91,7 @@ class SimulationState : public ParScaleBase
       double time_;        //the current time
       double deltaT_;      //the time step
       int    time_step_;   //the current integration step
-      
+
       //I/O information
       double deltaT_writeContainers_;     //the time intervall for writing containers
       double time_writeContainers_;       //the next time for writing containers

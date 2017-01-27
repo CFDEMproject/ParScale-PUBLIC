@@ -13,6 +13,8 @@ rm numerical_solution_bc_convective
 rm -r 0.*
 rm -r 1*
 rm -r 2*
+rm speciesA.vol_avg
+rm speciesSolid.vol_avg 
 rm -r 3*
 rm -r 4*
 rm -r 5*

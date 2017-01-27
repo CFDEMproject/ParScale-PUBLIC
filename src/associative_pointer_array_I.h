@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
      Copyright (C): 2012 - 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -32,12 +32,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -421,7 +421,7 @@ License
         if( nbody_old != content_[icontainer]->size() || nbody_old != _id_length )
         {
             printf("[proc:%d] content_[icontainer]->size(): %d _id_length: %d,  nbody_old: %d\n",
-                    me, 
+                    me,
                     content_[icontainer]->size(), _id_length,  nbody_old);
             err->throw_error_all(FLERR,"internal error; assertion failed because containers have different size");
         }
@@ -432,34 +432,36 @@ License
     int  iLocal = 0;
     int  globalCurrID;              //current GLOBAL ID of the atom
     int  globalCurrMem;             //position in the global MEM of _map!
-    
-    
+
+
     //Check if all bodies have a valid global ID
     for(iLocal=0; iLocal<_id_length; iLocal++)
     {
         if(_id[iLocal]==-1) //global ID was not set before or is invalid: Assume consecutive ordering
         {
             _id[iLocal] = iLocal+1; //ids start with 1!
-            if(verbose)
+//            if(verbose)
             {
                 printf("[proc:%d]: iLocal: %d, resetting global ID to %d\n",
                         me, iLocal, _id[iLocal]);
             }
-        }            
+            err->throw_error_all(FLERR,"internal error: negative _id detected. this must not happen!");
+
+        }
     }
-    
+
 
     // go through all bodies/elements available in ParScale
     iLocal=0;
     while(iLocal < _id_length)    //loop all GLOBAL values and get values of the map
     {
-        //A - Get the current global ID 
+        //A - Get the current global ID
         globalCurrID = _id[iLocal];
         globalCurrMem = globalCurrID-1;
 
         //B - Get the data location from the global map
         int dataLocation = _map[globalCurrMem]; //this is the LOCAL data location
-        
+
         if(verbose)
         {
             printf("[proc:%d]: sortPropsByExtMap::_nlocal: %d, _id_length: %d iLocal: %d, globalCurrID: %d, dataLocation: %d\n",
@@ -473,7 +475,7 @@ License
             continue;
         }
         // body not in tag list, delete from ParScale
-        else if( (dataLocation < 0) || (dataLocation >= _nlocal) ) 
+        else if( (dataLocation < 0) || (dataLocation >= _nlocal) )
         {
             //copy last-1 to last to prepare deletion of iLocal
             copyElement(nbody_old-1,nbody_old);
@@ -487,7 +489,7 @@ License
             _id_length--;   //update counts in _id container
 
             if(verbose)
-                printf("[proc:%d]: sortPropsByExtMap::data location not found. Deleted the particle at %d. Have now %d in content_ (+1 spare), and _id_length: %d \n", 
+                printf("[proc:%d]: sortPropsByExtMap::data location not found. Deleted the particle at %d. Have now %d in content_ (+1 spare), and _id_length: %d \n",
                        me, iLocal, nbody_old, _id_length
                       );
         }
@@ -507,7 +509,11 @@ License
             }
 
             if(globalCurrID == _id[dataLocation])
+            {
+                printf("[proc:%d]: globalCurrID: %d, dataLocation: %d/%d, _id[dataLocation]: %d \n",
+                       me, globalCurrID, dataLocation, _nlocal, _id[dataLocation]);
                 err->throw_error_all(FLERR,"globalCurrID == _id[dataLocation]. duplicate globalIds detected. This is fatal");
+            }
 
             // copy data at inew to the end of containers
             copyElement(dataLocation,nbody_old);
@@ -519,24 +525,24 @@ License
             copyElement(nbody_old,iLocal);
 
             // update the IDs
-            int id_tmp = _id[dataLocation];  
+            int id_tmp = _id[dataLocation];
             _id[dataLocation] = globalCurrID; //set GLOBAL ID at new data location
             _id[iLocal] = id_tmp;
-            
+
             if(verbose)
               printf("[proc:%d]: new GLOBAL ID at iLocal: %d, and at dataLocation: %d \n",
                      me, _id[iLocal], _id[dataLocation]);
         }
     }
-    
+
     nbody_old = content_[0]->size();
     deleteElement(nbody_old-1);
     if(verbose)
     {
-         printf("[proc:%d]: Deleted last element (=Spare) in array with size: %d, size is now: %d \n",
+         printf("[proc:%d]: Deleted last element (=spare) in array with size: %d, size is now: %d \n",
                  me, nbody_old, content_[0]->size());
     }
- 
+
     //Remove unecessary elements of contents that are not on this machine
     iLocal = content_[0]->size();
     while(iLocal > _nlocal)
@@ -673,4 +679,3 @@ License
   }
 
 #endif
-

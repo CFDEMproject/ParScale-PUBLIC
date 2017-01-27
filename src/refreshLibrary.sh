@@ -22,5 +22,6 @@ make clean-all
 
 #Compile
 make thirdParty -j 4
-make makelib
+make -f makelib # not implemented
+sh Make.sh style
 make -f Makefile.lib fedora_fpic -j 4

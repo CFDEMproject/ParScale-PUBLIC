@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 int Input::write_containersHDF5(ContainerBase &container) const
@@ -49,7 +49,7 @@ int Input::write_containersHDF5(ContainerBase &container) const
 
     const char *id = container.prop().id();
     const char *scope = container.prop().scope();
-    const bool element_property = container.prop().element_property();
+
 
     // if scope equals ID, try to open JSON file here directly
     if(strcmp(id,scope) == 0)
@@ -64,7 +64,7 @@ int Input::write_containersHDF5(ContainerBase &container) const
                 runDirectory_,
                 control().simulationState().time()
                );
-      
+
         sprintf(filepath,"./%s/%.6f/HDF5",
                 runDirectory_,
                 control().simulationState().time()
@@ -72,15 +72,15 @@ int Input::write_containersHDF5(ContainerBase &container) const
 
         if( comm().is_proc_0() )
         {
-            mkdir(filepath, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH);  
+            mkdir(filepath, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH);
             mkdir(filepath, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH);
             sprintf(hd5file,"./%s/%.6f/HDF5/%s.h5",
                     runDirectory_,
-                    control().simulationState().time(), 
+                    control().simulationState().time(),
                     scope
                    );
         }
-        
+
         comm().wait();
 
         //Skip this process in case it is empty
@@ -90,19 +90,19 @@ int Input::write_containersHDF5(ContainerBase &container) const
         if( !comm().is_proc_0() )
             sprintf(hd5file,"./%s/%.6f/HDF5/%s.%d.h5",
                     runDirectory_,
-                    control().simulationState().time(), 
+                    control().simulationState().time(),
                     scope, comm().me()
                    );
 
-        H5std_string	FILE_NAME( hd5file );
-        H5std_string	DATASET_NAME( scope );
-        
-        const int 	NX = container.size();
-        const int 	NY = container.lenVecUsed();                    // dataset dimensions
-        const int 	RANK = 2;
+        H5std_string    FILE_NAME( hd5file );
+        H5std_string    DATASET_NAME( scope );
+
+        const int     NX = container.size();
+        const int     NY = container.lenVecUsed();                    // dataset dimensions
+        const int     RANK = 2;
 
         //printf("Container %s should contain %i particles and have the length of %i \n", scope, NX, NY);
-        
+
         double H5data[NX][NY];
         int    H5dataInt[NX][NY];
         //Get access to container content
@@ -132,15 +132,16 @@ int Input::write_containersHDF5(ContainerBase &container) const
                 }
             }
         }
-        
+
        try
        {
-         
+
           Exception::dontPrint(); //print errors afterwards
-          
+
           H5File* file = new H5File( FILE_NAME, H5F_ACC_TRUNC );    //Create a new file using H5F_ACC_TRUNC
-          
-          hsize_t     dimsf[] = {NX, NY};                 // dataset dimensions
+
+          hsize_t  dimsf[] = {static_cast<hsize_t>(NX), 
+                              static_cast<hsize_t>(NY)};                 // dataset dimensions
           //printf("dimsf for scope %s = [%i][%i] \n",scope, dimsf[0],dimsf[1]);
           //dimsf[0] = NX;                        // number of particles
           //dimsf[1] = NY;                        // length of container e.g. number of grid points
@@ -151,7 +152,7 @@ int Input::write_containersHDF5(ContainerBase &container) const
           {
               IntType datatype( PredType::NATIVE_DOUBLE );         //Define datatype for the data
               datatype.setOrder( H5T_ORDER_LE );
-              DataSet* dataset = new DataSet(file->createDataSet( DATASET_NAME, datatype, dataspace )); //Create a new dataset within the file using 
+              DataSet* dataset = new DataSet(file->createDataSet( DATASET_NAME, datatype, dataspace )); //Create a new dataset within the file using
               dataset->write( H5data, PredType::NATIVE_DOUBLE ); //Write the data to the dataset using default memory space, file
               delete dataset;
           }
@@ -159,16 +160,16 @@ int Input::write_containersHDF5(ContainerBase &container) const
           {
               IntType datatype( PredType::NATIVE_INT );         //Define datatype for the data
               datatype.setOrder( H5T_ORDER_LE );
-              DataSet* dataset = new DataSet(file->createDataSet( DATASET_NAME, datatype, dataspace )); //Create a new dataset within the file using 
+              DataSet* dataset = new DataSet(file->createDataSet( DATASET_NAME, datatype, dataspace )); //Create a new dataset within the file using
               dataset->write( H5dataInt, PredType::NATIVE_INT ); //Write the data to the dataset using
               delete dataset;
           }
           else
               error().throw_error_one(FLERR,"Data format of container unknown.\n");
-                        
+
           //printf("Wrote HDF5 Data for scope %s! \n",scope);
 
-	      delete file;               
+          delete file;
        }  // end of try block
 
        // catch failure caused by the H5File operations
@@ -201,5 +202,5 @@ int Input::write_containersHDF5(ContainerBase &container) const
       // printf("\n");
        return 0;  // successfully terminated
     }
+    return 0;
 }
-

@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -59,25 +59,25 @@ void ParticleMesh::parse_command(int narg,char const* const* arg)
   // parse optional args
   int iarg = 0;
 
-  while (iarg < narg) 
+  while (iarg < narg)
   {
 
-       if (strcmp(arg[iarg],"nGridPoints")==0) 
+       if (strcmp(arg[iarg],"nGridPoints")==0)
        {
             nGridPoints_=atoi(arg[iarg+1]);
 
             //check if time step has been set
             if(nGridPoints_<1)
             {
-                printf("WARNING: particleMesh: nGridPoints cannot be <1! \n"); 
-                //output().write_screen_one("particleMesh initialized with %d grid points", nGridPoints); 
+                printf("WARNING: particleMesh: nGridPoints cannot be <1! \n");
+                //output().write_screen_one("particleMesh initialized with %d grid points", nGridPoints);
             }
 
-            printf("particleMesh initialized with %d grid points \n", nGridPoints_); 
+            printf("particleMesh initialized with %d grid points \n", nGridPoints_);
             iarg++;
       }
       else  iarg++;
   };
 
-    
+
 }

@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------------------*\
 
-                                      /$$$$$$                      /$$          
-                                     /$$__  $$                    | $$          
-        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$ 
+                                      /$$$$$$                      /$$
+                                     /$$__  $$                    | $$
+        /$$$$$$   /$$$$$$   /$$$$$$ | $$  \__/  /$$$$$$$  /$$$$$$ | $$  /$$$$$$
        /$$__  $$ |____  $$ /$$__  $$|  $$$$$$  /$$_____/ |____  $$| $$ /$$__  $$
       | $$  \ $$  /$$$$$$$| $$  \__/ \____  $$| $$        /$$$$$$$| $$| $$$$$$$$
       | $$  | $$ /$$__  $$| $$       /$$  \ $$| $$       /$$__  $$| $$| $$_____/
       | $$$$$$$/|  $$$$$$$| $$      |  $$$$$$/|  $$$$$$$|  $$$$$$$| $$|  $$$$$$$
       | $$____/  \_______/|__/       \______/  \_______/ \_______/|__/ \_______/
-      | $$                                                                      
-      | $$                                                                      
+      | $$
+      | $$
       |__/        A Compilation of Particle Scale Models
 
    Copyright (C): 2014 DCS Computing GmbH (www.dcs-computing.com), Linz, Austria
@@ -28,12 +28,12 @@ License
     You should have received a copy of the GNU Lesser General Public License
     along with ParScale. If not, see <http://www.gnu.org/licenses/lgpl.html>.
 
-	This code is designed to simulate transport processes (e.g., for heat and
-	mass) within porous and no-porous particles, eventually undergoing
-	chemical reactions.
+    This code is designed to simulate transport processes (e.g., for heat and
+    mass) within porous and no-porous particles, eventually undergoing
+    chemical reactions.
 
-	Parts of the code were developed in the frame of the NanoSim project funded
-	by the European Commission through FP7 Grant agreement no. 604656.
+    Parts of the code were developed in the frame of the NanoSim project funded
+    by the European Commission through FP7 Grant agreement no. 604656.
 \*-----------------------------------------------------------------------------------*/
 
 
@@ -86,7 +86,7 @@ ModelPhaseChange *ModelPhaseChangeContainer::model_creator(ParScale *ptr, char *
 
 void ModelPhaseChangeContainer::parse_command(int narg, char const* const* arg)
 {
-    int n = strlen(arg[1]) + 1;   
+    int n = strlen(arg[1]) + 1;
     char *modelName = new char[n];
     strcpy(modelName,arg[1]);
 
@@ -95,7 +95,7 @@ void ModelPhaseChangeContainer::parse_command(int narg, char const* const* arg)
         ModelPhaseChangeCreator model_creator = (*model_map_)[arg[0]];
         modelPhaseChangeEqns_.push_back(model_creator(pascal_ptr(), modelName));
 
-        printf("...this phaseChange model of type %s is registered with ID %lu\n", 
+        printf("...this phaseChange model of type %s is registered with ID %lu\n",
                 arg[0],
                 modelPhaseChangeEqns_.size()-1);
 
@@ -111,7 +111,7 @@ void ModelPhaseChangeContainer::parse_command(int narg, char const* const* arg)
 // ----------------------------------------------------------------------
 void ModelPhaseChangeContainer::postParticleDataBuild()
 {
-	
+
     for(uint iEqn=0; iEqn<modelPhaseChangeEqns_.size(); iEqn++)
             modelPhaseChangeEqns_[iEqn].postParticleDataBuild();
 
@@ -120,7 +120,7 @@ void ModelPhaseChangeContainer::postParticleDataBuild()
 // ----------------------------------------------------------------------
 void ModelPhaseChangeContainer::begin_of_step()
 {
-	
+
     for(uint iEqn=0; iEqn<modelPhaseChangeEqns_.size(); iEqn++)
             modelPhaseChangeEqns_[iEqn].begin_of_step();
 
@@ -137,5 +137,3 @@ void ModelPhaseChangeContainer::post_middle_of_step()
 void ModelPhaseChangeContainer::end_of_step()
 {
 }
-
-
