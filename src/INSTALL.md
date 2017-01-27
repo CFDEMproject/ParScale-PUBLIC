@@ -79,13 +79,13 @@ Be sure you have correctly set up Octave (including `JSONLAB`) for post processi
 
 Be sure you have correctly set the variables ParScale requires for compilation and running, i.e., in your .bashrc you should have (note, the setting for PASCAL_C11_STD may depend on your QT version, since some require C++11 coding standards)
 
->export PASCAL_LIGGGHTS_SRC_DIR=$HOME/LIGGGHTS/LIGGGHTS-TUG/src/
+>export PASCAL_LIGGGHTS_SRC_DIR=$HOME/LIGGGHTS/LIGGGHTS-PUBLIC/src/
 
 >export PASCAL_HDF5_DIR=/usr/local/hdf5
 
->export PASCAL_SRC_DIR=$HOME/LIGGGHTS/ParScale/src
+>export PASCAL_SRC_DIR=$HOME/LIGGGHTS/ParScale-PUBLIC/src
 
->export PASCAL_QT5_DIR=$HOME/utilities/Qt/5.3/gcc_64
+>export PASCAL_QT5_DIR=$HOME/utilities/Qt/5.8/gcc_64
 
 >export PASCAL_C11_STD=-std=c++11
 
