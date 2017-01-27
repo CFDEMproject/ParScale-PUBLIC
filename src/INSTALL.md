@@ -43,13 +43,15 @@ Also, it is useful to have a HDF5 viewer installed. Visit [this homepage](http:/
 ### Qt
 Be sure you have the Qt library installed:
 
-> Visit [QT Download Page](http://download.qt.io/official_releases/qt/5.8/5.8.0/) 
+> Visit [QT Download Page](http://download.qt.io/official_releases/qt/5.6/5.6.1/) 
 
-> Type (e.g. for 64 bit opperating system) `wget http://download.qt.io/official_releases/qt/5.8/5.8.0/qt-opensource-linux-x64-5.8.0.run`
+> Type (e.g. for 64 bit opperating system) `wget http://download.qt.io/official_releases/qt/5.6/5.6.1/qt-opensource-linux-x64-5.6.1.run`
 
 > Type `chmod +x qt-opensource-*.run`
 
 > Type `./qt-opensource-*.run`
+
+WARNING: it is strongly recommended to install the same Qt version as the verions the operating system is using (in case not all components of Qt are installed by the OS).
 
 WARNING: if you use a QT version 5.6 >, you may require C++11 support. To activate this support when compiling, the user may set the environment variable "PASCAL_C11_STD" appropriately. For example, adding 
 
@@ -85,7 +87,7 @@ Be sure you have correctly set the variables ParScale requires for compilation a
 
 >export PASCAL_SRC_DIR=$HOME/LIGGGHTS/ParScale-PUBLIC/src
 
->export PASCAL_QT5_DIR=$HOME/utilities/Qt/5.8/gcc_64
+>export PASCAL_QT5_DIR=$HOME/utilities/Qt/5.6/gcc_64
 
 >export PASCAL_C11_STD=-std=c++11
 
